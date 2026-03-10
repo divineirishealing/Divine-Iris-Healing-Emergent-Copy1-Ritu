@@ -83,20 +83,18 @@ function ServicesPage() {
           {/* Right Content Area */}
           <main data-testid="service-detail" className="flex-1">
 
-            {/* Default state - show iris image when no session selected */}
-            {!selectedSession && (
-              <div className="flex items-center justify-center h-full">
-                <img
-                  src={IRIS_IMAGE}
-                  alt="Claim your Personal space"
-                  className="w-full max-w-[550px] h-auto object-contain"
-                />
-              </div>
-            )}
+            {/* Fixed header - "Claim your Personal space" iris image */}
+            <div className="mb-10">
+              <img
+                src={IRIS_IMAGE}
+                alt="Claim your Personal space"
+                className="w-full max-w-[550px] h-auto object-contain"
+              />
+            </div>
 
-            {/* Selected session details - only shown after clicking */}
+            {/* Session details - shown below the header image when clicked */}
             {selectedSession && (
-              <div>
+              <div className="animate-fade-in">
                 {/* Session title - UPPERCASE */}
                 <h3
                   data-testid="service-detail-title"
@@ -115,7 +113,7 @@ function ServicesPage() {
 
                 {/* Description */}
                 <p
-                  className="mb-12 max-w-[650px]"
+                  className="mb-8 max-w-[650px]"
                   style={{
                     fontFamily: "'Lato', sans-serif",
                     fontSize: '14.5px',
@@ -126,14 +124,41 @@ function ServicesPage() {
                   {selectedSession.description}
                 </p>
 
-                {/* CTA Button */}
-                <button
-                  onClick={() => navigate(`/session/${selectedSession.id}`)}
-                  data-testid="view-details-book-btn"
-                  className="bg-[#1a1a1a] hover:bg-[#333] text-white px-10 py-4 rounded-full text-[11px] tracking-[0.2em] transition-all duration-300 uppercase font-medium"
-                >
-                  View Details & Book
-                </button>
+                {/* Pricing + Book Now */}
+                <div className="flex flex-wrap items-center gap-4 mb-4">
+                  {(selectedSession.price_usd > 0 || selectedSession.price_inr > 0) ? (
+                    <div className="flex items-baseline gap-3">
+                      {selectedSession.price_usd > 0 && (
+                        <span className="text-2xl font-bold text-[#D4AF37]">${selectedSession.price_usd}</span>
+                      )}
+                      {selectedSession.price_inr > 0 && selectedSession.price_usd > 0 && (
+                        <span className="text-gray-400">|</span>
+                      )}
+                      {selectedSession.price_inr > 0 && (
+                        <span className="text-lg text-gray-600">&#8377;{selectedSession.price_inr}</span>
+                      )}
+                    </div>
+                  ) : (
+                    <span className="text-sm text-gray-500 italic">Contact for pricing</span>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    onClick={() => navigate(`/checkout/session/${selectedSession.id}`)}
+                    data-testid="book-now-btn"
+                    className="bg-[#D4AF37] hover:bg-[#b8962e] text-white px-10 py-4 rounded-full text-[11px] tracking-[0.2em] transition-all duration-300 uppercase font-medium"
+                  >
+                    Book Now
+                  </button>
+                  <button
+                    onClick={() => navigate(`/session/${selectedSession.id}`)}
+                    data-testid="view-details-book-btn"
+                    className="bg-[#1a1a1a] hover:bg-[#333] text-white px-10 py-4 rounded-full text-[11px] tracking-[0.2em] transition-all duration-300 uppercase font-medium"
+                  >
+                    View Details & Book
+                  </button>
+                </div>
               </div>
             )}
           </main>
