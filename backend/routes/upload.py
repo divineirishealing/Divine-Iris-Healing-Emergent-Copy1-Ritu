@@ -36,9 +36,9 @@ async def upload_image(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to save file: {str(e)}")
     
-    # Return the URL path
+    # Return the API URL path instead of /uploads/
     return {
-        "url": f"/uploads/{unique_filename}",
+        "url": f"/api/image/{unique_filename}",
         "filename": unique_filename
     }
 
