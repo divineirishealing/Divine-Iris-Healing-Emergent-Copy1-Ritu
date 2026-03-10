@@ -33,8 +33,19 @@ const SessionsSection = () => {
 
   return (
     <section id="sessions" data-testid="sessions-section" className="py-20 bg-white">
-      <div className="max-w-[1100px] mx-auto px-4">
-        <div className="flex flex-col md:flex-row">
+      <div className="container mx-auto px-4">
+        {/* Section Title */}
+        <div className="text-center mb-12">
+          <h2
+            className="text-3xl md:text-4xl italic"
+            style={{ color: '#D4AF37', fontFamily: "'Playfair Display', Georgia, serif", fontWeight: 400 }}
+          >
+            Book Personal Session
+          </h2>
+          <div className="h-[3px] w-10 bg-[#D4AF37] mx-auto mt-4"></div>
+        </div>
+
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row">
 
           {/* Left Sidebar - Session Index */}
           <aside className="w-full md:w-[340px] md:min-w-[340px] border border-gray-200 rounded-sm bg-white md:mr-10 mb-8 md:mb-0">
