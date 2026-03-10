@@ -344,8 +344,9 @@ async def get_enrollment_pricing(enrollment_id: str, item_type: str, item_id: st
             reasons.append("Phone number is not Indian (+91)")
         fraud_warning = f"INR pricing unavailable: {'; '.join(reasons)}. Defaulting to AED."
 
-    # Get price from item
+    # Get price from item — try requested currency, fall back to USD, then AED
     base_aed = float(item.get("price_aed", 0))
+    base_usd = float(item.get("price_usd", 0))
     if allowed_currency == "inr":
         price = float(item.get("price_inr", 0))
         if price <= 0 and base_aed > 0:
@@ -354,6 +355,11 @@ async def get_enrollment_pricing(enrollment_id: str, item_type: str, item_id: st
     else:
         price = base_aed
         symbol = "AED "
+        # Fallback: if AED is 0 but USD exists, use USD
+        if price <= 0 and base_usd > 0:
+            price = base_usd
+            allowed_currency = "usd"
+            symbol = "$"
 
     # Offer price
     offer_price = 0.0

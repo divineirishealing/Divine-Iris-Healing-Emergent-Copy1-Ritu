@@ -530,7 +530,7 @@ function EnrollmentPage() {
 
                 <div className="flex gap-3">
                   <Button variant="outline" onClick={() => setStep(1)} className="rounded-full"><ChevronLeft size={18} /></Button>
-                  <Button data-testid="pay-now-btn" onClick={handleCheckout} disabled={processing} className="flex-1 bg-[#D4AF37] hover:bg-[#b8962e] text-white py-3 rounded-full">
+                  <Button data-testid="pay-now-btn" onClick={handleCheckout} disabled={processing || pricing.pricing.total <= 0} className="flex-1 bg-[#D4AF37] hover:bg-[#b8962e] text-white py-3 rounded-full disabled:opacity-50">
                     {processing ? <><Loader2 className="animate-spin mr-2" size={16} /> Redirecting...</> : <><Lock size={14} className="mr-2" /> Pay {pricing.pricing.symbol}{pricing.pricing.total}</>}
                   </Button>
                 </div>
