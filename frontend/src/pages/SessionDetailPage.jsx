@@ -128,9 +128,14 @@ function SessionDetailPage() {
                   Ready to experience this transformative healing session? Connect with us to schedule your appointment.
                 </p>
                 <div className="flex gap-4">
-                  <Button className="bg-yellow-600 hover:bg-yellow-700 text-white">
-                    Book This Session
-                  </Button>
+                  {session.price_usd > 0 && (
+                    <Button 
+                      className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                      onClick={() => navigate(`/checkout/session/${session.id}`)}
+                    >
+                      Book Now - From ${session.price_usd}
+                    </Button>
+                  )}
                   <Button variant="outline" className="text-white border-white hover:bg-white hover:text-gray-900">
                     Ask a Question
                   </Button>

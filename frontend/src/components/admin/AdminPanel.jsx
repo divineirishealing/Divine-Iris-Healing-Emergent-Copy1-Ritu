@@ -24,8 +24,26 @@ const AdminPanel = ({ onLogout }) => {
   const [subscribers, setSubscribers] = useState([]);
 
   // Form states
-  const [programForm, setProgramForm] = useState({ title: '', category: '', description: '', image: '', link: '/program' });
-  const [sessionForm, setSessionForm] = useState({ title: '', description: '', image: '' });
+  const [programForm, setProgramForm] = useState({ 
+    title: '', 
+    category: '', 
+    description: '', 
+    image: '', 
+    link: '/program',
+    price_usd: 0,
+    price_inr: 0,
+    price_eur: 0,
+    price_gbp: 0
+  });
+  const [sessionForm, setSessionForm] = useState({ 
+    title: '', 
+    description: '', 
+    image: '',
+    price_usd: 0,
+    price_inr: 0,
+    price_eur: 0,
+    price_gbp: 0
+  });
   const [testimonialForm, setTestimonialForm] = useState({ videoId: '' });
   const [editingId, setEditingId] = useState(null);
 
@@ -206,12 +224,18 @@ const AdminPanel = ({ onLogout }) => {
       <div className="container mx-auto p-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-6">
+            <TabsTrigger value="transactions">Transactions</TabsTrigger>
             <TabsTrigger value="programs">Programs ({programs.length})</TabsTrigger>
             <TabsTrigger value="sessions">Sessions ({sessions.length})</TabsTrigger>
             <TabsTrigger value="testimonials">Testimonials ({testimonials.length})</TabsTrigger>
             <TabsTrigger value="stats">Stats</TabsTrigger>
             <TabsTrigger value="subscribers">Subscribers ({subscribers.length})</TabsTrigger>
           </TabsList>
+
+          {/* Transactions Tab */}
+          <TabsContent value="transactions">
+            <TransactionsTab />
+          </TabsContent>
 
           {/* Programs Tab */}
           <TabsContent value="programs">
@@ -651,6 +675,119 @@ const StatEditor = ({ stat, onUpdate }) => {
         )}
       </CardContent>
     </Card>
+  );
+};
+
+const TransactionsTab = () => {
+  const [transactions, setTransactions] = useState([]);
+  const [stats, setStats] = useState({ total_revenue: 0, total_sales: 0 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadTransactions();
+    loadStats();
+  }, []);
+
+  const loadTransactions = async () => {
+    try {
+      const response = await axios.get(`${API}/payments/transactions`);
+      setTransactions(response.data);
+    } catch (error) {
+      console.error('Error loading transactions:', error);
+    }
+  };
+
+  const loadStats = async () => {
+    try {
+      const response = await axios.get(`${API}/payments/transactions/stats`);
+      setStats(response.data);
+    } catch (error) {
+      console.error('Error loading stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Revenue Stats */}
+      <div className="grid md:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Total Revenue</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-4xl font-bold text-green-600">
+              ${stats.total_revenue.toFixed(2)}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Total Sales</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-4xl font-bold text-blue-600">
+              {stats.total_sales}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Transactions Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Transactions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <p className="text-center py-8 text-gray-500">Loading...</p>
+          ) : transactions.length === 0 ? (
+            <p className="text-center py-8 text-gray-500">No transactions yet</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left p-3 text-sm font-semibold">Date</th>
+                    <th className="text-left p-3 text-sm font-semibold">Customer</th>
+                    <th className="text-left p-3 text-sm font-semibold">Item</th>
+                    <th className="text-left p-3 text-sm font-semibold">Amount</th>
+                    <th className="text-left p-3 text-sm font-semibold">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {transactions.map((transaction) => (
+                    <tr key={transaction.id} className="border-b hover:bg-gray-50">
+                      <td className="p-3 text-sm">{new Date(transaction.created_at).toLocaleDateString()}</td>
+                      <td className="p-3 text-sm">
+                        <div>{transaction.customer_name || 'N/A'}</div>
+                        <div className="text-xs text-gray-500">{transaction.customer_email}</div>
+                      </td>
+                      <td className="p-3 text-sm">{transaction.item_title}</td>
+                      <td className="p-3 text-sm font-semibold">
+                        {transaction.currency.toUpperCase()} {transaction.amount}
+                      </td>
+                      <td className="p-3">
+                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                          transaction.payment_status === 'paid' 
+                            ? 'bg-green-100 text-green-800' 
+                            : transaction.payment_status === 'pending'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {transaction.payment_status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

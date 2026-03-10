@@ -109,9 +109,14 @@ function ProgramDetailPage() {
                   Take the first step towards healing and balance. Connect with us to learn more about this program.
                 </p>
                 <div className="flex gap-4">
-                  <Button className="bg-yellow-600 hover:bg-yellow-700 text-white">
-                    Book a Consultation
-                  </Button>
+                  {program.price_usd > 0 && (
+                    <Button 
+                      className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                      onClick={() => navigate(`/checkout/program/${program.id}`)}
+                    >
+                      Buy Now - From ${program.price_usd}
+                    </Button>
+                  )}
                   <Button variant="outline" className="text-white border-white hover:bg-white hover:text-gray-900">
                     Contact Us
                   </Button>
