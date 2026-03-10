@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { useToast } from '../../hooks/use-toast';
 import { Pencil, Trash2, Plus, LogOut } from 'lucide-react';
 import ImageUploader from './ImageUploader';
+import { resolveImageUrl } from '../../lib/imageUtils';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -295,7 +296,7 @@ const AdminPanel = ({ onLogout }) => {
                                 const response = await axios.post(`${API}/upload/image`, formData, {
                                   headers: { 'Content-Type': 'multipart/form-data' }
                                 });
-                                const imageUrl = `${BACKEND_URL}${response.data.url}`;
+                                const imageUrl = response.data.url;
                                 setProgramForm({ ...programForm, image: imageUrl });
                                 toast({ title: 'Success!', description: 'Image uploaded successfully' });
                                 console.log('Image uploaded:', imageUrl);
@@ -329,7 +330,7 @@ const AdminPanel = ({ onLogout }) => {
                         <div className="mt-2 relative">
                           <p className="text-xs text-gray-600 mb-1">Current Image:</p>
                           <img 
-                            src={programForm.image} 
+                            src={resolveImageUrl(programForm.image)} 
                             alt="Preview" 
                             className="w-full h-48 object-cover rounded border-2 border-gray-300"
                             onError={(e) => {
@@ -377,7 +378,7 @@ const AdminPanel = ({ onLogout }) => {
                   <Card key={program.id}>
                     <CardContent className="p-4">
                       <div className="flex gap-4">
-                        <img src={program.image} alt={program.title} className="w-20 h-20 object-cover rounded" />
+                        <img src={resolveImageUrl(program.image)} alt={program.title} className="w-20 h-20 object-cover rounded" />
                         <div className="flex-1">
                           <h4 className="font-semibold">{program.title}</h4>
                           <p className="text-sm text-gray-600">{program.category}</p>
@@ -451,7 +452,7 @@ const AdminPanel = ({ onLogout }) => {
                                 const response = await axios.post(`${API}/upload/image`, formData, {
                                   headers: { 'Content-Type': 'multipart/form-data' }
                                 });
-                                const imageUrl = `${BACKEND_URL}${response.data.url}`;
+                                const imageUrl = response.data.url;
                                 setSessionForm({ ...sessionForm, image: imageUrl });
                                 toast({ title: 'Success!', description: 'Image uploaded successfully' });
                                 console.log('Image uploaded:', imageUrl);
@@ -485,7 +486,7 @@ const AdminPanel = ({ onLogout }) => {
                         <div className="mt-2 relative">
                           <p className="text-xs text-gray-600 mb-1">Current Image:</p>
                           <img 
-                            src={sessionForm.image} 
+                            src={resolveImageUrl(sessionForm.image)} 
                             alt="Preview" 
                             className="w-full h-48 object-cover rounded border-2 border-gray-300"
                             onError={(e) => {
@@ -533,7 +534,7 @@ const AdminPanel = ({ onLogout }) => {
                   <Card key={session.id}>
                     <CardContent className="p-4">
                       <div className="flex gap-4">
-                        <img src={session.image} alt={session.title} className="w-20 h-20 object-cover rounded" />
+                        <img src={resolveImageUrl(session.image)} alt={session.title} className="w-20 h-20 object-cover rounded" />
                         <div className="flex-1">
                           <h4 className="font-semibold">{session.title}</h4>
                           <p className="text-xs text-gray-500 mt-1 line-clamp-2">{session.description}</p>

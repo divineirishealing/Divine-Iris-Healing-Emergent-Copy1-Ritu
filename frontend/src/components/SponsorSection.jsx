@@ -1,42 +1,46 @@
 import React from 'react';
-import { Button } from './ui/button';
 
 const SponsorSection = () => {
   return (
-    <section className="py-20 bg-gradient-to-br from-gray-50 to-gray-100">
+    <section data-testid="sponsor-section" className="py-20 bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
           {/* Content */}
           <div>
-            <h2 className="text-4xl md:text-5xl font-serif text-gray-900 mb-6">
+            <h2 className="text-3xl md:text-4xl text-gray-900 mb-6 leading-tight">
               Shine a Light in a Life
             </h2>
-            <p className="text-gray-700 text-lg mb-4 leading-relaxed">
+            <p className="text-gray-700 text-base mb-4 leading-relaxed">
               Healing flows when we support each other.
             </p>
-            <p className="text-gray-600 mb-4 leading-relaxed">
-              Becoming a sponsor allows anyone to contribute towards someone else's healing—anonymously or intentionally.
-              <br />
-              It is not charity, it is conscious support.
-              <br />
-              When one heals, the collective heals.
-            </p>
-            <p className="text-gray-700 font-medium mb-8">
+            <div className="text-gray-600 mb-6 leading-relaxed text-sm space-y-1">
+              <p>Becoming a sponsor allows anyone to contribute towards someone else's healing—anonymously or intentionally.</p>
+              <p>It is not charity, it is conscious support.</p>
+              <p>When one heals, the collective heals.</p>
+            </div>
+            <p className="text-gray-800 font-medium mb-8 text-sm italic">
               Because healing should never wait for circumstances
             </p>
 
-            <Button className="bg-yellow-600 hover:bg-yellow-700 text-white px-8 py-6 rounded-full text-base transition-all duration-300 shadow-lg hover:shadow-xl">
+            <a
+              href="/contact"
+              data-testid="become-sponsor-btn"
+              className="inline-block bg-[#D4AF37] hover:bg-[#b8962e] text-white px-8 py-3 rounded-full text-sm transition-all duration-300 shadow-lg hover:shadow-xl tracking-wider"
+            >
               Become a Sponsor
-            </Button>
+            </a>
           </div>
 
           {/* Image */}
           <div className="order-first md:order-last">
             <div className="rounded-lg overflow-hidden shadow-xl">
               <img
-                src="https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=600&h=400&fit=crop"
-                alt="Sponsor Support"
+                src="https://divineirishealing.com/assets/images/sponsor-placeholder.jpg"
+                alt="Be The Sponsor"
                 className="w-full h-auto object-cover"
+                onError={(e) => {
+                  e.target.src = 'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=600&h=400&fit=crop';
+                }}
               />
             </div>
           </div>

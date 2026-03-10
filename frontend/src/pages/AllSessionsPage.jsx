@@ -7,6 +7,7 @@ import Footer from '../components/Footer';
 import FloatingButtons from '../components/FloatingButtons';
 import { Card, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
+import { resolveImageUrl } from '../lib/imageUtils';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -53,7 +54,7 @@ function AllSessionsPage() {
               >
                 <div className="relative h-48 overflow-hidden">
                   <img
-                    src={session.image}
+                    src={resolveImageUrl(session.image)}
                     alt={session.title}
                     className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                   />

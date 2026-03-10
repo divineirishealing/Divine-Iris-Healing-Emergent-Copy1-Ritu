@@ -8,6 +8,12 @@ import { useToast } from '../../hooks/use-toast';
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
+function resolveUrl(url) {
+  if (!url) return '';
+  if (url.startsWith('/api/image/')) return `${BACKEND_URL}${url}`;
+  return url;
+}
+
 const ImageUploader = ({ value, onChange, label = "Image" }) => {
   const [uploading, setUploading] = useState(false);
   const [useUrl, setUseUrl] = useState(false);
@@ -50,7 +56,7 @@ const ImageUploader = ({ value, onChange, label = "Image" }) => {
         }
       });
 
-      const imageUrl = `${BACKEND_URL}${response.data.url}`;
+      const imageUrl = response.data.url;
       onChange(imageUrl);
       
       toast({
@@ -166,7 +172,7 @@ const ImageUploader = ({ value, onChange, label = "Image" }) => {
       {value && (
         <div className="relative">
           <img
-            src={value}
+            src={resolveUrl(value)}
             alt="Preview"
             className="w-full h-48 object-cover rounded-lg border-2 border-gray-200"
             onError={(e) => {

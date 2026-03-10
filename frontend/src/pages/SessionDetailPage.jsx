@@ -6,6 +6,7 @@ import { ArrowLeft, Calendar, Clock } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import FloatingButtons from '../components/FloatingButtons';
+import { resolveImageUrl } from '../lib/imageUtils';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -68,7 +69,7 @@ function SessionDetailPage() {
             {/* Hero Image */}
             <div className="mb-8 rounded-lg overflow-hidden shadow-2xl">
               <img
-                src={session.image}
+                src={resolveImageUrl(session.image)}
                 alt={session.title}
                 className="w-full h-96 object-cover"
               />

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import AdminPage from './pages/AdminPage';
@@ -12,6 +12,7 @@ import PaymentCancelPage from './pages/PaymentCancelPage';
 import ContactPage from './pages/ContactPage';
 import ServicesPage from './pages/ServicesPage';
 import MediaPage from './pages/MediaPage';
+import TransformationsPage from './pages/TransformationsPage';
 import { Toaster } from './components/ui/toaster';
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
           <Route path="/sessions" element={<AllSessionsPage />} />
           <Route path="/session/:id" element={<SessionDetailPage />} />
           <Route path="/media" element={<MediaPage />} />
+          <Route path="/transformations" element={<TransformationsPage />} />
           <Route path="/checkout/:type/:id" element={<CheckoutPage />} />
           <Route path="/payment/success" element={<PaymentSuccessPage />} />
           <Route path="/payment/cancel" element={<PaymentCancelPage />} />

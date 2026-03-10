@@ -8,6 +8,7 @@ import FloatingButtons from '../components/FloatingButtons';
 import { Card, CardContent } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
+import { resolveImageUrl } from '../lib/imageUtils';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -54,7 +55,7 @@ function AllProgramsPage() {
               >
                 <div className="relative h-48 overflow-hidden">
                   <img
-                    src={program.image}
+                    src={resolveImageUrl(program.image)}
                     alt={program.title}
                     className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                   />
