@@ -24,9 +24,6 @@ function ServicesPage() {
     try {
       const response = await axios.get(`${API}/sessions?visible_only=true`);
       setSessions(response.data);
-      if (response.data.length > 0) {
-        setSelectedSession(response.data[0]);
-      }
     } catch (error) {
       console.error('Error loading sessions:', error);
     }
@@ -86,16 +83,18 @@ function ServicesPage() {
           {/* Right Content Area */}
           <main data-testid="service-detail" className="flex-1">
 
-            {/* Static "Claim your Personal space" banner with iris image */}
-            <div className="mb-10">
-              <img
-                src={IRIS_IMAGE}
-                alt="Claim your Personal space"
-                className="w-full max-w-[550px] h-auto object-contain"
-              />
-            </div>
+            {/* Default state - show iris image when no session selected */}
+            {!selectedSession && (
+              <div className="flex items-center justify-center h-full">
+                <img
+                  src={IRIS_IMAGE}
+                  alt="Claim your Personal space"
+                  className="w-full max-w-[550px] h-auto object-contain"
+                />
+              </div>
+            )}
 
-            {/* Selected session details */}
+            {/* Selected session details - only shown after clicking */}
             {selectedSession && (
               <div>
                 {/* Session title - UPPERCASE */}
