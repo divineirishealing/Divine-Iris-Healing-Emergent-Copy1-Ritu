@@ -1,48 +1,26 @@
-import React, { useEffect } from 'react';
-import './App.css';
-import Header from './components/Header';
-import HeroSection from './components/HeroSection';
-import AboutSection from './components/AboutSection';
-import SponsorSection from './components/SponsorSection';
-import ProgramsSection from './components/ProgramsSection';
-import SessionsSection from './components/SessionsSection';
-import StatsSection from './components/StatsSection';
-import TestimonialsSection from './components/TestimonialsSection';
-import NewsletterSection from './components/NewsletterSection';
-import Footer from './components/Footer';
-import FloatingButtons from './components/FloatingButtons';
+import React, { useState } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import HomePage from './pages/HomePage';
+import AdminPage from './pages/AdminPage';
+import ProgramDetailPage from './pages/ProgramDetailPage';
+import SessionDetailPage from './pages/SessionDetailPage';
+import AllProgramsPage from './pages/AllProgramsPage';
+import AllSessionsPage from './pages/AllSessionsPage';
 import { Toaster } from './components/ui/toaster';
 
 function App() {
-  useEffect(() => {
-    // Smooth scroll behavior
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-          target.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-          });
-        }
-      });
-    });
-  }, []);
-
   return (
     <div className="App">
-      <Header />
-      <HeroSection />
-      <AboutSection />
-      <SponsorSection />
-      <ProgramsSection />
-      <SessionsSection />
-      <StatsSection />
-      <TestimonialsSection />
-      <NewsletterSection />
-      <Footer />
-      <FloatingButtons />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/admin" element={<AdminPage />} />
+          <Route path="/programs" element={<AllProgramsPage />} />
+          <Route path="/program/:id" element={<ProgramDetailPage />} />
+          <Route path="/sessions" element={<AllSessionsPage />} />
+          <Route path="/session/:id" element={<SessionDetailPage />} />
+        </Routes>
+      </BrowserRouter>
       <Toaster />
     </div>
   );

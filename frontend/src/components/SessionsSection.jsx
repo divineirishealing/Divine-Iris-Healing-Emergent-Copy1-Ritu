@@ -1,19 +1,37 @@
-import React, { useState } from 'react';
-import { sessions } from '../mockData';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { sessions as mockSessions } from '../mockData';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
-import { X } from 'lucide-react';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from './ui/dialog';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
 
 const SessionsSection = () => {
-  const [selectedSession, setSelectedSession] = useState(null);
-  const [activeTab, setActiveTab] = useState(sessions[0]?.title);
+  const navigate = useNavigate();
+  const [sessions, setSessions] = useState(mockSessions);
+  const [activeTab, setActiveTab] = useState(mockSessions[0]?.title);
+
+  useEffect(() => {
+    loadSessions();
+  }, []);
+
+  const loadSessions = async () => {
+    try {
+      const response = await axios.get(`${API}/sessions`);
+      if (response.data && response.data.length > 0) {
+        setSessions(response.data);
+        setActiveTab(response.data[0]?.title);
+      }
+    } catch (error) {
+      console.log('Using mock data for sessions');
+    }
+  };
+
+  const handleSessionClick = (session) => {
+    navigate(`/session/${session.id}`);
+  };
 
   return (
     <section id="sessions" className="py-20 bg-gradient-to-br from-gray-900 to-gray-800 text-white">
@@ -25,7 +43,7 @@ const SessionsSection = () => {
         {/* Tab Navigation */}
         <div className="mb-12 max-w-5xl mx-auto">
           <div className="flex flex-wrap gap-3 justify-center">
-            {sessions.map((session) => (
+            {sessions.slice(0, 8).map((session) => (
               <button
                 key={session.id}
                 onClick={() => setActiveTab(session.title)}
@@ -43,11 +61,11 @@ const SessionsSection = () => {
 
         {/* Session Cards Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-          {sessions.map((session) => (
+          {sessions.slice(0, 6).map((session) => (
             <Card
               key={session.id}
               className="overflow-hidden bg-white hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer border-0"
-              onClick={() => setSelectedSession(session)}
+              onClick={() => handleSessionClick(session)}
             >
               <div className="relative h-48 overflow-hidden">
                 <img
@@ -70,44 +88,18 @@ const SessionsSection = () => {
             </Card>
           ))}
         </div>
-      </div>
 
-      {/* Session Detail Modal */}
-      <Dialog open={!!selectedSession} onOpenChange={() => setSelectedSession(null)}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-          {selectedSession && (
-            <>
-              <DialogHeader>
-                <DialogTitle className="text-2xl font-serif">
-                  {selectedSession.title}
-                </DialogTitle>
-              </DialogHeader>
-              <div className="mt-4">
-                <img
-                  src={selectedSession.image}
-                  alt={selectedSession.title}
-                  className="w-full h-64 object-cover rounded-lg mb-6"
-                />
-                <DialogDescription className="text-gray-700 leading-relaxed text-base">
-                  {selectedSession.description}
-                </DialogDescription>
-                <div className="mt-8 flex gap-4">
-                  <Button className="flex-1 bg-yellow-600 hover:bg-yellow-700 text-white">
-                    Book Session
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => setSelectedSession(null)}
-                    className="flex-1"
-                  >
-                    Close
-                  </Button>
-                </div>
-              </div>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
+        {sessions.length > 6 && (
+          <div className="text-center mt-12">
+            <Button
+              onClick={() => navigate('/sessions')}
+              className="bg-yellow-600 hover:bg-yellow-700 text-white px-8 py-6"
+            >
+              View All Sessions
+            </Button>
+          </div>
+        )}
+      </div>
     </section>
   );
 };

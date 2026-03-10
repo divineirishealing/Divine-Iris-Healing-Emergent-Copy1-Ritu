@@ -1,7 +1,28 @@
-import React from 'react';
-import { stats } from '../mockData';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { stats as mockStats } from '../mockData';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
 
 const StatsSection = () => {
+  const [stats, setStats] = useState(mockStats);
+
+  useEffect(() => {
+    loadStats();
+  }, []);
+
+  const loadStats = async () => {
+    try {
+      const response = await axios.get(`${API}/stats`);
+      if (response.data && response.data.length > 0) {
+        setStats(response.data);
+      }
+    } catch (error) {
+      console.log('Using mock data for stats');
+    }
+  };
+
   return (
     <section className="py-16 bg-gray-900 text-white">
       <div className="container mx-auto px-4">

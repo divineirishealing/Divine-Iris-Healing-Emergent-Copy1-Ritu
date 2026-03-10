@@ -1,20 +1,41 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { useToast } from '../hooks/use-toast';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
 
 const NewsletterSection = () => {
   const [email, setEmail] = useState('');
   const { toast } = useToast();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (email) {
-      toast({
-        title: "Successfully Subscribed!",
-        description: "Thank you for joining our community.",
-      });
-      setEmail('');
+      try {
+        await axios.post(`${API}/newsletter`, { email });
+        toast({
+          title: "Successfully Subscribed!",
+          description: "Thank you for joining our community.",
+        });
+        setEmail('');
+      } catch (error) {
+        if (error.response?.status === 400) {
+          toast({
+            title: "Already Subscribed",
+            description: "This email is already subscribed to our newsletter.",
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: "Something went wrong. Please try again.",
+            variant: "destructive"
+          });
+        }
+      }
     }
   };
 

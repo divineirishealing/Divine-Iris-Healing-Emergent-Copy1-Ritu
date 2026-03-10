@@ -1,13 +1,33 @@
-import React, { useState } from 'react';
-import { testimonials } from '../mockData';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { testimonials as mockTestimonials } from '../mockData';
 import { Play } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
 } from './ui/dialog';
 
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
+
 const TestimonialsSection = () => {
+  const [testimonials, setTestimonials] = useState(mockTestimonials);
   const [selectedVideo, setSelectedVideo] = useState(null);
+
+  useEffect(() => {
+    loadTestimonials();
+  }, []);
+
+  const loadTestimonials = async () => {
+    try {
+      const response = await axios.get(`${API}/testimonials`);
+      if (response.data && response.data.length > 0) {
+        setTestimonials(response.data);
+      }
+    } catch (error) {
+      console.log('Using mock data for testimonials');
+    }
+  };
 
   return (
     <section id="media" className="py-20 bg-white">
