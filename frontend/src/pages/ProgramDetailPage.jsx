@@ -133,7 +133,7 @@ function ProgramDetailPage() {
             {program.enrollment_open !== false ? (
               <button
                 data-testid="pay-now-btn"
-                onClick={() => navigate(`/checkout/program/${program.id}`)}
+                onClick={() => navigate(`/enroll/program/${program.id}`)}
                 className="bg-[#D4AF37] hover:bg-[#b8962e] text-white px-8 py-3 rounded-full text-sm tracking-wider"
               >
                 Enroll Now

@@ -227,7 +227,7 @@ const UpcomingProgramsSection = () => {
                       </button>
                       {!expired && (program.price_usd > 0 || program.offer_price_usd > 0) && (
                         <button
-                          onClick={() => navigate(`/checkout/program/${program.id}`)}
+                          onClick={() => navigate(`/enroll/program/${program.id}`)}
                           data-testid={`upcoming-enroll-${program.id}`}
                           className="flex-1 bg-[#D4AF37] hover:bg-[#b8962e] text-white py-2.5 rounded-full text-xs tracking-wider transition-all duration-300 uppercase font-medium"
                         >

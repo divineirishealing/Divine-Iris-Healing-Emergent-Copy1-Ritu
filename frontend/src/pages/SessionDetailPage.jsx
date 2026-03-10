@@ -132,7 +132,7 @@ function SessionDetailPage() {
                   {session.price_usd > 0 && (
                     <Button 
                       className="bg-yellow-600 hover:bg-yellow-700 text-white"
-                      onClick={() => navigate(`/checkout/session/${session.id}`)}
+                      onClick={() => navigate(`/enroll/session/${session.id}`)}
                     >
                       Book Now - From ${session.price_usd}
                     </Button>

@@ -13,6 +13,7 @@ import ContactPage from './pages/ContactPage';
 import ServicesPage from './pages/ServicesPage';
 import MediaPage from './pages/MediaPage';
 import TransformationsPage from './pages/TransformationsPage';
+import EnrollmentPage from './pages/EnrollmentPage';
 import { Toaster } from './components/ui/toaster';
 import { SiteSettingsProvider } from './context/SiteSettingsContext';
 import { CurrencyProvider } from './context/CurrencyContext';
@@ -34,6 +35,7 @@ function App() {
             <Route path="/media" element={<MediaPage />} />
             <Route path="/transformations" element={<TransformationsPage />} />
             <Route path="/checkout/:type/:id" element={<CheckoutPage />} />
+            <Route path="/enroll/:type/:id" element={<EnrollmentPage />} />
             <Route path="/payment/success" element={<PaymentSuccessPage />} />
             <Route path="/payment/cancel" element={<PaymentCancelPage />} />
             <Route path="/contact" element={<ContactPage />} />
