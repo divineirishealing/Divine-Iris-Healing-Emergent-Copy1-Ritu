@@ -134,61 +134,57 @@ function ProgramDetailPage() {
           {program.is_flagship && program.duration_tiers && program.duration_tiers.length > 0 && (
             <div data-testid="duration-tiers" className="max-w-3xl mx-auto mb-10">
               <p className="text-xs text-gray-500 mb-4 tracking-wider uppercase">Choose Your Duration</p>
-              <div className="grid sm:grid-cols-3 gap-4">
-                {program.duration_tiers.map((tier, idx) => (
-                  <div key={idx} data-testid={`tier-${idx}`}
-                    className="border-2 border-gray-200 hover:border-[#D4AF37] rounded-xl p-5 transition-all duration-300 cursor-pointer group hover:shadow-lg"
-                    onClick={() => navigate(`/enroll/program/${program.id}?tier=${idx}`)}>
-                    <p className="text-lg font-semibold text-gray-900 group-hover:text-[#D4AF37] transition-colors">{tier.label}</p>
-                    <p className="text-xs text-gray-400 mb-3">{tier.duration_value} {tier.duration_unit}{tier.duration_value > 1 ? 's' : ''}</p>
-                    <div className="space-y-1">
-                      {tier.price_aed > 0 && <p className="text-sm"><span className="text-gray-500">AED</span> <span className="font-bold text-gray-900">{tier.price_aed}</span></p>}
-                      {tier.price_inr > 0 && <p className="text-sm"><span className="text-gray-500">INR</span> <span className="font-bold text-gray-900">{tier.price_inr.toLocaleString()}</span></p>}
-                      {tier.price_usd > 0 && <p className="text-sm"><span className="text-gray-500">USD</span> <span className="font-bold text-gray-900">{tier.price_usd}</span></p>}
+              <div className={`grid gap-4 ${program.duration_tiers.length === 3 ? 'sm:grid-cols-3' : program.duration_tiers.length === 2 ? 'sm:grid-cols-2' : 'max-w-xs mx-auto'}`}>
+                {program.duration_tiers.map((tier, idx) => {
+                  const isAnnual = tier.label.toLowerCase().includes('annual') || tier.label.toLowerCase().includes('year') || tier.duration_unit === 'year';
+                  const showContact = isAnnual && (!tier.price_aed || tier.price_aed === 0);
+                  return (
+                    <div key={idx} data-testid={`tier-${idx}`}
+                      className="border-2 border-gray-200 hover:border-[#D4AF37] rounded-xl p-5 transition-all duration-300 cursor-pointer group hover:shadow-lg"
+                      onClick={() => showContact ? navigate('/contact') : navigate(`/enroll/program/${program.id}?tier=${idx}`)}>
+                      <p className="text-lg font-semibold text-gray-900 group-hover:text-[#D4AF37] transition-colors">{tier.label}</p>
+                      {showContact ? (
+                        <div className="mt-3">
+                          <p className="text-gray-500 text-xs mb-3">Custom pricing for extended programs</p>
+                          <span className="inline-block bg-gray-900 group-hover:bg-[#D4AF37] text-white text-xs py-2 px-6 rounded-full transition-colors">Contact Us</span>
+                        </div>
+                      ) : (
+                        <div className="mt-2">
+                          <div className="space-y-0.5 mb-3">
+                            {tier.price_aed > 0 && <p className="text-sm"><span className="text-gray-400">AED</span> <span className="font-bold">{tier.price_aed}</span></p>}
+                            {tier.price_inr > 0 && <p className="text-sm"><span className="text-gray-400">INR</span> <span className="font-bold">{tier.price_inr.toLocaleString()}</span></p>}
+                            {tier.price_usd > 0 && <p className="text-sm"><span className="text-gray-400">USD</span> <span className="font-bold">{tier.price_usd}</span></p>}
+                          </div>
+                          <span className="inline-block bg-gray-900 group-hover:bg-[#D4AF37] text-white text-xs py-2 px-6 rounded-full transition-colors">Select</span>
+                        </div>
+                      )}
                     </div>
-                    <button className="mt-3 w-full bg-gray-900 group-hover:bg-[#D4AF37] text-white text-xs py-2 rounded-full transition-colors">
-                      Select
-                    </button>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
 
-          {/* Session mode & dates info */}
-          <div className="flex justify-center gap-6 mb-6 text-xs text-gray-500">
-            {program.session_mode && (
-              <span className="flex items-center gap-1">
-                {program.session_mode === 'online' ? 'Online (Zoom)' : program.session_mode === 'remote' ? 'Remote Healing' : 'Online + Remote'}
-              </span>
-            )}
+          {/* Mode + dates - minimal */}
+          <div className="flex justify-center gap-4 mb-6 text-xs text-gray-400">
+            {program.session_mode && <span>{program.session_mode === 'online' ? 'Online' : 'Remote / Hybrid'}</span>}
             {program.start_date && <span>Starts: {program.start_date}</span>}
             {program.end_date && <span>Ends: {program.end_date}</span>}
-            {program.duration && <span>Duration: {program.duration}</span>}
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             {program.enrollment_open !== false ? (
-              <button
-                data-testid="pay-now-btn"
-                onClick={() => navigate(`/enroll/program/${program.id}`)}
-                className="bg-[#D4AF37] hover:bg-[#b8962e] text-white px-8 py-3 rounded-full text-sm tracking-wider"
-              >
+              <button data-testid="pay-now-btn" onClick={() => navigate(`/enroll/program/${program.id}`)}
+                className="bg-[#D4AF37] hover:bg-[#b8962e] text-white px-8 py-3 rounded-full text-sm tracking-wider">
                 Enroll Now
               </button>
             ) : (
-              <button
-                data-testid="express-interest-btn"
-                onClick={() => navigate('/contact')}
-                className="bg-[#D4AF37] hover:bg-[#b8962e] text-white px-8 py-3 rounded-full text-sm tracking-wider"
-              >
+              <button data-testid="express-interest-btn" onClick={() => navigate('/contact')}
+                className="bg-[#D4AF37] hover:bg-[#b8962e] text-white px-8 py-3 rounded-full text-sm tracking-wider">
                 Express Your Interest
               </button>
             )}
-            <button
-              onClick={() => navigate('/contact')}
-              className="bg-gray-900 hover:bg-gray-800 text-white px-8 py-3 rounded-full text-sm tracking-wider"
-            >
+            <button onClick={() => navigate('/contact')} className="bg-gray-900 hover:bg-gray-800 text-white px-8 py-3 rounded-full text-sm tracking-wider">
               Contact Us
             </button>
           </div>

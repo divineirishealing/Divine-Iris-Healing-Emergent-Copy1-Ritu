@@ -1,0 +1,163 @@
+<analysis>**original_problem_statement:**
+The user wants to build a pixel-perfect clone of their existing website, . This includes an exact replica of the design, layout, colors, fonts, images, and animations.
+
+Key features requested and developed include:
+-   A comprehensive, user-friendly admin panel to manage all website content (programs, sessions, testimonials, etc.) and customize the site's appearance (fonts, colors, styles) on a granular, per-element basis. The user has stressed this needs to be as simple as for a 5-year-old.
+-   A robust, secure multi-person enrollment and payment system with strict price-gating for India (INR), requiring IP, phone, and card BIN validation.
+-   A promotion/coupon code system supporting percentage or fixed-amount discounts.
+-   A system for flagship programs to have selectable duration tiers (e.g., 1 Month, 3 Months, 1 Year) with different pricing for each.
+-   Automated email notifications (via Resend) for enrollment confirmations to both the booker and participants.
+
+**User's preferred language**: English. The next agent MUST respond in English.
+
+**what currently exists?**
+-   A full-stack application with a React frontend and FastAPI backend, visually cloning the original site.
+-   A highly comprehensive, modular admin panel with 12 tabs allowing for granular control over nearly every content and style element on the website (Header, Footer, Hero, About, Stats, Programs, etc.).
+-   A complete, secure multi-person enrollment flow that handles multiple participants, country-based pricing, and anti-fraud checks.
+-   A backend system for creating and managing promotions/coupons.
+-   A backend system supporting custom duration tiers for programs.
+-   Resend integration for sending transactional emails post-payment.
+-   The last agent was in the middle of a major simplification refactor of the program management UI/UX based on user feedback.
+
+**Last working item**:
+-   **Last item agent was working:** Implementing a user-requested simplification of the program management and display logic. The goal is to make pricing management feel like an Excel sheet, move duration selection directly to the homepage program cards, and display Contact for Pricing for the 'Annual' tier.
+-   **Status:** IN PROGRESS
+-   **Agent Testing Done:** N
+-   **Which testing method agent to use?** Both. Use the backend testing agent to verify the simplified program model and pricing logic. Use the frontend testing agent to validate the new admin UI for programs and the updated display on the homepage and program detail pages.
+-   **User Testing Done:** N
+
+**All Pending/In progress Issue list**:
+-   **Issue 1: (P0)** Complete the Program UI/UX Simplification Refactor.
+
+**Issues Detail:**
+-   **Issue 1: Complete the Program UI/UX Simplification Refactor**
+    -   **Attempted fixes:** The agent began implementing the changes in a single batch to conserve credits.
+        1.  Backend model  in  was updated to simplify session/program types.
+        2.  Started rewriting the program creation form in  to have an Excel-like row-based layout for pricing tiers.
+        3.  Started rewriting the homepage  to include a duration selector on each program card and handle the Contact for Pricing logic.
+        4.  Started rewriting  to align with the simplifications.
+        The work is incomplete across these files.
+    -   **Next debug checklist:**
+        1.  Finish rewriting the component  to reflect the simplified data structure and Contact for Pricing logic.
+        2.  Ensure the Excel-like program pricing form in  is fully functional for creating and updating programs with duration tiers.
+        3.  Ensure the homepage component  correctly displays the duration selectors (, , ) on each flagship program card.
+        4.  Verify that selecting Annual shows a Contact for Pricing message instead of a price or enroll button.
+        5.  Update the database to mark all six programs intended for the homepage as .
+        6.  Perform an end-to-end test: edit a program's duration pricing in the admin panel and verify the change is reflected correctly on the homepage.
+    -   **Why fix this issue and what will be achieved with the fix?** This addresses direct user feedback that the previous implementation was too complex. Completing this will provide the simplified, user-friendly management experience the user requires.
+    -   **Status:** IN PROGRESS
+    -   **Is recurring issue?** N
+    -   **Should Test frontend/backend/both after fix?** Both.
+    -   **Blocked on other issue:** None.
+
+**In progress Task List**:
+-   **Task 1: (P0) Complete the Program UI/UX Simplification Refactor**
+    -   **Where to resume:** Finish the implementation across , , and .
+    -   **What will be achieved with this?** A simplified and more intuitive experience for both the admin managing programs and the user viewing them on the homepage, per the user's latest request.
+    -   **Status:** IN PROGRESS
+    -   **Should Test frontend/backend/both after fix?** Both.
+    -   **Blocked on something:** None.
+
+**Upcoming and Future Tasks**
+-   **Upcoming Tasks:**
+    -   **P1: User Login & Subscriber Dashboard:** The user has requested a login system for users, with a special dashboard for Annual Subscribers to track their sessions, payments, and progress. This will be a major new feature set.
+
+**Completed work in this session**
+-   **Recently completed:**
+    -   **Multi-Person Enrollment System:** Implemented a full-featured enrollment flow supporting multiple participants in a single transaction, with fields for country, attendance mode, and notification preferences. (DONE)
+    -   **Critical Bug Fix (403 Forbidden on Payment):** Diagnosed and fixed a critical bug where Stripe redirected to an internal, inaccessible cluster URL after payment. The fix involved using the correct public-facing URL. (DONE)
+    -   **Email Notification Integration:** Integrated the Resend API to automatically send confirmation emails to the booker and participants upon successful payment. (DONE)
+    -   **Massive Admin Panel Overhaul:** Refactored the entire admin panel into a modular, 12-tab system, making nearly every content element of the website (Header, Footer, Hero, About, Stats, etc.) editable with simple controls. (DONE)
+    -   **Promotions & Duration Tiers (V1):** Built the backend and initial frontend for a promotions/coupon system and custom duration tiers for programs. (DONE, but now being refactored for simplicity).
+
+**Earlier issues found/mentioned but not fixed**
+-   None.
+
+**Known issue recurrence from previous fork**
+-   N/A
+
+**Code Architecture**
+
+
+**Key Technical Concepts**
+-   **Frontend:** React, , TailwindCSS, shadcn/ui.
+-   **Backend:** FastAPI, Pydantic, Motor.
+-   **Database:** MongoDB.
+-   **Payments & Security:** Stripe, with server-side validation using IP info and BIN list APIs.
+-   **Email:** Resend API for transactional emails.
+-   **Architecture:** Modular frontend admin panel, composable Pydantic models for site content.
+
+**key DB schema**
+-   **site_settings:** 
+-   **programs:** 
+-   **promotions:** 
+-   **transactions:** 
+
+**changes in tech stack**
+-   None.
+
+**All files of reference**
+-   : **Core file to resume work on (Admin UI).**
+-   : **Core file to resume work on (Homepage UI).**
+-   : **Core file to resume work on (Detail Page UI).**
+-   : Contains the  model being simplified.
+-   : Contains the endpoint for updating programs.
+
+**Areas that need refactoring**:
+-   The current task *is* a user-driven refactor to simplify the program management and display logic.
+
+**key api endpoints**
+-   : Updates a program with its duration tiers.
+-   : Fetches all programs for the homepage.
+-   : Creates a new promotion/coupon.
+-   : Fetches all enrollment records for the admin panel.
+-   : Creates the Stripe checkout session.
+-   : Verifies payment and triggers emails.
+
+**Critical Info for New Agent**
+-   The user prioritizes simplicity and a child-friendly UI above all else. The current task is a direct result of the previous implementation being too complex.
+-   The user is cost-conscious. Batch changes into single, large updates to minimize tool usage and testing cycles. Avoid iterative check-ins.
+-   The Contact for Pricing for the annual tier is a firm new business rule.
+-   The agent was interrupted mid-refactor. You will be resuming from partially completed files. The application's program display might be in a broken state until the refactor is complete.
+
+**documents and test reports created in this job**
+-    (Updated after the admin panel overhaul)
+-    (Last test run for the Promotions feature)
+
+**Last 10 User Messages and any pending HUMAN messages**
+1.  **User:** Asks to simplify the program pricing/tier system to be like an excel sheet. - **Status:** IN PROGRESS.
+2.  **User:** Requests the duration selector (1mo/3mo/Annual) be moved to the homepage cards. - **Status:** IN PROGRESS.
+3.  **User:** Specifies that the Annual option should show Contact for Pricing. - **Status:** IN PROGRESS.
+4.  **User:** Asks to merge Session Mode and Program Type into a single field. - **Status:** IN PROGRESS.
+5.  **User:** Asks agent to be mindful of credit usage. - **Status:** ACKNOWLEDGED.
+6.  **User:** Confirms that the agent should proceed with the custom duration tier implementation. - **Status:** COMPLETED.
+7.  **User:** Clarifies the future vision for a user login and a detailed dashboard for annual subscribers. - **Status:** NOT STARTED (Future Task).
+8.  **User:** Confirms that duration tiers apply to all flagship programs. - **Status:** COMPLETED.
+9.  **User:** Gives detailed requirements for the Upcoming Program section, duration tiers, and a new promotions/coupon system. - **Status:** COMPLETED (but now being refactored).
+10. **User:** Approves the plan to build the comprehensive admin panel. - **Status:** COMPLETED.
+
+**Project Health Check:**
+-   **Broken:** The public-facing display of programs (homepage and detail page) is currently mid-refactor and likely broken until the task is complete.
+-   **Mocked:** Phone OTP verification is mocked and always succeeds with a test code displayed on-screen.
+
+**3rd Party Integrations**
+-   **Stripe (Payments):** Integrated via  for checkout.
+-   **Resend (Email):** Integrated for sending post-payment confirmation emails.
+-   **ipinfo.io:** Used server-side for geolocation and VPN/proxy detection.
+-   **binlist.net:** Used server-side for credit card BIN validation.
+-   **FontAwesome:** CDN used for icons.
+
+**Testing status**
+-   **Testing agent used after significant changes:** YES. The last major features (admin overhaul, promotions) were validated by the testing agent.
+-   **Troubleshoot agent used after agent stuck in loop:** NO
+-   **Test files created:** None.
+-   **Known regressions:** The program display logic is intentionally being refactored and is not in a final state.
+
+**Credentials to test flow:**
+-   **Admin Panel:**
+    -   **URL:** 
+    -   **Username:** 
+    -   **Password:** 
+
+**What agent forgot to execute**
+-   The agent was interrupted mid-task by the end of the previous session. The highest priority is to complete the in-progress simplification refactor of the program management and display components.</analysis>
