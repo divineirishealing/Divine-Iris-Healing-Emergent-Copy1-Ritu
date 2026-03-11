@@ -49,14 +49,17 @@ INDIA_BIN_PREFIXES = [
 # ─── MODELS ───
 class ParticipantData(BaseModel):
     name: str
-    relationship: str  # Myself, Mother, Father, Sister, Brother, Spouse, Friend, Husband, Wife, Colleague, Other
+    relationship: str
     age: int
     gender: str
     country: str = "AE"
-    attendance_mode: str = "online"  # "online" or "offline"
+    attendance_mode: str = "online"
     notify: bool = False
     email: Optional[str] = None
     phone: Optional[str] = None
+    whatsapp: Optional[str] = None
+    program_id: Optional[str] = None
+    program_title: Optional[str] = None
 
 
 class ProfileData(BaseModel):
@@ -87,6 +90,9 @@ class EnrollmentSubmit(BaseModel):
     item_id: str
     currency: str
     origin_url: Optional[str] = None
+    promo_code: Optional[str] = None
+    tier_index: Optional[int] = None
+    cart_items: Optional[list] = None
 
 
 # ─── HELPERS ───
@@ -293,14 +299,11 @@ async def verify_phone_otp(enrollment_id: str, data: PhoneOTPVerify):
 
 
 @router.get("/{enrollment_id}/pricing")
-async def get_enrollment_pricing(enrollment_id: str, item_type: str, item_id: str):
+async def get_enrollment_pricing(enrollment_id: str, item_type: str, item_id: str, tier_index: int = None, client_currency: str = None):
     """Step 4: Get pricing with strict India-gating for INR prices.
     
-    To get INR pricing, ALL of the following must be true:
-    1. IP is detected as India (no VPN/proxy/hosting)
-    2. Claimed country is India
-    3. Phone number has +91 prefix
-    If ANY check fails → AED base price.
+    Supports duration tiers: if tier_index is provided, price comes from that tier.
+    Supports client currency: if provided, uses that currency for non-INR pricing.
     """
     enrollment = await db.enrollments.find_one({"id": enrollment_id}, {"_id": 0})
     if not enrollment:
@@ -332,40 +335,59 @@ async def get_enrollment_pricing(enrollment_id: str, item_type: str, item_id: st
         allowed_currency = "inr"
         fraud_warning = None
     else:
-        allowed_currency = "aed"
-        # Build specific rejection reasons
+        # Use client-detected currency or fall back to AED
+        allowed_currency = client_currency or "aed"
+        if allowed_currency == "inr":
+            allowed_currency = "aed"  # Block INR for non-India
         reasons = []
         if not checks["no_vpn"]:
             reasons.append("VPN/Proxy detected")
         if not checks["ip_is_india"]:
             reasons.append(f"IP location is {ip_country}, not India")
-        if not checks["claimed_india"]:
-            reasons.append("Country not set to India")
-        if not checks["phone_is_indian"]:
-            reasons.append("Phone number is not Indian (+91)")
-        fraud_warning = f"INR pricing unavailable: {'; '.join(reasons)}. Defaulting to AED."
+        fraud_warning = f"Using {allowed_currency.upper()} pricing." if reasons else None
 
-    # Get price from item — try requested currency, fall back to USD, then AED
-    base_aed = float(item.get("price_aed", 0))
-    base_usd = float(item.get("price_usd", 0))
-    if allowed_currency == "inr":
-        price = float(item.get("price_inr", 0))
-        if price <= 0 and base_aed > 0:
-            price = round(base_aed * PPP_TIERS["inr"]["multiplier"], 2)
-        symbol = "₹"
+    # ─── GET PRICE FROM TIER OR ITEM ───
+    tiers = item.get("duration_tiers", [])
+    has_tier = item.get("is_flagship") and tiers and tier_index is not None and 0 <= tier_index < len(tiers)
+
+    if has_tier:
+        tier = tiers[tier_index]
+        price_aed = float(tier.get("price_aed", 0))
+        price_inr = float(tier.get("price_inr", 0))
+        price_usd = float(tier.get("price_usd", 0))
+        offer_aed = float(tier.get("offer_aed", 0))
+        offer_inr = float(tier.get("offer_inr", 0))
+        offer_usd = float(tier.get("offer_usd", 0))
     else:
-        price = base_aed
+        price_aed = float(item.get("price_aed", 0))
+        price_inr = float(item.get("price_inr", 0))
+        price_usd = float(item.get("price_usd", 0))
+        offer_aed = 0.0
+        offer_inr = float(item.get("offer_price_inr", 0))
+        offer_usd = float(item.get("offer_price_usd", 0))
+
+    # Pick price based on allowed currency
+    if allowed_currency == "inr":
+        price = price_inr if price_inr > 0 else round(price_aed * PPP_TIERS["inr"]["multiplier"], 2)
+        offer_price = offer_inr
+        symbol = "₹"
+    elif allowed_currency == "usd":
+        price = price_usd if price_usd > 0 else price_aed
+        offer_price = offer_usd
+        symbol = "$"
+        if price <= 0:
+            price = price_aed
+            allowed_currency = "aed"
+            symbol = "AED "
+    else:
+        # AED or other currencies - use AED as base
+        price = price_aed
+        offer_price = offer_aed
         symbol = "AED "
-        # Fallback: if AED is 0 but USD exists, use USD
-        if price <= 0 and base_usd > 0:
-            price = base_usd
+        if price <= 0 and price_usd > 0:
+            price = price_usd
             allowed_currency = "usd"
             symbol = "$"
-
-    # Offer price
-    offer_price = 0.0
-    if allowed_currency == "inr":
-        offer_price = float(item.get("offer_price_inr", 0))
 
     per_person = offer_price if offer_price > 0 else price
     total = round(per_person * participant_count, 2)
@@ -412,7 +434,7 @@ async def enrollment_checkout(enrollment_id: str, data: EnrollmentSubmit, reques
         raise HTTPException(status_code=400, detail="Phone not verified")
 
     # Get pricing (server-side, not from client)
-    pricing_resp = await get_enrollment_pricing(enrollment_id, data.item_type, data.item_id)
+    pricing_resp = await get_enrollment_pricing(enrollment_id, data.item_type, data.item_id, tier_index=data.tier_index, client_currency=data.currency)
     total = pricing_resp["pricing"]["total"]
     currency = pricing_resp["pricing"]["currency"]
 

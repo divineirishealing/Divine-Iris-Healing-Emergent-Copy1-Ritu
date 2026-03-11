@@ -157,6 +157,7 @@ function CartCheckoutPage() {
       const res = await axios.post(`${API}/enrollment/${enrollmentId}/checkout`, {
         enrollment_id: enrollmentId, item_type: 'program', item_id: items[0].programId, currency,
         origin_url: window.location.origin, promo_code: promoResult?.code || null,
+        tier_index: items[0].tierIndex,
         cart_items: items.map(i => ({ program_id: i.programId, tier_index: i.tierIndex, participants_count: i.participants.length })),
       });
       clearCart();
