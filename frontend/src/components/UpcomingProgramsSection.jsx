@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { resolveImageUrl } from '../lib/imageUtils';
-import { MapPin, Monitor, Calendar, Clock, AlertTriangle } from 'lucide-react';
+import { MapPin, Monitor, Calendar, Clock, AlertTriangle, Wifi } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -175,11 +175,46 @@ const UpcomingProgramsSection = () => {
                   <h3 className="text-lg font-semibold text-gray-900 mb-2 leading-tight">{program.title}</h3>
                   <p className="text-gray-500 text-sm leading-relaxed mb-4 line-clamp-3 flex-1">{program.description}</p>
 
+                  {/* Session Mode Badge */}
+                  {program.session_mode && (
+                    <div className="flex items-center gap-2 text-xs mb-2">
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full ${
+                        program.session_mode === 'online' ? 'bg-blue-50 text-blue-600' :
+                        program.session_mode === 'remote' ? 'bg-purple-50 text-purple-600' :
+                        'bg-green-50 text-green-600'
+                      }`}>
+                        {program.session_mode === 'online' ? <><Monitor size={11} /> Online (Zoom)</> :
+                         program.session_mode === 'remote' ? <><Wifi size={11} /> Remote Healing</> :
+                         <><Monitor size={11} /> Online + Remote</>}
+                      </span>
+                      {program.duration && <span className="text-gray-400">{program.duration}</span>}
+                    </div>
+                  )}
+
                   {/* Date */}
                   {program.start_date && (
-                    <div className="flex items-center gap-2 text-gray-500 text-xs mb-3">
+                    <div className="flex items-center gap-2 text-gray-500 text-xs mb-1">
                       <Calendar size={14} />
                       <span>Starts: {program.start_date}</span>
+                    </div>
+                  )}
+                  {program.end_date && (
+                    <div className="flex items-center gap-2 text-gray-500 text-xs mb-3">
+                      <Calendar size={14} />
+                      <span>Ends: {program.end_date}</span>
+                    </div>
+                  )}
+                  {!program.end_date && program.start_date && <div className="mb-3"></div>}
+
+                  {/* Duration Tiers */}
+                  {program.duration_tiers && program.duration_tiers.length > 0 && (
+                    <div className="mb-3">
+                      <p className="text-[10px] text-gray-500 mb-1">Available durations:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {program.duration_tiers.map((t, i) => (
+                          <span key={i} className="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded">{t.label}</span>
+                        ))}
+                      </div>
                     </div>
                   )}
 

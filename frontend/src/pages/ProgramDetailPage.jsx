@@ -124,11 +124,49 @@ function ProgramDetailPage() {
         </div>
       </section>
 
-      {/* CTA */}
+      {/* CTA with Duration Tiers */}
       <section className="bg-white py-16">
         <div className="container mx-auto px-4 max-w-4xl text-center">
           <p className="text-[#D4AF37] text-xs tracking-[0.2em] mb-4">WHEN YOU ARE SEEKING</p>
           <p className="text-gray-600 text-sm mb-8">When you are done fixing, forcing, or proving — and you are ready to live with ease, clarity, and emotional freedom — this program becomes the foundation for that shift.</p>
+
+          {/* Duration Tiers */}
+          {program.is_flagship && program.duration_tiers && program.duration_tiers.length > 0 && (
+            <div data-testid="duration-tiers" className="max-w-3xl mx-auto mb-10">
+              <p className="text-xs text-gray-500 mb-4 tracking-wider uppercase">Choose Your Duration</p>
+              <div className="grid sm:grid-cols-3 gap-4">
+                {program.duration_tiers.map((tier, idx) => (
+                  <div key={idx} data-testid={`tier-${idx}`}
+                    className="border-2 border-gray-200 hover:border-[#D4AF37] rounded-xl p-5 transition-all duration-300 cursor-pointer group hover:shadow-lg"
+                    onClick={() => navigate(`/enroll/program/${program.id}?tier=${idx}`)}>
+                    <p className="text-lg font-semibold text-gray-900 group-hover:text-[#D4AF37] transition-colors">{tier.label}</p>
+                    <p className="text-xs text-gray-400 mb-3">{tier.duration_value} {tier.duration_unit}{tier.duration_value > 1 ? 's' : ''}</p>
+                    <div className="space-y-1">
+                      {tier.price_aed > 0 && <p className="text-sm"><span className="text-gray-500">AED</span> <span className="font-bold text-gray-900">{tier.price_aed}</span></p>}
+                      {tier.price_inr > 0 && <p className="text-sm"><span className="text-gray-500">INR</span> <span className="font-bold text-gray-900">{tier.price_inr.toLocaleString()}</span></p>}
+                      {tier.price_usd > 0 && <p className="text-sm"><span className="text-gray-500">USD</span> <span className="font-bold text-gray-900">{tier.price_usd}</span></p>}
+                    </div>
+                    <button className="mt-3 w-full bg-gray-900 group-hover:bg-[#D4AF37] text-white text-xs py-2 rounded-full transition-colors">
+                      Select
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Session mode & dates info */}
+          <div className="flex justify-center gap-6 mb-6 text-xs text-gray-500">
+            {program.session_mode && (
+              <span className="flex items-center gap-1">
+                {program.session_mode === 'online' ? 'Online (Zoom)' : program.session_mode === 'remote' ? 'Remote Healing' : 'Online + Remote'}
+              </span>
+            )}
+            {program.start_date && <span>Starts: {program.start_date}</span>}
+            {program.end_date && <span>Ends: {program.end_date}</span>}
+            {program.duration && <span>Duration: {program.duration}</span>}
+          </div>
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             {program.enrollment_open !== false ? (
               <button

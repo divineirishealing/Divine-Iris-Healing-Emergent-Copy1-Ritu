@@ -1,0 +1,141 @@
+{
+  "summary": "Iteration 9 - Complete testing of Promotions System & Program Updates. All 19 backend tests passed. Frontend admin Promotions tab working with all form elements (type selector, discount type toggle, currency fields, applicability toggle). Program form shows new fields (session_mode, end_date, flagship toggle, duration tiers). Program detail page displays 3 duration tier cards with multi-currency pricing. Upcoming Programs section shows session mode badges and dates.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "Program Detail Page",
+        "issues": ["Start date not showing in the info row (only End date shows). The start_date 'April 1, 2026' is stored in DB but display logic may need adjustment"]
+      }
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_promotions_iteration9.py",
+    "/app/test_reports/pytest/pytest_promotions_iteration9.xml"
+  ],
+  "action_items": [
+    "Minor: Start date not displaying in Program Detail page info row - end date shows correctly but start date is missing"
+  ],
+  "critical_code_review_comments": [
+    "Promotions CRUD fully functional: POST, GET, PUT, DELETE /api/promotions",
+    "Promotion validation endpoint working: POST /api/promotions/validate correctly validates/rejects codes",
+    "Active promotions filter working: GET /api/promotions/active returns only valid active promotions",
+    "Program model has all new fields: session_mode, end_date, is_flagship, duration_tiers",
+    "Admin Promotions tab has: type selector (coupon/early_bird/limited_time), discount type toggle (percentage/fixed), AED/INR/USD fields for fixed amounts, applicability toggle (all/specific programs)",
+    "Admin Programs form has: session_mode dropdown, end_date field, flagship toggle, duration tiers section with add/remove/edit",
+    "Program detail page shows duration tier cards with multi-currency pricing (AED, INR, USD)",
+    "Upcoming Programs section shows session mode badges (Online (Zoom), Remote Healing) and dates"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_promotions_iteration9.py"
+  ],
+  "success_rate": {
+    "backend": "100% (19/19 tests passed)",
+    "frontend": "95% (all features working, minor start date display issue)"
+  },
+  "test_credentials": {
+    "admin_url": "/admin",
+    "admin_username": "admin",
+    "admin_password": "divineadmin2024"
+  },
+  "seed_data_creation": "Used existing test promotions NY2026 and EARLY50, existing flagship program AWRP (ID: 1)",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Admin panel now has 12 tabs including Promotions. Program ID 1 (AWRP) is flagship with 3 duration tiers. Two test promotions exist: NY2026 (15% coupon) and EARLY50 (fixed AED 50/INR 1000/USD 15 early bird). Duration tiers are displayed as cards on program detail page with Select buttons. Upcoming Programs section shows session mode badges. Test file: /app/backend/tests/test_promotions_iteration9.py. Phone OTP is MOCKED.",
+  "mocked_features": {
+    "phone_otp": "MOCKED - OTP generated server-side, returned in API response for testing"
+  },
+  "features_tested": {
+    "promotions_backend": {
+      "GET /api/promotions": "PASS - returns all promotions",
+      "POST /api/promotions (coupon)": "PASS - creates percentage coupon",
+      "POST /api/promotions (early_bird)": "PASS - creates fixed amount early bird",
+      "POST /api/promotions (limited_time)": "PASS - creates time-bound offer",
+      "POST /api/promotions (specific programs)": "PASS - creates program-specific coupon",
+      "PUT /api/promotions/{id}": "PASS - updates promotion",
+      "DELETE /api/promotions/{id}": "PASS - deletes promotion",
+      "POST /api/promotions/validate (valid code)": "PASS - validates NY2026 (15% off)",
+      "POST /api/promotions/validate (EARLY50)": "PASS - validates fixed discount (AED 50/INR 1000/USD 15)",
+      "POST /api/promotions/validate (invalid code)": "PASS - rejects with 404",
+      "POST /api/promotions/validate (empty code)": "PASS - rejects with 400",
+      "POST /api/promotions/validate (program-specific)": "PASS - validates only for allowed program",
+      "GET /api/promotions/active": "PASS - returns only valid active promotions",
+      "GET /api/promotions/active?program_id": "PASS - filters by program"
+    },
+    "programs_backend": {
+      "GET /api/programs/1 (new fields)": "PASS - returns session_mode, end_date, is_flagship, duration_tiers",
+      "PUT /api/programs/1 (update new fields)": "PASS - updates session_mode, end_date",
+      "POST /api/programs (with duration_tiers)": "PASS - creates program with tiers"
+    },
+    "admin_promotions_tab": {
+      "tab_in_sidebar": "PASS - Promotions tab found with Gift icon",
+      "promotion_list": "PASS - shows 2 existing promotions (EARLY50, NY2026)",
+      "add_promotion_btn": "PASS - opens Create Promotion form",
+      "type_selector": "PASS - 3 options (Coupon Code, Early Bird, Limited Time Offer)",
+      "discount_type_toggle": "PASS - Percentage (%) and Fixed Amount buttons",
+      "fixed_amount_fields": "PASS - AED, INR, USD input fields visible when Fixed selected",
+      "applicability_toggle": "PASS - All Programs / Specific Programs buttons",
+      "coupon_code_input": "PASS - shows when type is coupon",
+      "dates_and_limits": "PASS - Start Date, Expiry Date, Usage Limit fields present"
+    },
+    "admin_programs_tab": {
+      "session_mode_dropdown": "PASS - Online (Zoom), Remote Healing, Both options",
+      "end_date_field": "PASS - input with placeholder 'e.g., April 15, 2026'",
+      "flagship_toggle": "PASS - 'Flagship Program (enables duration tiers)' switch",
+      "duration_tiers_section": "PASS - appears when flagship enabled",
+      "add_tier_btn": "PASS - adds new tier with label, duration, pricing fields",
+      "tier_fields": "PASS - label, duration_value, duration_unit, price_aed, price_inr, price_usd"
+    },
+    "program_detail_page": {
+      "duration_tiers_section": "PASS - [data-testid='duration-tiers'] found",
+      "tier_cards": "PASS - 3 tiers displayed (1 Month, 3 Months, 1 Year)",
+      "tier_pricing": "PASS - each tier shows AED, INR, USD prices",
+      "select_buttons": "PASS - each tier has Select button",
+      "session_mode_display": "PASS - 'Online + Remote' displayed",
+      "end_date_display": "PASS - 'Ends: March 31, 2027' displayed",
+      "start_date_display": "PARTIAL - start date 'April 1, 2026' exists in DB but not visible in UI"
+    },
+    "upcoming_programs_section": {
+      "section_render": "PASS - [data-testid='upcoming-programs-section'] found",
+      "program_cards": "PASS - 3 upcoming program cards displayed",
+      "session_mode_badge": "PASS - 'Online (Zoom)' badges visible",
+      "dates_display": "PASS - 'Starts:' dates shown",
+      "countdown_timer": "PASS - countdown timer visible (6d 03h 51m 26s)",
+      "registration_closed": "PASS - shows 'REGISTRATION CLOSED' for expired programs"
+    }
+  },
+  "existing_test_data": {
+    "NY2026": {
+      "type": "coupon",
+      "discount_type": "percentage",
+      "discount_percentage": 15,
+      "applicable_to": "all",
+      "usage_limit": 100,
+      "active": true
+    },
+    "EARLY50": {
+      "type": "early_bird",
+      "discount_type": "fixed",
+      "discount_aed": 50,
+      "discount_inr": 1000,
+      "discount_usd": 15,
+      "applicable_to": "all",
+      "active": true
+    },
+    "AWRP_Program": {
+      "id": "1",
+      "is_flagship": true,
+      "session_mode": "both",
+      "duration_tiers": [
+        {"label": "1 Month", "price_aed": 729, "price_inr": 14999, "price_usd": 199},
+        {"label": "3 Months", "price_aed": 1899, "price_inr": 39999, "price_usd": 499},
+        {"label": "1 Year", "price_aed": 5499, "price_inr": 99999, "price_usd": 1499}
+      ]
+    }
+  }
+}

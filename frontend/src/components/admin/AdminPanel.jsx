@@ -11,7 +11,7 @@ import { resolveImageUrl } from '../../lib/imageUtils';
 import {
   Settings, Package, Calendar, MessageSquare, BarChart3, Mail,
   Trash2, Edit, Plus, X, Eye, EyeOff, Save, ArrowUp, ArrowDown,
-  Globe, Layout, Image, Users, Palette
+  Globe, Layout, Image, Users, Palette, Gift, Monitor, Wifi
 } from 'lucide-react';
 
 import HeroSettingsTab from './tabs/HeroSettingsTab';
@@ -20,6 +20,7 @@ import NewsletterSettingsTab from './tabs/NewsletterSettingsTab';
 import HeaderFooterTab from './tabs/HeaderFooterTab';
 import EnrollmentsTab from './tabs/EnrollmentsTab';
 import GlobalStylesTab from './tabs/GlobalStylesTab';
+import PromotionsTab from './tabs/PromotionsTab';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -41,7 +42,7 @@ const AdminPanel = () => {
   const [showStatForm, setShowStatForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
-  const [programForm, setProgramForm] = useState({ title: '', category: '', description: '', image: '', price_usd: 0, price_inr: 0, price_eur: 0, price_gbp: 0, price_aed: 0, visible: true, order: 0, program_type: 'online', offer_price_usd: 0, offer_price_inr: 0, offer_text: '', is_upcoming: false, start_date: '', deadline_date: '', enrollment_open: true });
+  const [programForm, setProgramForm] = useState({ title: '', category: '', description: '', image: '', price_usd: 0, price_inr: 0, price_eur: 0, price_gbp: 0, price_aed: 0, visible: true, order: 0, program_type: 'online', session_mode: 'online', offer_price_usd: 0, offer_price_inr: 0, offer_text: '', is_upcoming: false, is_flagship: false, start_date: '', end_date: '', deadline_date: '', enrollment_open: true, duration_tiers: [] });
   const [sessionForm, setSessionForm] = useState({ title: '', description: '', image: '', price_usd: 0, price_inr: 0, price_eur: 0, price_gbp: 0, price_aed: 0, visible: true, order: 0 });
   const [testimonialForm, setTestimonialForm] = useState({ type: 'graphic', name: '', text: '', image: '', videoId: '', program_id: '', visible: true });
   const [statForm, setStatForm] = useState({ value: '', label: '', order: 0 });
@@ -77,13 +78,13 @@ const AdminPanel = () => {
   };
   const editProgram = (p) => {
     setEditingId(p.id);
-    setProgramForm({ title: p.title, category: p.category || '', description: p.description, image: p.image, price_usd: p.price_usd || 0, price_inr: p.price_inr || 0, price_eur: p.price_eur || 0, price_gbp: p.price_gbp || 0, price_aed: p.price_aed || 0, visible: p.visible !== false, order: p.order || 0, program_type: p.program_type || 'online', offer_price_usd: p.offer_price_usd || 0, offer_price_inr: p.offer_price_inr || 0, offer_text: p.offer_text || '', is_upcoming: p.is_upcoming || false, start_date: p.start_date || '', deadline_date: p.deadline_date || '', enrollment_open: p.enrollment_open !== false });
+    setProgramForm({ title: p.title, category: p.category || '', description: p.description, image: p.image, price_usd: p.price_usd || 0, price_inr: p.price_inr || 0, price_eur: p.price_eur || 0, price_gbp: p.price_gbp || 0, price_aed: p.price_aed || 0, visible: p.visible !== false, order: p.order || 0, program_type: p.program_type || 'online', session_mode: p.session_mode || 'online', offer_price_usd: p.offer_price_usd || 0, offer_price_inr: p.offer_price_inr || 0, offer_text: p.offer_text || '', is_upcoming: p.is_upcoming || false, is_flagship: p.is_flagship || false, start_date: p.start_date || '', end_date: p.end_date || '', deadline_date: p.deadline_date || '', enrollment_open: p.enrollment_open !== false, duration_tiers: p.duration_tiers || [] });
     setShowProgramForm(true);
   };
   const deleteProgram = async (id) => { if (!window.confirm('Delete this program?')) return; await axios.delete(`${API}/programs/${id}`); toast({ title: 'Program deleted' }); loadAll(); };
   const toggleProgramVisibility = async (p) => { await axios.patch(`${API}/programs/${p.id}/visibility`, { visible: !p.visible }); loadAll(); };
   const moveProgramOrder = async (idx, dir) => { const items = [...programs]; const sw = idx + dir; if (sw < 0 || sw >= items.length) return; [items[idx], items[sw]] = [items[sw], items[idx]]; await axios.patch(`${API}/programs/reorder`, { order: items.map(i => i.id) }); loadAll(); };
-  const resetProgramForm = () => { setShowProgramForm(false); setEditingId(null); setProgramForm({ title: '', category: '', description: '', image: '', price_usd: 0, price_inr: 0, price_eur: 0, price_gbp: 0, price_aed: 0, visible: true, order: 0, program_type: 'online', offer_price_usd: 0, offer_price_inr: 0, offer_text: '', is_upcoming: false, start_date: '', deadline_date: '', enrollment_open: true }); };
+  const resetProgramForm = () => { setShowProgramForm(false); setEditingId(null); setProgramForm({ title: '', category: '', description: '', image: '', price_usd: 0, price_inr: 0, price_eur: 0, price_gbp: 0, price_aed: 0, visible: true, order: 0, program_type: 'online', session_mode: 'online', offer_price_usd: 0, offer_price_inr: 0, offer_text: '', is_upcoming: false, is_flagship: false, start_date: '', end_date: '', deadline_date: '', enrollment_open: true, duration_tiers: [] }); };
 
   // ===== SESSIONS =====
   const saveSession = async () => {
@@ -162,6 +163,7 @@ const AdminPanel = () => {
     { key: 'newsletter', label: 'Newsletter', icon: Mail },
     { key: 'header_footer', label: 'Header & Footer', icon: Globe },
     { key: 'enrollments', label: 'Enrollments', icon: Users },
+    { key: 'promotions', label: 'Promotions', icon: Gift },
     { key: 'subscribers', label: 'Subscribers', icon: Mail, count: subscribers.length },
     { key: 'styles', label: 'Global Styles', icon: Palette },
   ];
@@ -239,6 +241,7 @@ const AdminPanel = () => {
           )}
 
           {activeTab === 'enrollments' && <EnrollmentsTab />}
+          {activeTab === 'promotions' && <PromotionsTab programs={programs} />}
 
           {/* ===== PROGRAMS TAB ===== */}
           {activeTab === 'programs' && (
@@ -259,23 +262,94 @@ const AdminPanel = () => {
                     <div><Label>Category</Label><Input value={programForm.category} onChange={e => setProgramForm({...programForm, category: e.target.value})} /></div>
                     <div className="md:col-span-2"><Label>Description</Label><Textarea value={programForm.description} onChange={e => setProgramForm({...programForm, description: e.target.value})} rows={4} /></div>
                     <div className="md:col-span-2"><Label>Image</Label><ImageUploader value={programForm.image} onChange={url => setProgramForm({...programForm, image: url})} /></div>
-                    <div><Label>Price AED</Label><Input type="number" value={programForm.price_aed} onChange={e => setProgramForm({...programForm, price_aed: parseFloat(e.target.value)||0})} /></div>
-                    <div><Label>Price USD</Label><Input type="number" value={programForm.price_usd} onChange={e => setProgramForm({...programForm, price_usd: parseFloat(e.target.value)||0})} /></div>
-                    <div><Label>Price INR</Label><Input type="number" value={programForm.price_inr} onChange={e => setProgramForm({...programForm, price_inr: parseFloat(e.target.value)||0})} /></div>
-                    <div><Label>Offer Price INR</Label><Input type="number" value={programForm.offer_price_inr} onChange={e => setProgramForm({...programForm, offer_price_inr: parseFloat(e.target.value)||0})} placeholder="0 = no offer" /></div>
-                    <div className="md:col-span-2"><Label>Offer Badge Text</Label><Input value={programForm.offer_text} onChange={e => setProgramForm({...programForm, offer_text: e.target.value})} placeholder="e.g., 20% OFF" /></div>
+
+                    {/* Session Mode */}
+                    <div>
+                      <Label>Session Mode</Label>
+                      <select value={programForm.session_mode} onChange={e => setProgramForm({...programForm, session_mode: e.target.value})} className="w-full border rounded-md px-3 py-2 text-sm">
+                        <option value="online">Online (Zoom)</option><option value="remote">Remote Healing</option><option value="both">Both</option>
+                      </select>
+                    </div>
                     <div>
                       <Label>Program Type</Label>
                       <select value={programForm.program_type} onChange={e => setProgramForm({...programForm, program_type: e.target.value})} className="w-full border rounded-md px-3 py-2 text-sm">
                         <option value="online">Online</option><option value="offline">In-Person</option><option value="hybrid">Hybrid</option>
                       </select>
                     </div>
+
+                    {/* Dates */}
                     <div><Label>Start Date</Label><Input value={programForm.start_date} onChange={e => setProgramForm({...programForm, start_date: e.target.value})} placeholder="e.g., March 15, 2026" /></div>
-                    <div><Label>Deadline Date</Label><Input type="date" value={programForm.deadline_date||''} onChange={e => setProgramForm({...programForm, deadline_date: e.target.value})} /></div>
+                    <div><Label>End Date</Label><Input value={programForm.end_date} onChange={e => setProgramForm({...programForm, end_date: e.target.value})} placeholder="e.g., April 15, 2026" /></div>
+                    <div><Label>Enrollment Deadline</Label><Input type="date" value={programForm.deadline_date||''} onChange={e => setProgramForm({...programForm, deadline_date: e.target.value})} /></div>
+                    <div><Label>Default Duration Label</Label><Input value={programForm.duration||'90 days'} onChange={e => setProgramForm({...programForm, duration: e.target.value})} placeholder="e.g., 90 days" /></div>
+
+                    {/* Base Pricing */}
+                    <div className="md:col-span-2 border-t pt-4 mt-2">
+                      <p className="text-sm font-semibold text-gray-700 mb-3">Base Pricing (used when no duration tier is selected)</p>
+                    </div>
+                    <div><Label>Price AED (Base)</Label><Input type="number" value={programForm.price_aed} onChange={e => setProgramForm({...programForm, price_aed: parseFloat(e.target.value)||0})} /></div>
+                    <div><Label>Price INR</Label><Input type="number" value={programForm.price_inr} onChange={e => setProgramForm({...programForm, price_inr: parseFloat(e.target.value)||0})} /></div>
+                    <div><Label>Price USD</Label><Input type="number" value={programForm.price_usd} onChange={e => setProgramForm({...programForm, price_usd: parseFloat(e.target.value)||0})} /></div>
+                    <div><Label>Offer Price INR</Label><Input type="number" value={programForm.offer_price_inr} onChange={e => setProgramForm({...programForm, offer_price_inr: parseFloat(e.target.value)||0})} placeholder="0 = no offer" /></div>
+                    <div className="md:col-span-2"><Label>Offer Badge Text</Label><Input value={programForm.offer_text} onChange={e => setProgramForm({...programForm, offer_text: e.target.value})} placeholder="e.g., 20% OFF" /></div>
+
+                    {/* Toggles */}
+                    <div className="flex items-center gap-2"><Switch checked={programForm.is_flagship} onCheckedChange={v => setProgramForm({...programForm, is_flagship: v})} /><Label>Flagship Program (enables duration tiers)</Label></div>
                     <div className="flex items-center gap-2"><Switch checked={programForm.is_upcoming} onCheckedChange={v => setProgramForm({...programForm, is_upcoming: v})} /><Label>Show in Upcoming</Label></div>
                     <div className="flex items-center gap-2"><Switch checked={programForm.enrollment_open!==false} onCheckedChange={v => setProgramForm({...programForm, enrollment_open: v})} /><Label>Enrollment Open</Label></div>
                     <div className="flex items-center gap-2"><Switch checked={programForm.visible} onCheckedChange={v => setProgramForm({...programForm, visible: v})} /><Label>Visible on Site</Label></div>
                   </div>
+
+                  {/* Duration Tiers (for flagship programs) */}
+                  {programForm.is_flagship && (
+                    <div className="mt-5 border-t pt-5">
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <p className="text-sm font-semibold text-gray-700">Duration Tiers</p>
+                          <p className="text-xs text-gray-400">Users pick a duration — pricing changes automatically</p>
+                        </div>
+                        <Button size="sm" variant="outline" onClick={() => setProgramForm({...programForm, duration_tiers: [...programForm.duration_tiers, { label: '', duration_value: 1, duration_unit: 'month', price_aed: 0, price_inr: 0, price_usd: 0 }]})}>
+                          <Plus size={14} className="mr-1" /> Add Tier
+                        </Button>
+                      </div>
+                      {programForm.duration_tiers.map((tier, idx) => (
+                        <div key={idx} className="bg-gray-50 rounded-lg p-4 mb-2 border relative">
+                          <button onClick={() => setProgramForm({...programForm, duration_tiers: programForm.duration_tiers.filter((_,i) => i !== idx)})}
+                            className="absolute top-2 right-2 text-red-400 hover:text-red-600"><X size={14} /></button>
+                          <div className="grid grid-cols-6 gap-2">
+                            <div className="col-span-2">
+                              <Label className="text-[10px]">Label</Label>
+                              <Input value={tier.label} onChange={e => { const t = [...programForm.duration_tiers]; t[idx] = {...t[idx], label: e.target.value}; setProgramForm({...programForm, duration_tiers: t}); }} placeholder="e.g., 1 Month" className="text-sm" />
+                            </div>
+                            <div>
+                              <Label className="text-[10px]">Duration</Label>
+                              <Input type="number" min="1" value={tier.duration_value} onChange={e => { const t = [...programForm.duration_tiers]; t[idx] = {...t[idx], duration_value: parseInt(e.target.value)||1}; setProgramForm({...programForm, duration_tiers: t}); }} className="text-sm" />
+                            </div>
+                            <div>
+                              <Label className="text-[10px]">Unit</Label>
+                              <select value={tier.duration_unit} onChange={e => { const t = [...programForm.duration_tiers]; t[idx] = {...t[idx], duration_unit: e.target.value}; setProgramForm({...programForm, duration_tiers: t}); }} className="w-full border rounded px-2 py-2 text-xs">
+                                <option value="day">Days</option><option value="week">Weeks</option><option value="month">Months</option><option value="year">Years</option>
+                              </select>
+                            </div>
+                            <div className="col-span-2"></div>
+                            <div>
+                              <Label className="text-[10px]">AED</Label>
+                              <Input type="number" value={tier.price_aed} onChange={e => { const t = [...programForm.duration_tiers]; t[idx] = {...t[idx], price_aed: parseFloat(e.target.value)||0}; setProgramForm({...programForm, duration_tiers: t}); }} className="text-sm" />
+                            </div>
+                            <div>
+                              <Label className="text-[10px]">INR</Label>
+                              <Input type="number" value={tier.price_inr} onChange={e => { const t = [...programForm.duration_tiers]; t[idx] = {...t[idx], price_inr: parseFloat(e.target.value)||0}; setProgramForm({...programForm, duration_tiers: t}); }} className="text-sm" />
+                            </div>
+                            <div>
+                              <Label className="text-[10px]">USD</Label>
+                              <Input type="number" value={tier.price_usd} onChange={e => { const t = [...programForm.duration_tiers]; t[idx] = {...t[idx], price_usd: parseFloat(e.target.value)||0}; setProgramForm({...programForm, duration_tiers: t}); }} className="text-sm" />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      {programForm.duration_tiers.length === 0 && <p className="text-xs text-gray-400 text-center py-3">No tiers yet. Add one above.</p>}
+                    </div>
+                  )}
                   <div className="mt-4 flex gap-2">
                     <Button data-testid="save-program-btn" onClick={saveProgram} className="bg-[#D4AF37] hover:bg-[#b8962e]"><Save size={14} className="mr-1" /> Save</Button>
                     <Button variant="outline" onClick={resetProgramForm}>Cancel</Button>
@@ -293,9 +367,16 @@ const AdminPanel = () => {
                     {p.image && <img src={resolveImageUrl(p.image)} alt={p.title} className="w-14 h-14 object-cover rounded" />}
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm text-gray-900 truncate">{p.title}</p>
-                      <div className="flex items-center gap-2 mt-0.5">
+                      <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                         <p className="text-xs text-gray-500">{p.category}</p>
-                        {p.is_upcoming && <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded">Upcoming</span>}
+                        {p.is_flagship && <span className="text-[10px] bg-[#D4AF37]/10 text-[#D4AF37] px-2 py-0.5 rounded font-medium">Flagship</span>}
+                        {p.is_upcoming && <span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded">Upcoming</span>}
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded inline-flex items-center gap-0.5 ${
+                          p.session_mode === 'online' ? 'bg-blue-50 text-blue-600' : p.session_mode === 'remote' ? 'bg-purple-50 text-purple-600' : 'bg-green-50 text-green-600'
+                        }`}>
+                          {p.session_mode === 'online' ? <><Monitor size={9} /> Zoom</> : p.session_mode === 'remote' ? <><Wifi size={9} /> Remote</> : 'Both'}
+                        </span>
+                        {p.duration_tiers && p.duration_tiers.length > 0 && <span className="text-[10px] text-gray-400">{p.duration_tiers.length} tier{p.duration_tiers.length>1?'s':''}</span>}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">

@@ -3,6 +3,15 @@ from typing import Optional, List, Dict
 from datetime import datetime, timezone
 import uuid
 
+class DurationTier(BaseModel):
+    label: str = ""  # e.g., "1 Month", "3 Months", "1 Year"
+    duration_value: int = 1
+    duration_unit: str = "month"  # month, year, week, day
+    price_aed: float = 0.0
+    price_inr: float = 0.0
+    price_usd: float = 0.0
+
+
 class Program(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     title: str
@@ -19,13 +28,17 @@ class Program(BaseModel):
     visible: bool = True
     order: int = 0
     program_type: str = "online"  # online / offline / hybrid
+    session_mode: str = "online"  # online / remote / both
     offer_price_usd: float = 0.0
     offer_price_inr: float = 0.0
     offer_text: str = ""
     is_upcoming: bool = False
+    is_flagship: bool = False
     start_date: str = ""
+    end_date: str = ""
     deadline_date: str = ""
     enrollment_open: bool = True
+    duration_tiers: List[Dict] = []  # list of DurationTier dicts
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class ProgramCreate(BaseModel):
@@ -43,13 +56,53 @@ class ProgramCreate(BaseModel):
     visible: Optional[bool] = True
     order: Optional[int] = 0
     program_type: Optional[str] = "online"
+    session_mode: Optional[str] = "online"
     offer_price_usd: Optional[float] = 0.0
     offer_price_inr: Optional[float] = 0.0
     offer_text: Optional[str] = ""
     is_upcoming: Optional[bool] = False
+    is_flagship: Optional[bool] = False
     start_date: Optional[str] = ""
+    end_date: Optional[str] = ""
     deadline_date: Optional[str] = ""
     enrollment_open: Optional[bool] = True
+    duration_tiers: Optional[List[Dict]] = []
+
+
+class Promotion(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    code: str = ""
+    type: str = "coupon"  # coupon / early_bird / limited_time
+    discount_type: str = "percentage"  # percentage / fixed
+    discount_percentage: float = 0.0
+    discount_aed: float = 0.0
+    discount_inr: float = 0.0
+    discount_usd: float = 0.0
+    applicable_to: str = "all"  # all / specific
+    applicable_program_ids: List[str] = []
+    usage_limit: int = 0  # 0 = unlimited
+    used_count: int = 0
+    start_date: str = ""
+    expiry_date: str = ""
+    active: bool = True
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class PromotionCreate(BaseModel):
+    name: str
+    code: Optional[str] = ""
+    type: str = "coupon"
+    discount_type: str = "percentage"
+    discount_percentage: Optional[float] = 0.0
+    discount_aed: Optional[float] = 0.0
+    discount_inr: Optional[float] = 0.0
+    discount_usd: Optional[float] = 0.0
+    applicable_to: Optional[str] = "all"
+    applicable_program_ids: Optional[List[str]] = []
+    usage_limit: Optional[int] = 0
+    start_date: Optional[str] = ""
+    expiry_date: Optional[str] = ""
+    active: Optional[bool] = True
 
 class Session(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
