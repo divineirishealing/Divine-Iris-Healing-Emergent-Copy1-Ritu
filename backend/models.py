@@ -39,6 +39,13 @@ class Program(BaseModel):
     deadline_date: str = ""
     enrollment_open: bool = True
     duration_tiers: List[Dict] = []  # list of DurationTier dicts
+    whatsapp_group_link: str = ""
+    zoom_link: str = ""
+    custom_link: str = ""
+    custom_link_label: str = ""
+    show_whatsapp_link: bool = True
+    show_zoom_link: bool = True
+    show_custom_link: bool = True
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class ProgramCreate(BaseModel):
@@ -67,6 +74,13 @@ class ProgramCreate(BaseModel):
     deadline_date: Optional[str] = ""
     enrollment_open: Optional[bool] = True
     duration_tiers: Optional[List[Dict]] = []
+    whatsapp_group_link: Optional[str] = ""
+    zoom_link: Optional[str] = ""
+    custom_link: Optional[str] = ""
+    custom_link_label: Optional[str] = ""
+    show_whatsapp_link: Optional[bool] = True
+    show_zoom_link: Optional[bool] = True
+    show_custom_link: Optional[bool] = True
 
 
 class Promotion(BaseModel):

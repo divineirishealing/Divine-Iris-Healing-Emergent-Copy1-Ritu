@@ -118,7 +118,9 @@ function CartCheckoutPage() {
           name: p.name, relationship: p.relationship, age: parseInt(p.age),
           gender: p.gender, country: p.country, attendance_mode: p.attendance_mode,
           notify: p.notify, email: p.email || null, phone: p.phone || null,
+          whatsapp: p.whatsapp || null,
           program_id: item.programId, program_title: item.programTitle,
+          is_first_time: p.is_first_time || false, referral_source: p.referral_source || '',
         }))
       );
 

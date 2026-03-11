@@ -60,6 +60,8 @@ class ParticipantData(BaseModel):
     whatsapp: Optional[str] = None
     program_id: Optional[str] = None
     program_title: Optional[str] = None
+    is_first_time: bool = False
+    referral_source: str = ""
 
 
 class ProfileData(BaseModel):

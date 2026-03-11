@@ -43,7 +43,7 @@ const AdminPanel = () => {
   const [showStatForm, setShowStatForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
-  const [programForm, setProgramForm] = useState({ title: '', category: '', description: '', image: '', price_usd: 0, price_inr: 0, price_eur: 0, price_gbp: 0, price_aed: 0, visible: true, order: 0, program_type: 'online', session_mode: 'online', offer_price_usd: 0, offer_price_inr: 0, offer_text: '', is_upcoming: false, is_flagship: false, start_date: '', end_date: '', deadline_date: '', enrollment_open: true, duration_tiers: [] });
+  const [programForm, setProgramForm] = useState({ title: '', category: '', description: '', image: '', price_usd: 0, price_inr: 0, price_eur: 0, price_gbp: 0, price_aed: 0, visible: true, order: 0, program_type: 'online', session_mode: 'online', offer_price_usd: 0, offer_price_inr: 0, offer_text: '', is_upcoming: false, is_flagship: false, start_date: '', end_date: '', deadline_date: '', enrollment_open: true, duration_tiers: [], whatsapp_group_link: '', zoom_link: '', custom_link: '', custom_link_label: '', show_whatsapp_link: true, show_zoom_link: true, show_custom_link: true });
   const [sessionForm, setSessionForm] = useState({ title: '', description: '', image: '', price_usd: 0, price_inr: 0, price_eur: 0, price_gbp: 0, price_aed: 0, visible: true, order: 0 });
   const [testimonialForm, setTestimonialForm] = useState({ type: 'graphic', name: '', text: '', image: '', videoId: '', program_id: '', visible: true });
   const [statForm, setStatForm] = useState({ value: '', label: '', order: 0 });
@@ -79,13 +79,13 @@ const AdminPanel = () => {
   };
   const editProgram = (p) => {
     setEditingId(p.id);
-    setProgramForm({ title: p.title, category: p.category || '', description: p.description, image: p.image, price_usd: p.price_usd || 0, price_inr: p.price_inr || 0, price_eur: p.price_eur || 0, price_gbp: p.price_gbp || 0, price_aed: p.price_aed || 0, visible: p.visible !== false, order: p.order || 0, program_type: p.program_type || 'online', session_mode: p.session_mode || 'online', offer_price_usd: p.offer_price_usd || 0, offer_price_inr: p.offer_price_inr || 0, offer_text: p.offer_text || '', is_upcoming: p.is_upcoming || false, is_flagship: p.is_flagship || false, start_date: p.start_date || '', end_date: p.end_date || '', deadline_date: p.deadline_date || '', enrollment_open: p.enrollment_open !== false, duration_tiers: p.duration_tiers || [] });
+    setProgramForm({ title: p.title, category: p.category || '', description: p.description, image: p.image, price_usd: p.price_usd || 0, price_inr: p.price_inr || 0, price_eur: p.price_eur || 0, price_gbp: p.price_gbp || 0, price_aed: p.price_aed || 0, visible: p.visible !== false, order: p.order || 0, program_type: p.program_type || 'online', session_mode: p.session_mode || 'online', offer_price_usd: p.offer_price_usd || 0, offer_price_inr: p.offer_price_inr || 0, offer_text: p.offer_text || '', is_upcoming: p.is_upcoming || false, is_flagship: p.is_flagship || false, start_date: p.start_date || '', end_date: p.end_date || '', deadline_date: p.deadline_date || '', enrollment_open: p.enrollment_open !== false, duration_tiers: p.duration_tiers || [], whatsapp_group_link: p.whatsapp_group_link || '', zoom_link: p.zoom_link || '', custom_link: p.custom_link || '', custom_link_label: p.custom_link_label || '', show_whatsapp_link: p.show_whatsapp_link !== false, show_zoom_link: p.show_zoom_link !== false, show_custom_link: p.show_custom_link !== false });
     setShowProgramForm(true);
   };
   const deleteProgram = async (id) => { if (!window.confirm('Delete this program?')) return; await axios.delete(`${API}/programs/${id}`); toast({ title: 'Program deleted' }); loadAll(); };
   const toggleProgramVisibility = async (p) => { await axios.patch(`${API}/programs/${p.id}/visibility`, { visible: !p.visible }); loadAll(); };
   const moveProgramOrder = async (idx, dir) => { const items = [...programs]; const sw = idx + dir; if (sw < 0 || sw >= items.length) return; [items[idx], items[sw]] = [items[sw], items[idx]]; await axios.patch(`${API}/programs/reorder`, { order: items.map(i => i.id) }); loadAll(); };
-  const resetProgramForm = () => { setShowProgramForm(false); setEditingId(null); setProgramForm({ title: '', category: '', description: '', image: '', price_usd: 0, price_inr: 0, price_eur: 0, price_gbp: 0, price_aed: 0, visible: true, order: 0, program_type: 'online', session_mode: 'online', offer_price_usd: 0, offer_price_inr: 0, offer_text: '', is_upcoming: false, is_flagship: false, start_date: '', end_date: '', deadline_date: '', enrollment_open: true, duration_tiers: [] }); };
+  const resetProgramForm = () => { setShowProgramForm(false); setEditingId(null); setProgramForm({ title: '', category: '', description: '', image: '', price_usd: 0, price_inr: 0, price_eur: 0, price_gbp: 0, price_aed: 0, visible: true, order: 0, program_type: 'online', session_mode: 'online', offer_price_usd: 0, offer_price_inr: 0, offer_text: '', is_upcoming: false, is_flagship: false, start_date: '', end_date: '', deadline_date: '', enrollment_open: true, duration_tiers: [], whatsapp_group_link: '', zoom_link: '', custom_link: '', custom_link_label: '', show_whatsapp_link: true, show_zoom_link: true, show_custom_link: true }); };
 
   // ===== SESSIONS =====
   const saveSession = async () => {
@@ -290,6 +290,28 @@ const AdminPanel = () => {
 
                   {/* PRICING TABLE — Excel-style */}
                   <div className="mt-5 border-t pt-5">
+
+                    {/* Links Section */}
+                    <div className="mb-5">
+                      <p className="text-sm font-semibold text-gray-700 mb-2">Program Links</p>
+                      <p className="text-xs text-gray-400 mb-3">These links will be shown on the payment success page and sent in confirmation emails. Toggle off to hide.</p>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Switch checked={programForm.show_whatsapp_link !== false} onCheckedChange={v => setProgramForm({...programForm, show_whatsapp_link: v})} />
+                          <div className="flex-1"><Input value={programForm.whatsapp_group_link||''} onChange={e => setProgramForm({...programForm, whatsapp_group_link: e.target.value})} placeholder="WhatsApp Group Invite Link (e.g., https://chat.whatsapp.com/...)" /></div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Switch checked={programForm.show_zoom_link !== false} onCheckedChange={v => setProgramForm({...programForm, show_zoom_link: v})} />
+                          <div className="flex-1"><Input value={programForm.zoom_link||''} onChange={e => setProgramForm({...programForm, zoom_link: e.target.value})} placeholder="Zoom Meeting Link (optional)" /></div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Switch checked={programForm.show_custom_link !== false} onCheckedChange={v => setProgramForm({...programForm, show_custom_link: v})} />
+                          <div className="flex-1"><Input value={programForm.custom_link||''} onChange={e => setProgramForm({...programForm, custom_link: e.target.value})} placeholder="Other Link (optional)" /></div>
+                          <Input value={programForm.custom_link_label||''} onChange={e => setProgramForm({...programForm, custom_link_label: e.target.value})} placeholder="Label" className="w-32" />
+                        </div>
+                      </div>
+                    </div>
+
                     <div className="flex items-center justify-between mb-3">
                       <div>
                         <p className="text-sm font-semibold text-gray-700">Pricing</p>

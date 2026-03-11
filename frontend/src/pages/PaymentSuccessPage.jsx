@@ -3,10 +3,12 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { CheckCircle, Loader2 } from 'lucide-react';
+import { CheckCircle, Loader2, ExternalLink, MessageCircle, Video, Link as LinkIcon } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
+
+const CURRENCY_SYMBOLS = { aed: 'AED ', usd: '$', inr: '\u20B9', eur: '\u20AC', gbp: '\u00A3' };
 
 function PaymentSuccessPage() {
   const [searchParams] = useSearchParams();
@@ -17,9 +19,7 @@ function PaymentSuccessPage() {
   const sessionId = searchParams.get('session_id');
 
   useEffect(() => {
-    if (sessionId) {
-      pollStatus();
-    }
+    if (sessionId) { pollStatus(); }
   }, [sessionId]);
 
   const pollStatus = async () => {
@@ -27,39 +27,167 @@ function PaymentSuccessPage() {
       const response = await axios.get(`${API}/payments/status/${sessionId}`);
       setPaymentInfo(response.data);
       setStatus('success');
-    } catch (error) {
-      setStatus('success'); // Show success anyway since user was redirected here
+    } catch {
+      setStatus('success');
     }
   };
 
+  const symbol = paymentInfo ? (CURRENCY_SYMBOLS[paymentInfo.currency] || paymentInfo.currency?.toUpperCase() + ' ') : '';
+  const links = paymentInfo?.program_links || {};
+  const hasLinks = Object.keys(links).length > 0;
+  const participants = paymentInfo?.participants || [];
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       <Header />
       <div className="pt-24 pb-20">
-        <div className="container mx-auto px-4 max-w-lg text-center">
+        <div className="container mx-auto px-4 max-w-2xl">
           {status === 'loading' ? (
-            <div className="py-20">
+            <div className="py-20 text-center">
               <Loader2 size={48} className="mx-auto text-[#D4AF37] animate-spin mb-6" />
               <p className="text-gray-500">Confirming your payment...</p>
             </div>
           ) : (
-            <div className="py-12">
-              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <CheckCircle size={40} className="text-green-600" />
+            <div>
+              {/* Success Header */}
+              <div className="text-center mb-8">
+                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5">
+                  <CheckCircle size={40} className="text-green-600" />
+                </div>
+                <h1 data-testid="payment-success-title" className="text-3xl text-gray-900 mb-2" style={{ fontFamily: 'Playfair Display, serif' }}>
+                  Payment Successful
+                </h1>
+                <p className="text-gray-500 text-sm">Thank you for your enrollment{paymentInfo?.booker_name ? `, ${paymentInfo.booker_name}` : ''}!</p>
               </div>
-              <h1 data-testid="payment-success-title" className="text-3xl text-gray-900 mb-4">Payment Successful!</h1>
-              <p className="text-gray-500 mb-2">Thank you for your purchase.</p>
-              {paymentInfo && paymentInfo.item_title && (
-                <p className="text-gray-700 font-medium mb-6">{paymentInfo.item_title}</p>
+
+              {/* Receipt Card */}
+              <div className="bg-white rounded-xl border shadow-sm overflow-hidden mb-6" data-testid="payment-receipt">
+                <div className="bg-[#1a1a1a] px-6 py-4">
+                  <p className="text-[#D4AF37] text-xs tracking-[3px] uppercase">Divine Iris Healing</p>
+                  <p className="text-white text-sm mt-1 opacity-80">Enrollment Receipt</p>
+                </div>
+
+                <div className="p-6">
+                  {/* Program Title */}
+                  {paymentInfo?.item_title && (
+                    <div className="mb-5 pb-5 border-b">
+                      <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Program</p>
+                      <h2 className="text-lg font-semibold text-gray-900" data-testid="receipt-program-title">{paymentInfo.item_title}</h2>
+                    </div>
+                  )}
+
+                  {/* Participants Table */}
+                  {participants.length > 0 && (
+                    <div className="mb-5 pb-5 border-b">
+                      <p className="text-xs text-gray-400 uppercase tracking-wider mb-3">Participants</p>
+                      <div className="space-y-2">
+                        {participants.map((p, i) => (
+                          <div key={i} data-testid={`receipt-participant-${i}`}
+                            className="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-2.5">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-[#D4AF37]/10 flex items-center justify-center text-[#D4AF37] text-xs font-bold">
+                                {p.name?.charAt(0)?.toUpperCase() || '?'}
+                              </div>
+                              <div>
+                                <p className="text-sm font-medium text-gray-900">{p.name}</p>
+                                <p className="text-[10px] text-gray-400">{p.relationship}</p>
+                              </div>
+                            </div>
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                              p.attendance_mode === 'online' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
+                            }`}>
+                              {p.attendance_mode === 'online' ? 'Online (Zoom)' : 'Remote'}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Booker Info */}
+                  {paymentInfo?.booker_email && (
+                    <div className="mb-5 pb-5 border-b">
+                      <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Booked By</p>
+                      <div className="text-sm text-gray-600 space-y-1">
+                        <p><span className="text-gray-400 w-16 inline-block">Name:</span> {paymentInfo.booker_name}</p>
+                        <p><span className="text-gray-400 w-16 inline-block">Email:</span> {paymentInfo.booker_email}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Total */}
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500">Total Paid</span>
+                    <span className="text-2xl font-bold text-[#D4AF37]" data-testid="receipt-total">
+                      {symbol}{paymentInfo?.amount?.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Program Links */}
+              {hasLinks && (
+                <div className="bg-white rounded-xl border shadow-sm p-6 mb-6" data-testid="program-links-section">
+                  <h3 className="text-sm font-semibold text-gray-900 mb-1">Important Links</h3>
+                  <p className="text-xs text-gray-400 mb-4">Please save these links for your upcoming sessions</p>
+                  <div className="space-y-3">
+                    {links.whatsapp_group_link && (
+                      <a href={links.whatsapp_group_link} target="_blank" rel="noopener noreferrer"
+                        data-testid="link-whatsapp"
+                        className="flex items-center gap-3 px-4 py-3 bg-green-50 hover:bg-green-100 border border-green-200 rounded-lg transition-colors group">
+                        <div className="w-10 h-10 bg-[#25D366] rounded-full flex items-center justify-center flex-shrink-0">
+                          <MessageCircle size={18} className="text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-900">Join WhatsApp Group</p>
+                          <p className="text-[10px] text-gray-500">Connect with your program community</p>
+                        </div>
+                        <ExternalLink size={14} className="text-gray-400 group-hover:text-green-600" />
+                      </a>
+                    )}
+                    {links.zoom_link && (
+                      <a href={links.zoom_link} target="_blank" rel="noopener noreferrer"
+                        data-testid="link-zoom"
+                        className="flex items-center gap-3 px-4 py-3 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition-colors group">
+                        <div className="w-10 h-10 bg-[#2D8CFF] rounded-full flex items-center justify-center flex-shrink-0">
+                          <Video size={18} className="text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-900">Join Zoom Meeting</p>
+                          <p className="text-[10px] text-gray-500">Access your session meeting link</p>
+                        </div>
+                        <ExternalLink size={14} className="text-gray-400 group-hover:text-blue-600" />
+                      </a>
+                    )}
+                    {links.custom_link && (
+                      <a href={links.custom_link} target="_blank" rel="noopener noreferrer"
+                        data-testid="link-custom"
+                        className="flex items-center gap-3 px-4 py-3 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg transition-colors group">
+                        <div className="w-10 h-10 bg-[#D4AF37] rounded-full flex items-center justify-center flex-shrink-0">
+                          <LinkIcon size={18} className="text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-900">{links.custom_link_label || 'View Link'}</p>
+                          <p className="text-[10px] text-gray-500">Additional resource for your program</p>
+                        </div>
+                        <ExternalLink size={14} className="text-gray-400 group-hover:text-amber-600" />
+                      </a>
+                    )}
+                  </div>
+                </div>
               )}
-              <p className="text-gray-400 text-sm mb-8">A confirmation email will be sent to you shortly.</p>
-              <button
-                onClick={() => navigate('/')}
-                data-testid="back-home-btn"
-                className="bg-[#D4AF37] hover:bg-[#b8962e] text-white px-8 py-3 rounded-full text-sm tracking-wider transition-all"
-              >
-                Back to Home
-              </button>
+
+              {/* Confirmation note */}
+              <div className="text-center">
+                <p className="text-gray-400 text-xs mb-6">A detailed confirmation email has been sent to your registered email address.</p>
+                <button
+                  onClick={() => navigate('/')}
+                  data-testid="back-home-btn"
+                  className="bg-[#D4AF37] hover:bg-[#b8962e] text-white px-8 py-3 rounded-full text-sm tracking-wider transition-all"
+                >
+                  Back to Home
+                </button>
+              </div>
             </div>
           )}
         </div>

@@ -55,6 +55,21 @@ async def send_enrollment_emails(session_id: str):
     currency = tx.get("currency", "aed")
     symbol = CURRENCY_SYMBOLS.get(currency, currency.upper() + " ")
 
+    # Fetch program links
+    program_links = {}
+    item_id = tx.get("item_id")
+    item_type = tx.get("item_type")
+    if item_id and item_type == "program":
+        program = await db.programs.find_one({"id": item_id}, {"_id": 0})
+        if program:
+            if program.get("show_whatsapp_link") and program.get("whatsapp_group_link"):
+                program_links["whatsapp_group_link"] = program["whatsapp_group_link"]
+            if program.get("show_zoom_link") and program.get("zoom_link"):
+                program_links["zoom_link"] = program["zoom_link"]
+            if program.get("show_custom_link") and program.get("custom_link"):
+                program_links["custom_link"] = program["custom_link"]
+                program_links["custom_link_label"] = program.get("custom_link_label", "Link")
+
     # 1. Send booker confirmation
     if booker_email:
         html = enrollment_confirmation_email(
@@ -66,6 +81,7 @@ async def send_enrollment_emails(session_id: str):
             attendance_modes=[p.get("attendance_mode", "online") for p in participants],
             booker_email=booker_email,
             phone=phone,
+            program_links=program_links,
         )
         await send_email(booker_email, f"Enrollment Confirmed — {item_title}", html)
 
@@ -181,6 +197,33 @@ async def check_payment_status(session_id: str, http_request: Request, backgroun
     if not tx:
         raise HTTPException(status_code=404, detail="Transaction not found")
 
+    # Fetch program links if available
+    program_links = {}
+    item_id = tx.get("item_id")
+    item_type = tx.get("item_type")
+    if item_id and item_type == "program":
+        program = await db.programs.find_one({"id": item_id}, {"_id": 0})
+        if program:
+            if program.get("show_whatsapp_link") and program.get("whatsapp_group_link"):
+                program_links["whatsapp_group_link"] = program["whatsapp_group_link"]
+            if program.get("show_zoom_link") and program.get("zoom_link"):
+                program_links["zoom_link"] = program["zoom_link"]
+            if program.get("show_custom_link") and program.get("custom_link"):
+                program_links["custom_link"] = program["custom_link"]
+                program_links["custom_link_label"] = program.get("custom_link_label", "Link")
+
+    # Get enrollment details for richer response
+    enrollment_id = tx.get("enrollment_id")
+    participants = []
+    booker_name = ""
+    booker_email = ""
+    if enrollment_id:
+        enrollment = await db.enrollments.find_one({"id": enrollment_id}, {"_id": 0})
+        if enrollment:
+            participants = enrollment.get("participants", [])
+            booker_name = enrollment.get("booker_name", "")
+            booker_email = enrollment.get("booker_email", "")
+
     # If already marked as paid, return immediately (prevent double processing)
     if tx.get("payment_status") == "paid":
         return {
@@ -189,6 +232,10 @@ async def check_payment_status(session_id: str, http_request: Request, backgroun
             "amount": tx.get("amount", 0),
             "currency": tx.get("currency", "usd"),
             "item_title": tx.get("item_title", ""),
+            "program_links": program_links,
+            "participants": participants,
+            "booker_name": booker_name,
+            "booker_email": booker_email,
         }
 
     # Poll Stripe for status
@@ -219,6 +266,10 @@ async def check_payment_status(session_id: str, http_request: Request, backgroun
             "amount": status.amount_total / 100,  # Convert from cents
             "currency": status.currency,
             "item_title": tx.get("item_title", ""),
+            "program_links": program_links,
+            "participants": participants,
+            "booker_name": booker_name,
+            "booker_email": booker_email,
         }
     except Exception as e:
         return {
@@ -227,6 +278,10 @@ async def check_payment_status(session_id: str, http_request: Request, backgroun
             "amount": tx.get("amount", 0),
             "currency": tx.get("currency", "usd"),
             "item_title": tx.get("item_title", ""),
+            "program_links": program_links,
+            "participants": participants,
+            "booker_name": booker_name,
+            "booker_email": booker_email,
             "error": str(e),
         }
 

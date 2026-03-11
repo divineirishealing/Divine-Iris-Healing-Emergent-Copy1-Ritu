@@ -30,12 +30,13 @@ async def send_email(to: str, subject: str, html: str):
         return None
 
 
-def enrollment_confirmation_email(booker_name, item_title, participants, total, currency_symbol, attendance_modes, booker_email, phone):
+def enrollment_confirmation_email(booker_name, item_title, participants, total, currency_symbol, attendance_modes, booker_email, phone, program_links=None):
     participant_rows = ""
     for p in participants:
         mode = p.get("attendance_mode", "online")
         mode_label = "Online (Zoom)" if mode == "online" else "Remote Healing"
         mode_color = "#2563eb" if mode == "online" else "#7c3aed"
+        first_time = "Yes" if p.get("is_first_time") else "No"
         participant_rows += f"""
         <tr>
           <td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:14px;color:#333">{p['name']}</td>
@@ -43,7 +44,29 @@ def enrollment_confirmation_email(booker_name, item_title, participants, total, 
           <td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:13px;">
             <span style="background:{mode_color};color:#fff;padding:3px 10px;border-radius:12px;font-size:11px">{mode_label}</span>
           </td>
+          <td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:13px;color:#555">{first_time}</td>
         </tr>"""
+
+    # Build links section
+    links_html = ""
+    if program_links:
+        link_items = ""
+        if program_links.get("whatsapp_group_link"):
+            link_items += f'<a href="{program_links["whatsapp_group_link"]}" style="display:inline-block;background:#25D366;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-size:13px;margin:4px">Join WhatsApp Group</a>'
+        if program_links.get("zoom_link"):
+            link_items += f'<a href="{program_links["zoom_link"]}" style="display:inline-block;background:#2D8CFF;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-size:13px;margin:4px">Join Zoom Meeting</a>'
+        if program_links.get("custom_link"):
+            label = program_links.get("custom_link_label", "View Link")
+            link_items += f'<a href="{program_links["custom_link"]}" style="display:inline-block;background:#D4AF37;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-size:13px;margin:4px">{label}</a>'
+        if link_items:
+            links_html = f"""
+            <div style="padding:0 32px 24px">
+              <div style="background:#f0f7ff;border:1px solid #d0e3f7;border-radius:10px;padding:20px;text-align:center">
+                <p style="color:#333;font-size:14px;margin:0 0 12px;font-weight:600">Important Links</p>
+                <p style="color:#666;font-size:12px;margin:0 0 16px">Please save these links for your upcoming sessions</p>
+                {link_items}
+              </div>
+            </div>"""
 
     html = f"""
     <!DOCTYPE html>
@@ -73,6 +96,7 @@ def enrollment_confirmation_email(booker_name, item_title, participants, total, 
                   <th style="padding:8px 12px;text-align:left;font-size:11px;color:#666;text-transform:uppercase;letter-spacing:1px">Participant</th>
                   <th style="padding:8px 12px;text-align:left;font-size:11px;color:#666;text-transform:uppercase;letter-spacing:1px">Relation</th>
                   <th style="padding:8px 12px;text-align:left;font-size:11px;color:#666;text-transform:uppercase;letter-spacing:1px">Mode</th>
+                  <th style="padding:8px 12px;text-align:left;font-size:11px;color:#666;text-transform:uppercase;letter-spacing:1px">First Time</th>
                 </tr>
               </thead>
               <tbody>
@@ -86,6 +110,8 @@ def enrollment_confirmation_email(booker_name, item_title, participants, total, 
             </div>
           </div>
         </div>
+
+        {links_html}
 
         <div style="padding:0 32px 32px">
           <div style="background:#f9f9f9;border-radius:10px;padding:16px 20px;font-size:13px;color:#555">

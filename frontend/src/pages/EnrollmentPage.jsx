@@ -31,9 +31,12 @@ const COUNTRIES = [
 const GENDERS = ["Female", "Male", "Non-Binary", "Prefer not to say"];
 const RELATIONSHIPS = ["Myself", "Mother", "Father", "Sister", "Brother", "Spouse", "Husband", "Wife", "Friend", "Colleague", "Other"];
 
+const REFERRAL_SOURCES = ["Instagram", "Facebook", "YouTube", "Google Search", "Friend / Family", "WhatsApp", "Returning Client", "Other"];
+
 const emptyParticipant = () => ({
   name: '', relationship: '', age: '', gender: '',
   country: 'AE', attendance_mode: 'online', notify: false, email: '', phone: '', whatsapp: '',
+  is_first_time: false, referral_source: '',
 });
 
 const StepBar = ({ current, steps }) => (
@@ -91,6 +94,16 @@ const ParticipantRow = ({ index, data, onChange, onRemove, canRemove }) => {
             data.attendance_mode === 'offline' ? 'bg-[#D4AF37]/10 border-[#D4AF37] text-[#D4AF37]' : 'bg-white border-gray-200 text-gray-500'}`}>
           <Wifi size={10} /> Remote
         </button>
+      </div>
+      <label className="flex items-center gap-1.5 cursor-pointer mb-1.5" data-testid={`p-first-time-${index}`}>
+        <input type="checkbox" checked={data.is_first_time} onChange={e => update('is_first_time', e.target.checked)} className="w-3.5 h-3.5 rounded border-gray-300 text-[#D4AF37]" />
+        <span className="text-[10px] text-gray-600">First time joining Divine Iris Healing</span>
+      </label>
+      <div className="mb-2">
+        <label className="text-[9px] text-gray-500">How did you hear about us?</label>
+        <select data-testid={`p-referral-${index}`} value={data.referral_source || ''} onChange={e => update('referral_source', e.target.value)} className="w-full border rounded-md px-2 py-1.5 text-xs bg-white h-8">
+          <option value="">Select (optional)</option>{REFERRAL_SOURCES.map(r => <option key={r} value={r}>{r}</option>)}
+        </select>
       </div>
       <label className="flex items-center gap-1.5 cursor-pointer" data-testid={`p-notify-${index}`}>
         <input type="checkbox" checked={data.notify} onChange={e => update('notify', e.target.checked)} className="w-3.5 h-3.5 rounded border-gray-300 text-[#D4AF37]" />
@@ -197,7 +210,7 @@ function EnrollmentPage() {
     try {
       const enrollRes = await axios.post(`${API}/enrollment/start`, {
         booker_name: bookerName, booker_email: bookerEmail, booker_country: bookerCountry,
-        participants: participants.map(p => ({ name: p.name, relationship: p.relationship, age: parseInt(p.age), gender: p.gender, country: p.country, attendance_mode: p.attendance_mode, notify: p.notify, email: p.notify ? p.email : null, phone: p.notify ? p.phone : null })),
+        participants: participants.map(p => ({ name: p.name, relationship: p.relationship, age: parseInt(p.age), gender: p.gender, country: p.country, attendance_mode: p.attendance_mode, notify: p.notify, email: p.notify ? p.email : null, phone: p.notify ? p.phone : null, whatsapp: p.whatsapp || null, is_first_time: p.is_first_time || false, referral_source: p.referral_source || '' })),
       });
       setEnrollmentId(enrollRes.data.enrollment_id);
       setVpnDetected(enrollRes.data.vpn_detected);

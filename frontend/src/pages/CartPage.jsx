@@ -23,9 +23,12 @@ const COUNTRIES = [
 const GENDERS = ["Female", "Male", "Non-Binary", "Prefer not to say"];
 const RELATIONSHIPS = ["Myself", "Mother", "Father", "Sister", "Brother", "Spouse", "Friend", "Colleague", "Other"];
 
+const REFERRAL_SOURCES = ["Instagram", "Facebook", "YouTube", "Google Search", "Friend / Family", "WhatsApp", "Returning Client", "Other"];
+
 const emptyParticipant = (mode = 'online') => ({
   name: '', relationship: 'Myself', age: '', gender: '', country: 'AE',
   attendance_mode: mode, notify: false, email: '', phone: '', whatsapp: '',
+  is_first_time: false, referral_source: '',
 });
 
 const CartItemCard = ({ item, onRemove, onUpdateParticipants, symbol, getItemPrice }) => {
@@ -150,6 +153,18 @@ const CartItemCard = ({ item, onRemove, onUpdateParticipants, symbol, getItemPri
                 </div>
               </div>
               <div className="mt-2 border-t pt-2">
+                <label className="flex items-center gap-1.5 cursor-pointer mb-1.5" data-testid={`cp-first-time-${item.id}-${idx}`}>
+                  <input type="checkbox" checked={p.is_first_time || false} onChange={e => updateParticipant(idx, 'is_first_time', e.target.checked)} className="w-3.5 h-3.5 rounded border-gray-300 text-[#D4AF37]" />
+                  <span className="text-[10px] text-gray-600">First time joining Divine Iris Healing</span>
+                </label>
+                <div className="mb-1.5">
+                  <label className="text-[9px] text-gray-500 block">How did you hear about us?</label>
+                  <select value={p.referral_source || ''} onChange={e => updateParticipant(idx, 'referral_source', e.target.value)}
+                    className="w-full border rounded-md px-2 py-1.5 text-xs bg-white h-8" data-testid={`cp-referral-${item.id}-${idx}`}>
+                    <option value="">Select (optional)</option>
+                    {REFERRAL_SOURCES.map(r => <option key={r} value={r}>{r}</option>)}
+                  </select>
+                </div>
                 <label className="flex items-center gap-1.5 cursor-pointer mb-1">
                   <input type="checkbox" checked={p.notify} onChange={e => updateParticipant(idx, 'notify', e.target.checked)} className="w-3.5 h-3.5 rounded border-gray-300 text-[#D4AF37]" />
                   <span className="text-[10px] text-gray-600">Notify this participant</span>
