@@ -159,6 +159,31 @@ class SiteSettings(BaseModel):
     # Logo settings
     logo_url: str = ""
     logo_width: int = 96
+    # About section
+    about_subtitle: str = "Meet the Healer"
+    about_name: str = "Dimple Ranawat"
+    about_title: str = "Founder, Divine Iris – Soulful Healing Studio"
+    about_bio: str = "Dimple Ranawat is an internationally recognised healer, accountability coach, and life transformation mentor whose work is reshaping how the world understands healing, growth, and well-being."
+    about_bio_2: str = "Dimple's journey began with a profound question: \"Why do people continue to suffer despite awareness, effort, and access to solutions?\" Her work is rooted in lived experience and deep inquiry."
+    about_image: str = ""
+    about_button_text: str = "Read Full Bio"
+    about_button_link: str = "/#about"
+    # Newsletter section
+    newsletter_heading: str = "Join Our Community"
+    newsletter_description: str = "Sign up to receive updates on upcoming workshops, new courses and more information"
+    newsletter_button_text: str = "Subscribe"
+    newsletter_footer_text: str = "By subscribing, you agree to our Privacy Policy and Terms of Use."
+    # Footer section
+    footer_brand_name: str = "Divine Iris Healing"
+    footer_tagline: str = "Delve into the deeper realm of your soul with Divine Iris – Soulful Healing Studio"
+    footer_email: str = "support@divineirishealing.com"
+    footer_phone: str = "+971553325778"
+    footer_copyright: str = "2026 Divine Iris Healing. All Rights Reserved."
+    # Social links
+    social_facebook: str = "https://facebook.com"
+    social_instagram: str = "https://instagram.com"
+    social_youtube: str = "https://youtube.com"
+    social_linkedin: str = "https://linkedin.com"
     # Per-section styles
     sections: Optional[Dict] = {}
 
@@ -187,6 +212,27 @@ class SiteSettingsUpdate(BaseModel):
     hero_show_lines: Optional[bool] = None
     logo_url: Optional[str] = None
     logo_width: Optional[int] = None
+    about_subtitle: Optional[str] = None
+    about_name: Optional[str] = None
+    about_title: Optional[str] = None
+    about_bio: Optional[str] = None
+    about_bio_2: Optional[str] = None
+    about_image: Optional[str] = None
+    about_button_text: Optional[str] = None
+    about_button_link: Optional[str] = None
+    newsletter_heading: Optional[str] = None
+    newsletter_description: Optional[str] = None
+    newsletter_button_text: Optional[str] = None
+    newsletter_footer_text: Optional[str] = None
+    footer_brand_name: Optional[str] = None
+    footer_tagline: Optional[str] = None
+    footer_email: Optional[str] = None
+    footer_phone: Optional[str] = None
+    footer_copyright: Optional[str] = None
+    social_facebook: Optional[str] = None
+    social_instagram: Optional[str] = None
+    social_youtube: Optional[str] = None
+    social_linkedin: Optional[str] = None
     sections: Optional[Dict] = None
 
 class PaymentTransaction(BaseModel):

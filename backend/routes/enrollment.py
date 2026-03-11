@@ -602,3 +602,21 @@ async def validate_card_bin(enrollment_id: str, data: BINCheckRequest):
         "bin_country": bin_country,
         "message": "Card validated successfully.",
     }
+
+
+
+# ─── ADMIN: List all enrollments ───
+@router.get("/admin/list")
+async def list_enrollments():
+    """Admin endpoint to list all enrollments."""
+    enrollments = await db.enrollments.find({}, {"_id": 0}).sort("created_at", -1).to_list(500)
+    return enrollments
+
+
+@router.get("/{enrollment_id}")
+async def get_enrollment(enrollment_id: str):
+    """Get a single enrollment by ID."""
+    enrollment = await db.enrollments.find_one({"id": enrollment_id}, {"_id": 0})
+    if not enrollment:
+        raise HTTPException(status_code=404, detail="Enrollment not found")
+    return enrollment

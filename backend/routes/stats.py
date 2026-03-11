@@ -32,3 +32,19 @@ async def update_stat(stat_id: str, stat: StatCreate):
         {"$set": updated_stat.dict()}
     )
     return updated_stat
+
+
+@router.post("", response_model=Stat)
+async def create_stat(stat: StatCreate):
+    import uuid
+    new_stat = Stat(id=str(uuid.uuid4()), **stat.dict())
+    await db.stats.insert_one(new_stat.dict())
+    return new_stat
+
+
+@router.delete("/{stat_id}")
+async def delete_stat(stat_id: str):
+    result = await db.stats.delete_one({"id": stat_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Stat not found")
+    return {"message": "Stat deleted"}
