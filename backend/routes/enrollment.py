@@ -538,6 +538,45 @@ class BINCheckRequest(BaseModel):
     bin_number: str  # First 6 digits of card
 
 
+class QuoteRequest(BaseModel):
+    name: str
+    email: str
+    phone: str = ""
+    program_id: str = ""
+    program_title: str = ""
+    tier_label: str = ""
+    message: str = ""
+
+
+@router.post("/quote-request")
+async def submit_quote_request(data: QuoteRequest):
+    """Save a quote request for annual/custom pricing programs."""
+    if not data.name.strip() or not data.email.strip():
+        raise HTTPException(status_code=400, detail="Name and email are required")
+
+    quote = {
+        "id": str(uuid.uuid4()),
+        "name": data.name.strip(),
+        "email": data.email.strip().lower(),
+        "phone": data.phone.strip(),
+        "program_id": data.program_id,
+        "program_title": data.program_title,
+        "tier_label": data.tier_label,
+        "message": data.message.strip(),
+        "status": "new",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.quote_requests.insert_one(quote)
+    return {"message": "Quote request submitted successfully", "id": quote["id"]}
+
+
+@router.get("/quote-requests")
+async def list_quote_requests():
+    """Admin endpoint to list all quote requests."""
+    quotes = await db.quote_requests.find({}, {"_id": 0}).sort("created_at", -1).to_list(500)
+    return quotes
+
+
 @router.post("/{enrollment_id}/validate-bin")
 async def validate_card_bin(enrollment_id: str, data: BINCheckRequest):
     """Validate card BIN matches claimed country.

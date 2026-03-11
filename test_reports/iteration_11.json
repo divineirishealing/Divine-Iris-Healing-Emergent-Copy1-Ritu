@@ -1,0 +1,101 @@
+{
+  "summary": "Iteration 11 - Complete testing of Major Overhaul features: Currency detection (USD auto-detected), Exchange Rates admin tab, Duration tier selectors on homepage, Annual tier Contact for Pricing, 4-step enrollment flow with Promo Code validation, Quote Request form. All 14 backend tests passed. All frontend flows verified working.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iteration11_new_features.py",
+    "/app/test_reports/pytest/pytest_iteration11.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "CurrencyContext.js correctly implements auto-detection from /api/currency/detect and shows single currency only",
+    "ProgramsSection.jsx has tier selector with data-testid attributes, Annual tier correctly shows Contact for Pricing button",
+    "EnrollmentPage.jsx implements 4-step flow: Participants → Review+Promo → Billing+OTP → Pay",
+    "Promo code validation POST /api/promotions/validate works with percentage and fixed discounts",
+    "ContactPage.jsx correctly pre-fills message when accessed with program/tier URL params",
+    "ExchangeRatesTab.jsx displays editable table of 38+ currencies with Save/Reload buttons",
+    "Quote request POST /api/enrollment/quote-request saves to DB successfully"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iteration11_new_features.py"
+  ],
+  "success_rate": {
+    "backend": "100% (14/14 tests passed)",
+    "frontend": "100% (all major features working)"
+  },
+  "test_credentials": {
+    "admin_url": "/admin",
+    "admin_username": "admin",
+    "admin_password": "divineadmin2024"
+  },
+  "seed_data_creation": "Using existing programs seeded in iteration 10. Two promo codes exist: EARLY50 (fixed), NY2026 (15% percentage)",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "All major overhaul features verified. Currency detection returns USD for US server. 4-step enrollment flow works end-to-end. Promo codes EARLY50 and NY2026 are active. Phone OTP is MOCKED (returned in API response). Annual tier shows 'Contact for Pricing' button.",
+  "mocked_features": {
+    "phone_otp": "MOCKED - OTP generated server-side, returned in API response field 'mock_otp' for testing"
+  },
+  "features_tested": {
+    "currency_detection": {
+      "GET /api/currency/detect": "PASS - Returns {currency: usd, symbol: USD, country: US, rate: 1.0, is_primary: true}",
+      "single_currency_display": "PASS - Homepage shows prices in USD only (no AED/INR shown)"
+    },
+    "exchange_rates": {
+      "GET /api/currency/exchange-rates": "PASS - Returns base=aed with 38 currency rates",
+      "admin_tab": "PASS - Exchange Rates tab shows editable table with Currency/Code/Rate columns"
+    },
+    "homepage_flagship_programs": {
+      "cards_count": "PASS - 6 program cards displayed",
+      "tier_selectors": "PASS - All 6 cards have 1 Month/3 Months/Annual buttons",
+      "tier_click_no_navigation": "PASS - Clicking tier buttons changes price display, does NOT navigate away",
+      "annual_tier": "PASS - Shows 'Contact for Pricing' button instead of price/enroll",
+      "enroll_button": "PASS - 'Enroll Now' button visible for priced tiers"
+    },
+    "contact_for_pricing": {
+      "navigation": "PASS - Clicking 'Contact for Pricing' navigates to /contact with program params",
+      "url_params": "PASS - URL contains ?program=1&title=...&tier=Annual",
+      "heading": "PASS - Page shows 'Request a Quote' heading",
+      "pre_filled_message": "PASS - Message field pre-filled with tier/program info"
+    },
+    "enrollment_4_step_flow": {
+      "step_indicator": "PASS - Shows 4 steps: Participants, Review, Billing, Pay",
+      "step_1_participants": "PASS - Form with name, relationship, age, gender, country, mode fields",
+      "step_2_review_cart": "PASS - Shows cart summary with participant list, prices, total",
+      "step_2_promo_code": "PASS - Promo input field with Apply button",
+      "step_3_billing_otp": "PASS - Booker name/email/country/phone fields, OTP verification",
+      "step_4_pay": "PASS - Final summary with Pay button showing total in USD"
+    },
+    "promo_code_validation": {
+      "POST /api/promotions/validate": "PASS - Returns discount info for valid codes",
+      "percentage_discount": "PASS - NY2026 returns 15% off",
+      "fixed_discount": "PASS - EARLY50 returns fixed USD 15 / AED 50 / INR 1000",
+      "invalid_code": "PASS - Returns 404 for invalid codes",
+      "ui_discount_display": "PASS - Cart shows 'Saving USD 30' and updated total"
+    },
+    "quote_request": {
+      "POST /api/enrollment/quote-request": "PASS - Saves quote request to database"
+    },
+    "program_detail_page": {
+      "duration_tiers": "PASS - Shows 3 tier cards (1 Month, 3 Months, Annual)",
+      "single_currency": "PASS - Prices shown in USD only",
+      "annual_contact_us": "PASS - Annual tier shows 'Contact Us' button"
+    },
+    "admin_exchange_rates_tab": {
+      "table_display": "PASS - Table with 38 currency rows",
+      "editable_inputs": "PASS - Rate values are editable",
+      "save_button": "PASS - Save button present",
+      "reload_button": "PASS - Reload button present"
+    }
+  },
+  "existing_promo_codes": [
+    {"code": "EARLY50", "type": "fixed", "discount_aed": 50, "discount_inr": 1000, "discount_usd": 15},
+    {"code": "NY2026", "type": "percentage", "discount_percentage": 15}
+  ]
+}

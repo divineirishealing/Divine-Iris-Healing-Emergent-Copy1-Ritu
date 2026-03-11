@@ -6,6 +6,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import FloatingButtons from '../components/FloatingButtons';
 import { resolveImageUrl } from '../lib/imageUtils';
+import { useCurrency } from '../context/CurrencyContext';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -13,6 +14,7 @@ const API = `${BACKEND_URL}/api`;
 function ProgramDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { getPrice, getOfferPrice, symbol } = useCurrency();
   const [program, setProgram] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
@@ -137,11 +139,13 @@ function ProgramDetailPage() {
               <div className={`grid gap-4 ${program.duration_tiers.length === 3 ? 'sm:grid-cols-3' : program.duration_tiers.length === 2 ? 'sm:grid-cols-2' : 'max-w-xs mx-auto'}`}>
                 {program.duration_tiers.map((tier, idx) => {
                   const isAnnual = tier.label.toLowerCase().includes('annual') || tier.label.toLowerCase().includes('year') || tier.duration_unit === 'year';
-                  const showContact = isAnnual && (!tier.price_aed || tier.price_aed === 0);
+                  const tierPrice = getPrice(program, idx);
+                  const tierOffer = getOfferPrice(program, idx);
+                  const showContact = isAnnual && tierPrice === 0;
                   return (
                     <div key={idx} data-testid={`tier-${idx}`}
                       className="border-2 border-gray-200 hover:border-[#D4AF37] rounded-xl p-5 transition-all duration-300 cursor-pointer group hover:shadow-lg"
-                      onClick={() => showContact ? navigate('/contact') : navigate(`/enroll/program/${program.id}?tier=${idx}`)}>
+                      onClick={() => showContact ? navigate(`/contact?program=${program.id}&title=${encodeURIComponent(program.title)}&tier=${tier.label}`) : navigate(`/enroll/program/${program.id}?tier=${idx}`)}>
                       <p className="text-lg font-semibold text-gray-900 group-hover:text-[#D4AF37] transition-colors">{tier.label}</p>
                       {showContact ? (
                         <div className="mt-3">
@@ -150,10 +154,17 @@ function ProgramDetailPage() {
                         </div>
                       ) : (
                         <div className="mt-2">
-                          <div className="space-y-0.5 mb-3">
-                            {tier.price_aed > 0 && <p className="text-sm"><span className="text-gray-400">AED</span> <span className="font-bold">{tier.price_aed}</span></p>}
-                            {tier.price_inr > 0 && <p className="text-sm"><span className="text-gray-400">INR</span> <span className="font-bold">{tier.price_inr.toLocaleString()}</span></p>}
-                            {tier.price_usd > 0 && <p className="text-sm"><span className="text-gray-400">USD</span> <span className="font-bold">{tier.price_usd}</span></p>}
+                          <div className="mb-3">
+                            {tierOffer > 0 ? (
+                              <>
+                                <p className="text-lg font-bold text-[#D4AF37]">{symbol} {tierOffer.toLocaleString()}</p>
+                                <p className="text-xs text-gray-400 line-through">{symbol} {tierPrice.toLocaleString()}</p>
+                              </>
+                            ) : tierPrice > 0 ? (
+                              <p className="text-lg font-bold text-gray-900">{symbol} {tierPrice.toLocaleString()}</p>
+                            ) : (
+                              <p className="text-sm text-gray-500 italic">Contact for pricing</p>
+                            )}
                           </div>
                           <span className="inline-block bg-gray-900 group-hover:bg-[#D4AF37] text-white text-xs py-2 px-6 rounded-full transition-colors">Select</span>
                         </div>

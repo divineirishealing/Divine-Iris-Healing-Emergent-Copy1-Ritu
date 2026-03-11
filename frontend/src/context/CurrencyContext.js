@@ -8,56 +8,92 @@ const CurrencyContext = createContext(null);
 
 export const useCurrency = () => useContext(CurrencyContext);
 
-const SYMBOLS = { aed: 'AED', usd: '$', inr: '₹', eur: '€', gbp: '£' };
-
 export const CurrencyProvider = ({ children }) => {
   const [currency, setCurrency] = useState('aed');
-  const [currencies, setCurrencies] = useState([]);
+  const [symbol, setSymbol] = useState('AED');
+  const [country, setCountry] = useState('AE');
+  const [rate, setRate] = useState(1.0);
+  const [isPrimary, setIsPrimary] = useState(true);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     detectCurrency();
-    loadCurrencies();
   }, []);
 
   const detectCurrency = async () => {
     try {
       const response = await axios.get(`${API}/currency/detect`);
-      setCurrency(response.data.currency);
-    } catch (error) {
+      const d = response.data;
+      setCurrency(d.currency);
+      setSymbol(d.symbol);
+      setCountry(d.country);
+      setRate(d.rate);
+      setIsPrimary(d.is_primary);
+    } catch {
       setCurrency('aed');
+      setSymbol('AED');
+      setCountry('AE');
+      setRate(1.0);
+      setIsPrimary(true);
+    } finally {
+      setReady(true);
     }
   };
 
-  const loadCurrencies = async () => {
-    try {
-      const response = await axios.get(`${API}/currency/supported`);
-      setCurrencies(response.data.currencies);
-    } catch (error) {
-      setCurrencies([
-        { code: 'aed', symbol: 'AED', name: 'UAE Dirham' },
-        { code: 'usd', symbol: '$', name: 'US Dollar' },
-        { code: 'inr', symbol: '₹', name: 'Indian Rupee' },
-        { code: 'eur', symbol: '€', name: 'Euro' },
-        { code: 'gbp', symbol: '£', name: 'British Pound' },
-      ]);
+  const getPrice = (item, tierIndex = null) => {
+    if (!item) return 0;
+    const tiers = item.duration_tiers || [];
+    const hasTiers = item.is_flagship && tiers.length > 0;
+    const tier = hasTiers && tierIndex !== null ? tiers[tierIndex] : null;
+
+    if (isPrimary) {
+      const key = `price_${currency}`;
+      if (tier) return tier[key] || 0;
+      return item[key] || 0;
     }
+    // Convert from AED for non-primary currencies
+    const aedPrice = tier ? (tier.price_aed || 0) : (item.price_aed || 0);
+    return Math.round(aedPrice * rate);
   };
 
-  const getSymbol = (code) => SYMBOLS[code] || code.toUpperCase();
+  const getOfferPrice = (item, tierIndex = null) => {
+    if (!item) return 0;
+    const tiers = item.duration_tiers || [];
+    const hasTiers = item.is_flagship && tiers.length > 0;
+    const tier = hasTiers && tierIndex !== null ? tiers[tierIndex] : null;
 
-  const getPrice = (item, cur = currency) => {
-    const key = `price_${cur}`;
-    return item[key] || 0;
+    if (tier) {
+      if (isPrimary) {
+        const key = `offer_${currency}`;
+        return tier[key] || 0;
+      }
+      return Math.round((tier.offer_aed || 0) * rate);
+    }
+    // Non-tier offer prices
+    if (isPrimary) {
+      if (currency === 'inr') return item.offer_price_inr || 0;
+      if (currency === 'usd') return item.offer_price_usd || 0;
+      return 0;
+    }
+    return 0;
   };
 
-  const formatPrice = (amount, cur = currency) => {
+  const formatPrice = (amount) => {
     if (!amount || amount <= 0) return null;
-    const sym = getSymbol(cur);
-    return `${sym} ${amount.toLocaleString()}`;
+    return `${symbol} ${amount.toLocaleString()}`;
+  };
+
+  const convertFromAed = (aedAmount) => {
+    if (isPrimary && currency === 'aed') return aedAmount;
+    if (isPrimary) return aedAmount; // For INR/USD, admin sets prices directly
+    return Math.round(aedAmount * rate);
   };
 
   return (
-    <CurrencyContext.Provider value={{ currency, setCurrency, currencies, getSymbol, getPrice, formatPrice }}>
+    <CurrencyContext.Provider value={{
+      currency, symbol, country, rate, isPrimary, ready,
+      getPrice, getOfferPrice, formatPrice, convertFromAed,
+    }}>
       {children}
     </CurrencyContext.Provider>
   );

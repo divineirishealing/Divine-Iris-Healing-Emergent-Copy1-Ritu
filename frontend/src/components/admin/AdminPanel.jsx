@@ -21,6 +21,7 @@ import HeaderFooterTab from './tabs/HeaderFooterTab';
 import EnrollmentsTab from './tabs/EnrollmentsTab';
 import GlobalStylesTab from './tabs/GlobalStylesTab';
 import PromotionsTab from './tabs/PromotionsTab';
+import ExchangeRatesTab from './tabs/ExchangeRatesTab';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -164,6 +165,7 @@ const AdminPanel = () => {
     { key: 'header_footer', label: 'Header & Footer', icon: Globe },
     { key: 'enrollments', label: 'Enrollments', icon: Users },
     { key: 'promotions', label: 'Promotions', icon: Gift },
+    { key: 'exchange_rates', label: 'Exchange Rates', icon: Globe },
     { key: 'subscribers', label: 'Subscribers', icon: Mail, count: subscribers.length },
     { key: 'styles', label: 'Global Styles', icon: Palette },
   ];
@@ -242,6 +244,7 @@ const AdminPanel = () => {
 
           {activeTab === 'enrollments' && <EnrollmentsTab />}
           {activeTab === 'promotions' && <PromotionsTab programs={programs} />}
+          {activeTab === 'exchange_rates' && <ExchangeRatesTab />}
 
           {/* ===== PROGRAMS TAB ===== */}
           {activeTab === 'programs' && (
