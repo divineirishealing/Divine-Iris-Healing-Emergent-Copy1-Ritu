@@ -17,6 +17,13 @@ Build a pixel-perfect clone of https://divineirishealing.com/ with comprehensive
 - [x] **Duration tier pricing** flows correctly through enrollment → OTP → Stripe checkout
 - [x] **Multi-currency support** — Stripe receives correct amount in detected currency (USD/AED/INR)
 
+### UID System, Referral, Cart Discount Fix, 32 Countries (COMPLETED - Mar 12, 2026)
+- [x] **UID System** — Auto-generated `DIH-{PROGRAM}-{INITIALS}-{SEQ}` format (e.g., DIH-AWRP-JD-0001) using MongoDB counter. Generated on payment confirmation, shown on success page and email
+- [x] **Cart Discount Bug Fixed** — CartContext now stores offer prices; CartPage/CartCheckoutPage show strikethrough for discounted items
+- [x] **32 Country Codes** — Added 15 more countries (Nepal, Kuwait, Oman, Bahrain, Philippines, Indonesia, Thailand, Kenya, Nigeria, Egypt, Turkey, Italy, Spain, Netherlands, New Zealand)
+- [x] **Referral Toggle** — "Referred by a Divine Iris member" checkbox + referrer name field on enrollment and cart pages
+- [x] **Backend Offer Price Fix** — Stripe checkout now uses offer_price_{currency} when > 0 for all currencies including AED
+
 ### Bug Fixes — Mar 12, 2026
 - [x] **Image Upload Fixed** — Rewrote ImageUploader with proper drag-and-drop support (onDrop, onDragOver handlers) and click-to-upload via hidden file input ref
 - [x] **Phone/WhatsApp Country Codes** — Added mandatory country code dropdown (+91, +971, +1, etc.) before phone and WhatsApp fields in both Enrollment and Cart pages, with 10-digit limit
