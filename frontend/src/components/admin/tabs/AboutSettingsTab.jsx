@@ -137,14 +137,22 @@ const AboutSettingsTab = ({ settings, onChange }) => {
         <p className="text-[10px] text-gray-400 mb-3">The "Our Philosophy" and "Work & Impact" cards on /about page.</p>
         <div className="space-y-3">
           <div>
-            <Label className="text-[10px] text-gray-500">Our Philosophy</Label>
-            <Textarea data-testid="about-philosophy" value={s.about_philosophy || ''} onChange={e => set('about_philosophy', e.target.value)} rows={3} placeholder="Dimple believes in 'living limitless effortlessly'..." className="text-xs" />
-            <FontControls label="Philosophy" style={s.about_philosophy_style || {}} onStyleChange={v => set('about_philosophy_style', v)} />
+            <Label className="text-[10px] text-gray-500">Our Philosophy - Title</Label>
+            <FontControls label="Philosophy Title" style={s.about_philosophy_title_style || {}} onStyleChange={v => set('about_philosophy_title_style', v)} />
           </div>
           <div>
-            <Label className="text-[10px] text-gray-500">Work & Impact</Label>
+            <Label className="text-[10px] text-gray-500">Our Philosophy - Body</Label>
+            <Textarea data-testid="about-philosophy" value={s.about_philosophy || ''} onChange={e => set('about_philosophy', e.target.value)} rows={3} placeholder="Dimple believes in 'living limitless effortlessly'..." className="text-xs" />
+            <FontControls label="Philosophy Body" style={s.about_philosophy_style || {}} onStyleChange={v => set('about_philosophy_style', v)} />
+          </div>
+          <div>
+            <Label className="text-[10px] text-gray-500">Work & Impact - Title</Label>
+            <FontControls label="Impact Title" style={s.about_impact_title_style || {}} onStyleChange={v => set('about_impact_title_style', v)} />
+          </div>
+          <div>
+            <Label className="text-[10px] text-gray-500">Work & Impact - Body</Label>
             <Textarea data-testid="about-impact" value={s.about_impact || ''} onChange={e => set('about_impact', e.target.value)} rows={3} placeholder="As the creator of the Atomic Weight Release Program..." className="text-xs" />
-            <FontControls label="Impact" style={s.about_impact_style || {}} onStyleChange={v => set('about_impact_style', v)} />
+            <FontControls label="Impact Body" style={s.about_impact_style || {}} onStyleChange={v => set('about_impact_style', v)} />
           </div>
         </div>
       </div>
@@ -155,18 +163,31 @@ const AboutSettingsTab = ({ settings, onChange }) => {
         <p className="text-[10px] text-gray-400 mb-3">The dark section on /about page.</p>
         <div className="space-y-3">
           <div>
+            <Label className="text-[10px] text-gray-500">Section Title ("Mission & Vision")</Label>
+            <FontControls label="Section Title" style={s.about_mv_section_title_style || {}} onStyleChange={v => set('about_mv_section_title_style', v)} />
+          </div>
+          <div>
             <Label className="text-[10px] text-gray-500">Section Subtitle</Label>
             <Input data-testid="about-mv-subtitle" value={s.about_mission_vision_subtitle || ''} onChange={e => set('about_mission_vision_subtitle', e.target.value)} placeholder="Where healing meets awareness..." className="text-xs" />
+            <FontControls label="Section Subtitle" style={s.about_mv_section_subtitle_style || {}} onStyleChange={v => set('about_mv_section_subtitle_style', v)} />
           </div>
           <div>
-            <Label className="text-[10px] text-gray-500">Our Mission</Label>
+            <Label className="text-[10px] text-gray-500">Our Mission - Title</Label>
+            <FontControls label="Mission Title" style={s.about_mission_title_style || {}} onStyleChange={v => set('about_mission_title_style', v)} />
+          </div>
+          <div>
+            <Label className="text-[10px] text-gray-500">Our Mission - Body</Label>
             <Textarea data-testid="about-mission" value={s.about_mission || ''} onChange={e => set('about_mission', e.target.value)} rows={3} placeholder="To alleviate suffering at its root..." className="text-xs" />
-            <FontControls label="Mission" style={s.about_mission_style || {}} onStyleChange={v => set('about_mission_style', v)} />
+            <FontControls label="Mission Body" style={s.about_mission_style || {}} onStyleChange={v => set('about_mission_style', v)} />
           </div>
           <div>
-            <Label className="text-[10px] text-gray-500">Our Vision</Label>
+            <Label className="text-[10px] text-gray-500">Our Vision - Title</Label>
+            <FontControls label="Vision Title" style={s.about_vision_title_style || {}} onStyleChange={v => set('about_vision_title_style', v)} />
+          </div>
+          <div>
+            <Label className="text-[10px] text-gray-500">Our Vision - Body</Label>
             <Textarea data-testid="about-vision" value={s.about_vision || ''} onChange={e => set('about_vision', e.target.value)} rows={3} placeholder="To build a world where healing is humane..." className="text-xs" />
-            <FontControls label="Vision" style={s.about_vision_style || {}} onStyleChange={v => set('about_vision_style', v)} />
+            <FontControls label="Vision Body" style={s.about_vision_style || {}} onStyleChange={v => set('about_vision_style', v)} />
           </div>
         </div>
       </div>

@@ -287,9 +287,15 @@ class SiteSettings(BaseModel):
     about_title_style: Optional[Dict] = None
     about_bio_style: Optional[Dict] = None
     about_philosophy_style: Optional[Dict] = None
+    about_philosophy_title_style: Optional[Dict] = None
     about_impact_style: Optional[Dict] = None
+    about_impact_title_style: Optional[Dict] = None
     about_mission_style: Optional[Dict] = None
+    about_mission_title_style: Optional[Dict] = None
     about_vision_style: Optional[Dict] = None
+    about_vision_title_style: Optional[Dict] = None
+    about_mv_section_title_style: Optional[Dict] = None
+    about_mv_section_subtitle_style: Optional[Dict] = None
     # Newsletter section
     newsletter_heading: str = "Join Our Community"
     # Page heroes - centralized hero styles for all pages
@@ -389,9 +395,15 @@ class SiteSettingsUpdate(BaseModel):
     about_title_style: Optional[Dict] = None
     about_bio_style: Optional[Dict] = None
     about_philosophy_style: Optional[Dict] = None
+    about_philosophy_title_style: Optional[Dict] = None
     about_impact_style: Optional[Dict] = None
+    about_impact_title_style: Optional[Dict] = None
     about_mission_style: Optional[Dict] = None
+    about_mission_title_style: Optional[Dict] = None
     about_vision_style: Optional[Dict] = None
+    about_vision_title_style: Optional[Dict] = None
+    about_mv_section_title_style: Optional[Dict] = None
+    about_mv_section_subtitle_style: Optional[Dict] = None
     newsletter_heading: Optional[str] = None
     page_heroes: Optional[Dict] = None
     media_page_visible: Optional[bool] = None

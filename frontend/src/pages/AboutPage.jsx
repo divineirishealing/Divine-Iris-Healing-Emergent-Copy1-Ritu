@@ -105,12 +105,12 @@ export default function AboutPage() {
           <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             <div className="bg-white rounded-lg p-10 shadow-sm" data-testid="philosophy-card">
               <Heart size={32} strokeWidth={1.2} color={GOLD} className="mb-5" />
-              <h3 className="mb-4" style={{ ...HEADING, fontSize: '1.2rem' }}>Our Philosophy</h3>
+              <h3 className="mb-4" style={applyStyle(s.about_philosophy_title_style, { ...HEADING, fontSize: '1.2rem' })}>Our Philosophy</h3>
               <RichText style={applyStyle(s.about_philosophy_style, BODY)}>{s.about_philosophy || "Dimple believes in 'living limitless effortlessly.' Healing should not be forceful or complex. When body, mind, and soul are aligned, healing unfolds naturally."}</RichText>
             </div>
             <div className="bg-white rounded-lg p-10 shadow-sm" data-testid="impact-card">
               <Sun size={32} strokeWidth={1.2} color={GOLD} className="mb-5" />
-              <h3 className="mb-4" style={{ ...HEADING, fontSize: '1.2rem' }}>Work & Impact</h3>
+              <h3 className="mb-4" style={applyStyle(s.about_impact_title_style, { ...HEADING, fontSize: '1.2rem' })}>Work & Impact</h3>
               <RichText style={applyStyle(s.about_impact_style, BODY)}>{s.about_impact || "As the creator of the Atomic Weight Release Program, Dimple introduced a revolutionary consciousness-based approach involving atomic, subconscious, and DNA-expression levels."}</RichText>
             </div>
           </div>
@@ -121,15 +121,15 @@ export default function AboutPage() {
       <section className={SECTION_PY} style={{ background: '#1a1a1a' }} data-testid="mission-vision">
         <div className={CONTAINER}>
           <div className="max-w-5xl mx-auto">
-            <h2 className="text-center mb-2" style={{ ...HEADING, color: '#fff', fontSize: '1.6rem' }}>Mission & Vision</h2>
-            <p className="text-center mb-12" style={{ ...SUBTITLE, fontSize: '0.75rem' }}>{s.about_mission_vision_subtitle || 'Where healing meets awareness, and transformation begins from within.'}</p>
+            <h2 className="text-center mb-2" style={applyStyle(s.about_mv_section_title_style, { ...HEADING, color: '#fff', fontSize: '1.6rem' })}>Mission & Vision</h2>
+            <p className="text-center mb-12" style={applyStyle(s.about_mv_section_subtitle_style, { ...SUBTITLE, fontSize: '0.75rem' })}>{s.about_mission_vision_subtitle || 'Where healing meets awareness, and transformation begins from within.'}</p>
             <div className="grid md:grid-cols-2 gap-12">
               <div>
-                <h3 className="mb-4" style={{ ...HEADING, color: '#fff', fontSize: '1.1rem' }}>Our Mission</h3>
+                <h3 className="mb-4" style={applyStyle(s.about_mission_title_style, { ...HEADING, color: '#fff', fontSize: '1.1rem' })}>Our Mission</h3>
                 <RichText style={applyStyle(s.about_mission_style, { ...BODY, color: '#aaa' })}>{s.about_mission || "To alleviate suffering at its root — supporting individuals in releasing emotional, mental, subconscious, and karmic weight."}</RichText>
               </div>
               <div>
-                <h3 className="mb-4" style={{ ...HEADING, color: '#fff', fontSize: '1.1rem' }}>Our Vision</h3>
+                <h3 className="mb-4" style={applyStyle(s.about_vision_title_style, { ...HEADING, color: '#fff', fontSize: '1.1rem' })}>Our Vision</h3>
                 <RichText style={applyStyle(s.about_vision_style, { ...BODY, color: '#aaa' })}>{s.about_vision || "To build a world where healing is humane, conscious, and sustainable."}</RichText>
               </div>
             </div>
