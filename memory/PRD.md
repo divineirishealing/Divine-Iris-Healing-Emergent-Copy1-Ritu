@@ -57,6 +57,15 @@ Build a pixel-perfect clone of https://divineirishealing.com/ with comprehensive
 - [x] Testimonials lightbox — graphic testimonials zoom on click (image Dialog)
 - [x] Video testimonials still open YouTube embed modal
 
+### Sponsor Contribution Form + Payment Gateway (Mar 12, 2026)
+- [x] "Become a Sponsor" button → reveals full contribution form
+- [x] Form: Full Name, Email + Verify, Amount with auto-detected currency badge, Message, Anonymous checkbox
+- [x] "Proceed to Payment" → Stripe checkout via /api/payments/sponsor-checkout
+- [x] Transaction stored with item_type='sponsor' in payment_transactions
+- [x] Sponsor hero title/subtitle editable via Page Headers admin tab
+- [x] About page section title fonts editable: Philosophy, Impact, Mission & Vision titles
+- [x] Sponsor row added to Page Headers tab
+
 ### Centralized Page Headers + New Pages (Mar 12, 2026)
 - [x] Page Headers admin tab: edit hero title/subtitle + font styles for ALL pages in rows
 - [x] Pages covered: Homepage, About, Transformations, Media, Blog, + all programs
