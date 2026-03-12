@@ -178,7 +178,7 @@ function ProgramDetailPage() {
 
           {/* Mode + dates - minimal */}
           <div className="flex justify-center gap-4 mb-6 text-xs text-gray-400">
-            {program.session_mode && <span>{program.session_mode === 'online' ? 'Online' : 'Remote / Hybrid'}</span>}
+            {program.session_mode && <span>{program.session_mode === 'online' ? 'Online (Zoom)' : 'Remote Healing (Distance)'}</span>}
             {program.start_date && <span>Starts: {program.start_date}</span>}
             {program.end_date && <span>Ends: {program.end_date}</span>}
           </div>

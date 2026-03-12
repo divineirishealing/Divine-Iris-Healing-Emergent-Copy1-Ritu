@@ -34,7 +34,7 @@ def enrollment_confirmation_email(booker_name, item_title, participants, total, 
     participant_rows = ""
     for p in participants:
         mode = p.get("attendance_mode", "online")
-        mode_label = "Online (Zoom)" if mode == "online" else "Remote Healing"
+        mode_label = "Online (Zoom)" if mode == "online" else "Remote Healing (Distance)"
         mode_color = "#2563eb" if mode == "online" else "#7c3aed"
         first_time = "Yes" if p.get("is_first_time") else "No"
         uid = p.get("uid", "")
@@ -138,8 +138,8 @@ def enrollment_confirmation_email(booker_name, item_title, participants, total, 
 
 
 def participant_notification_email(participant_name, item_title, attendance_mode, booker_name):
-    mode_label = "Online (Zoom)" if attendance_mode == "online" else "Remote Healing"
-    mode_detail = "You will receive a Zoom link closer to the session date." if attendance_mode == "online" else "This is a remote healing session — no call needed. The healer will work on your energy remotely during the scheduled time."
+    mode_label = "Online (Zoom)" if attendance_mode == "online" else "Remote Healing (Distance)"
+    mode_detail = "You will receive a Zoom link closer to the session date." if attendance_mode == "online" else "This is a remote/distance healing session — no in-person visit needed. The healer will work on your energy remotely during the scheduled time."
 
     html = f"""
     <!DOCTYPE html>

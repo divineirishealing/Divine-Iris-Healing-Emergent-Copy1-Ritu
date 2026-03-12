@@ -53,7 +53,7 @@ const ProgramCard = ({ program }) => {
           <span className={`absolute top-3 left-3 text-[10px] px-2.5 py-1 rounded-full font-medium ${
             program.session_mode === 'online' ? 'bg-blue-500/90 text-white' : 'bg-purple-500/90 text-white'
           }`}>
-            {program.session_mode === 'online' ? 'Online' : 'Remote / Hybrid'}
+            {program.session_mode === 'online' ? 'Online' : 'Remote Healing (Distance)'}
           </span>
         )}
         {program.offer_text && (
@@ -141,7 +141,8 @@ const ProgramsSection = () => {
   return (
     <section id="programs" data-testid="programs-section" className="py-20 bg-white">
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl md:text-4xl text-center text-gray-900 mb-16">Flagship Programs</h2>
+        <h2 className="text-3xl md:text-4xl text-center text-gray-900 mb-4">Flagship Programs</h2>
+        <p className="text-center text-xs text-gray-400 mb-16">We do not offer in-person sessions. All sessions are conducted online via Zoom or through remote / distance healing.</p>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {programs.slice(0, 6).map(p => <ProgramCard key={p.id} program={p} />)}
         </div>

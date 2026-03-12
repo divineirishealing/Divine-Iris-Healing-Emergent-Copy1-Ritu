@@ -273,7 +273,7 @@ const AdminPanel = () => {
                     <div>
                       <Label>Mode</Label>
                       <select value={programForm.session_mode} onChange={e => setProgramForm({...programForm, session_mode: e.target.value, program_type: e.target.value})} className="w-full border rounded-md px-3 py-2 text-sm">
-                        <option value="online">Online</option><option value="remote">Remote / Hybrid</option>
+                        <option value="online">Online</option><option value="remote">Remote Healing (Distance)</option>
                       </select>
                     </div>
                     <div><Label>Duration</Label><Input value={programForm.duration||''} onChange={e => setProgramForm({...programForm, duration: e.target.value})} placeholder="e.g., 90 days" /></div>

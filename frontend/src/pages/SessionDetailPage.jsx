@@ -146,7 +146,7 @@ function SessionDetailPage() {
               <div className="bg-blue-50 border-l-4 border-blue-500 p-6 rounded">
                 <h3 className="text-lg font-semibold text-blue-900 mb-2">Note</h3>
                 <p className="text-blue-800">
-                  All sessions are conducted remotely or in-person based on your preference. Each session is customized to your unique needs and current state.
+                  All sessions are conducted online via Zoom or through remote / distance healing. We do not offer in-person sessions. Each session is customized to your unique needs and current state.
                 </p>
               </div>
             </div>
