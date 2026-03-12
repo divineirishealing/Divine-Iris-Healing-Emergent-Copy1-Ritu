@@ -65,15 +65,15 @@ export default function AboutPage() {
             </div>
           )}
 
-          <div className="grid md:grid-cols-2 gap-12 items-start max-w-5xl mx-auto">
-            <div>
+          <div className="grid md:grid-cols-12 gap-12 items-start max-w-5xl mx-auto">
+            <div className="md:col-span-5">
               {aboutImage && (
-                <div className="rounded-lg overflow-hidden">
-                  <img src={aboutImage} alt={s.about_name || ''} data-testid="about-image" className="w-full max-h-[450px]" style={{ objectFit: s.about_image_fit || 'contain', objectPosition: s.about_image_position || 'center top' }} />
+                <div className="rounded-md overflow-hidden">
+                  <img src={aboutImage} alt={s.about_name || ''} data-testid="about-image" className="w-full" style={{ objectFit: s.about_image_fit || 'fill', objectPosition: s.about_image_position || 'center', aspectRatio: '539/558' }} />
                 </div>
               )}
             </div>
-            <div>
+            <div className="md:col-span-7">
               <p className="mb-3" style={LABEL}>{s.about_subtitle || 'MEET THE HEALER'}</p>
               <h2 data-testid="about-name" className="mb-2" style={applyStyle(s.about_name_style, { ...HEADING, fontSize: '2rem' })}>{s.about_name || 'Dimple Ranawat'}</h2>
               <p className="mb-6" style={applyStyle(s.about_title_style, { ...SUBTITLE, color: GOLD, fontSize: '0.9rem' })}>{s.about_title || 'Founder, Divine Iris – Soulful Healing Studio'}</p>

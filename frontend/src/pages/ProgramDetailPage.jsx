@@ -141,11 +141,11 @@ function ProgramDetailPage() {
               {section.title || 'Your Experience'}
             </h2>
             <div className="w-12 h-0.5 mx-auto mb-12" style={{ background: GOLD }} />
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-              <div className="overflow-hidden rounded-lg">
-                {sectionImg && <img src={sectionImg} alt="Experience" className="w-full h-80" style={{ objectFit: section.image_fit || 'cover', objectPosition: section.image_position || 'center' }} onError={(e) => { e.target.style.display = 'none'; }} />}
+            <div className="grid md:grid-cols-12 gap-12 items-center">
+              <div className="md:col-span-5 overflow-hidden rounded-md">
+                {sectionImg && <img src={sectionImg} alt="Experience" className="w-full" style={{ objectFit: section.image_fit || 'fill', objectPosition: section.image_position || 'center', aspectRatio: '539/558' }} onError={(e) => { e.target.style.display = 'none'; }} />}
               </div>
-              <div>
+              <div className="md:col-span-7">
                 {section.body && (
                   <div className="border-l-2 pl-6" style={{ borderColor: GOLD }}>
                     <BodyText style={section.body_style} className="italic" >{section.body}</BodyText>

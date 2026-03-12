@@ -30,16 +30,16 @@ const AboutSection = () => {
           </div>
         )}
 
-        <div className="grid md:grid-cols-2 gap-12 items-start max-w-5xl mx-auto">
-          <div className="order-2 md:order-1">
+        <div className="grid md:grid-cols-12 gap-12 items-start max-w-5xl mx-auto">
+          <div className="md:col-span-5 order-2 md:order-1">
             {aboutImage && (
-              <div className="rounded-lg overflow-hidden">
-                <img src={aboutImage} alt={s.about_name || 'Healer'} className="w-full max-h-[450px]" style={{ objectFit: s.about_image_fit || 'contain', objectPosition: s.about_image_position || 'center top' }} onError={(e) => { e.target.style.display = 'none'; }} />
+              <div className="rounded-md overflow-hidden">
+                <img src={aboutImage} alt={s.about_name || 'Healer'} data-testid="about-image" className="w-full" style={{ objectFit: s.about_image_fit || 'fill', objectPosition: s.about_image_position || 'center', aspectRatio: '539/558' }} onError={(e) => { e.target.style.display = 'none'; }} />
               </div>
             )}
           </div>
 
-          <div className="order-1 md:order-2">
+          <div className="md:col-span-7 order-1 md:order-2">
             <p className="mb-3" style={LABEL}>{s.about_subtitle || 'Meet the Healer'}</p>
             <h2 data-testid="about-heading" className="mb-2" style={{ ...HEADING, fontSize: '2rem' }}>{s.about_name || 'Dimple Ranawat'}</h2>
             <h3 className="mb-6" style={{ ...SUBTITLE, color: GOLD, fontSize: '0.9rem' }}>{s.about_title || 'Founder, Divine Iris – Soulful Healing Studio'}</h3>
