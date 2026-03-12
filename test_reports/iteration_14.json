@@ -1,0 +1,88 @@
+{
+  "summary": "Iteration 14 - Bug fixes verification: All 3 issues are FIXED. 1) Image upload in admin panel works (dropzone visible, file input present, click-to-upload and drag-drop supported via proper handlers), 2) Phone/WhatsApp fields in EnrollmentPage and CartPage have country code dropdown (+971 default) with 10-digit limit enforced, 3) Strike-off prices display correctly (offer price in gold, regular price with line-through). All 9 backend tests passed. UI verification via Playwright confirmed all fixes.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "All pages", "issues": ["404 errors for some external image resources (divineirishealing.com) - non-blocking, using fallback images"]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iteration14_bug_fixes.py",
+    "/app/test_reports/pytest/pytest_iteration14.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "ImageUploader.jsx: Properly implements drag-drop with onDrop, onDragOver, onDragLeave handlers and fileInputRef for click-to-upload",
+    "AdminPanel.jsx: Pricing table correctly shows 'Offer AED' column that saves to offer_price_aed field (line 348)",
+    "AdminPanel.jsx: editProgram() correctly loads offer_price_aed when editing program (line 82)",
+    "EnrollmentPage.jsx: phone_code and wa_code fields with COUNTRIES dropdown (lines 119-134)",
+    "EnrollmentPage.jsx: Phone input has maxLength={10} with digit-only filter (line 123)",
+    "CartPage.jsx: Same phone_code/wa_code dropdowns and 10-digit limit (lines 186-199)",
+    "CurrencyContext.js: getOfferPrice() handles non-tier programs for aed/inr/usd currencies (lines 73-77)",
+    "ProgramsSection.jsx: Line-through display at lines 96-97 shows offer price in gold and regular price struck through"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iteration14_bug_fixes.py"
+  ],
+  "success_rate": {
+    "backend": "100% (9/9 tests passed)",
+    "frontend": "100% (all bug fixes verified)"
+  },
+  "test_credentials": {
+    "admin_url": "/admin",
+    "admin_username": "admin",
+    "admin_password": "divineadmin2024"
+  },
+  "seed_data_creation": "Test program with offer prices created and deleted for strike-off verification. Enrollment test data created during API tests.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "All 3 bug fixes verified: 1) ImageUploader works with click and drag-drop, 2) Phone/WhatsApp fields have country code dropdowns with 10-digit limit in both EnrollmentPage and CartPage, 3) Strike-off prices display correctly with offer price in gold and regular price with line-through. Phone OTP is MOCKED (mock_otp returned in API response).",
+  "mocked_features": {
+    "phone_otp": "MOCKED - OTP generated server-side, returned in API response field 'mock_otp' for testing",
+    "stripe_payments": "Cannot fully test Stripe payment flow - requires real payment"
+  },
+  "features_tested": {
+    "image_upload": {
+      "admin_panel_dropzone": "PASS - data-testid='image-upload-dropzone' visible with proper styling",
+      "file_input_present": "PASS - Hidden file input with accept='image/*' found",
+      "click_to_upload": "PASS - triggerFileSelect() via onClick handler",
+      "drag_drop_handlers": "PASS - onDrop, onDragOver, onDragEnter, onDragLeave handlers present",
+      "upload_endpoint": "PASS - POST /api/upload/image returns {url, filename}",
+      "invalid_file_rejection": "PASS - Non-image files return 400 error"
+    },
+    "phone_country_code": {
+      "enrollment_page": {
+        "phone_code_dropdown": "PASS - data-testid='p-phone-code-0' with country codes (+91, +971, +1, etc.)",
+        "wa_code_dropdown": "PASS - data-testid='p-wa-code-0' with same country codes",
+        "phone_10_digit_limit": "PASS - maxLength=10 with regex filter allowing only digits",
+        "whatsapp_10_digit_limit": "PASS - maxLength=10 with same filter",
+        "backend_accepts_prefixed_phone": "PASS - Enrollment API accepts phone like '+971501234567'"
+      },
+      "cart_page": {
+        "phone_code_dropdown": "PASS - COUNTRIES_PHONE array with same codes",
+        "wa_code_dropdown": "PASS - Same dropdown implementation",
+        "10_digit_limit": "PASS - Same maxLength=10 and digit filter"
+      }
+    },
+    "strike_off_prices": {
+      "admin_offer_aed_column": "PASS - 'Offer AED' column in pricing table saves to offer_price_aed",
+      "admin_offer_aed_loads": "PASS - offer_price_aed loads correctly when editing program",
+      "api_returns_offer_price_aed": "PASS - GET /api/programs returns offer_price_aed field",
+      "currency_context_getOfferPrice": "PASS - getOfferPrice() returns offer_price_aed/usd/inr based on currency",
+      "enrollment_page_display": "PASS - Shows 'USD 199' in gold with 'USD 275' struck through",
+      "programs_section_display": "PASS - Code at lines 94-98 handles offerPrice > 0 case with line-through"
+    }
+  },
+  "screenshots_taken": [
+    ".screenshots/admin_program_form_image_uploader.png - ImageUploader dropzone visible in program form",
+    ".screenshots/admin_pricing_table.png - Pricing table with Offer AED column",
+    ".screenshots/admin_edit_program_pricing.png - Edit program showing pricing tiers with offer columns",
+    ".screenshots/enrollment_phone_fields.png - Enrollment page with country code dropdowns",
+    ".screenshots/enrollment_strike_off.png - Strike-off pricing display (USD 199 gold, USD 275 line-through)"
+  ]
+}

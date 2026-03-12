@@ -18,35 +18,62 @@ const ImageUploader = ({ value, onChange, label = "Image" }) => {
   const [uploading, setUploading] = useState(false);
   const [useUrl, setUseUrl] = useState(false);
   const [urlInput, setUrlInput] = useState(value || '');
+  const [dragOver, setDragOver] = useState(false);
   const { toast } = useToast();
   const fileInputRef = useRef(null);
 
-  const handleFileUpload = async (e) => {
-    const file = e.target.files?.[0];
+  const uploadFile = async (file) => {
     if (!file) return;
-
-    if (file.size > 5 * 1024 * 1024) {
-      toast({ title: 'File too large', description: 'Please select an image smaller than 5MB', variant: 'destructive' });
+    if (file.size > 10 * 1024 * 1024) {
+      toast({ title: 'File too large', description: 'Max 10MB', variant: 'destructive' });
       return;
     }
-
     if (!file.type.startsWith('image/')) {
-      toast({ title: 'Invalid file type', description: 'Please select an image file (JPG, PNG, GIF, WebP)', variant: 'destructive' });
+      toast({ title: 'Invalid file', description: 'Please select an image file', variant: 'destructive' });
       return;
     }
-
     setUploading(true);
     try {
       const formData = new FormData();
       formData.append('file', file);
-      const response = await axios.post(`${API}/upload/image`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+      const response = await axios.post(`${API}/upload/image`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 30000,
+      });
       onChange(response.data.url);
-      toast({ title: 'Image uploaded successfully!' });
+      toast({ title: 'Image uploaded!' });
     } catch (error) {
-      toast({ title: 'Upload failed', description: error.response?.data?.detail || 'Failed to upload image', variant: 'destructive' });
+      console.error('Upload error:', error);
+      toast({ title: 'Upload failed', description: error.response?.data?.detail || error.message || 'Failed to upload', variant: 'destructive' });
     } finally {
       setUploading(false);
     }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) uploadFile(file);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) uploadFile(file);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOver(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOver(false);
   };
 
   const handleUrlSubmit = () => {
@@ -62,15 +89,12 @@ const ImageUploader = ({ value, onChange, label = "Image" }) => {
   };
 
   const triggerFileSelect = () => {
-    if (fileInputRef.current && !uploading) {
-      fileInputRef.current.click();
-    }
+    if (fileInputRef.current && !uploading) fileInputRef.current.click();
   };
 
   return (
     <div className="space-y-3">
       <label className="text-sm font-medium text-gray-700">{label}</label>
-
       <div className="flex gap-2 mb-3">
         <Button type="button" size="sm" variant={!useUrl ? 'default' : 'outline'} onClick={() => setUseUrl(false)} className="flex-1">
           <Upload size={16} className="mr-2" /> Upload Image
@@ -82,33 +106,32 @@ const ImageUploader = ({ value, onChange, label = "Image" }) => {
 
       {!useUrl ? (
         <div>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleFileUpload}
-            disabled={uploading}
-            style={{ display: 'none' }}
-          />
+          <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} disabled={uploading} style={{ display: 'none' }} />
           <div
             onClick={triggerFileSelect}
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            onDragEnter={handleDragOver}
+            onDragLeave={handleDragLeave}
             role="button"
             tabIndex={0}
+            data-testid="image-upload-dropzone"
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') triggerFileSelect(); }}
-            className={`border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer hover:border-yellow-500 transition-colors ${
-              uploading ? 'opacity-50 cursor-not-allowed' : ''
+            className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer transition-colors ${
+              uploading ? 'opacity-50 cursor-not-allowed border-gray-300' :
+              dragOver ? 'border-[#D4AF37] bg-[#D4AF37]/5' : 'border-gray-300 hover:border-[#D4AF37]'
             }`}
           >
             {uploading ? (
               <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-600 mx-auto mb-3"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#D4AF37] mx-auto mb-3"></div>
                 <p className="text-sm text-gray-600">Uploading...</p>
               </div>
             ) : (
               <>
-                <Upload size={40} className="text-gray-400 mb-3" />
-                <p className="text-sm text-gray-600 mb-1">Click to upload or drag and drop</p>
-                <p className="text-xs text-gray-500">JPG, PNG, GIF, WebP (max 5MB)</p>
+                <Upload size={40} className={`mb-3 ${dragOver ? 'text-[#D4AF37]' : 'text-gray-400'}`} />
+                <p className="text-sm text-gray-600 mb-1">{dragOver ? 'Drop image here' : 'Click to upload or drag and drop'}</p>
+                <p className="text-xs text-gray-500">JPG, PNG, GIF, WebP (max 10MB)</p>
               </>
             )}
           </div>
@@ -122,7 +145,8 @@ const ImageUploader = ({ value, onChange, label = "Image" }) => {
 
       {value && (
         <div className="relative">
-          <img src={resolveUrl(value)} alt="Preview" className="w-full h-48 object-cover rounded-lg border-2 border-gray-200" onError={(e) => { e.target.src = 'https://via.placeholder.com/400x300?text=Image+Not+Found'; }} />
+          <img src={resolveUrl(value)} alt="Preview" className="w-full h-48 object-cover rounded-lg border-2 border-gray-200"
+            onError={(e) => { e.target.src = 'https://via.placeholder.com/400x300?text=Image+Not+Found'; }} />
           <button type="button" onClick={handleRemove} className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition-colors shadow-lg">
             <X size={16} />
           </button>

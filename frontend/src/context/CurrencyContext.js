@@ -71,6 +71,7 @@ export const CurrencyProvider = ({ children }) => {
     }
     // Non-tier offer prices
     if (isPrimary) {
+      if (currency === 'aed') return item.offer_price_aed || 0;
       if (currency === 'inr') return item.offer_price_inr || 0;
       if (currency === 'usd') return item.offer_price_usd || 0;
       return 0;
