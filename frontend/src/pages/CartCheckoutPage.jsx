@@ -101,13 +101,33 @@ function CartCheckoutPage() {
 
   const subtotal = items.reduce((sum, item) => sum + getEffectivePrice(item) * item.participants.length, 0);
   const totalParticipants = items.reduce((sum, i) => sum + i.participants.length, 0);
+  const numPrograms = items.length;
+
+  const [autoDiscounts, setAutoDiscounts] = useState({ group_discount: 0, combo_discount: 0, loyalty_discount: 0, total_discount: 0 });
+
+  // Fetch auto-discounts whenever subtotal, participants, or email changes
+  useEffect(() => {
+    if (subtotal <= 0) return;
+    const fetchDiscounts = async () => {
+      try {
+        const res = await axios.post(`${API}/discounts/calculate`, {
+          num_programs: numPrograms, num_participants: totalParticipants,
+          subtotal, email: bookerEmail, currency,
+        });
+        setAutoDiscounts(res.data);
+      } catch { setAutoDiscounts({ group_discount: 0, combo_discount: 0, loyalty_discount: 0, total_discount: 0 }); }
+    };
+    const timer = setTimeout(fetchDiscounts, 300);
+    return () => clearTimeout(timer);
+  }, [subtotal, totalParticipants, numPrograms, bookerEmail, currency]);
 
   const discount = (() => {
     if (!promoResult) return 0;
     if (promoResult.discount_type === 'percentage') return Math.round(subtotal * promoResult.discount_percentage / 100);
     return promoResult[`discount_${currency}`] || promoResult.discount_aed || 0;
   })();
-  const total = Math.max(0, subtotal - discount);
+  const totalAutoDiscount = autoDiscounts.total_discount || 0;
+  const total = Math.max(0, subtotal - discount - totalAutoDiscount);
 
   const validatePromo = async () => {
     if (!promoCode.trim()) return;
@@ -225,6 +245,21 @@ function CartCheckoutPage() {
                   <div className="flex justify-between text-xs text-gray-600">
                     <span>Subtotal</span><span>{symbol} {subtotal.toLocaleString()}</span>
                   </div>
+                  {autoDiscounts.group_discount > 0 && (
+                    <div className="flex justify-between text-xs text-green-600" data-testid="discount-group">
+                      <span>Group Discount ({totalParticipants} people)</span><span>-{symbol} {autoDiscounts.group_discount.toLocaleString()}</span>
+                    </div>
+                  )}
+                  {autoDiscounts.combo_discount > 0 && (
+                    <div className="flex justify-between text-xs text-green-600" data-testid="discount-combo">
+                      <span>Combo Discount ({numPrograms} programs)</span><span>-{symbol} {autoDiscounts.combo_discount.toLocaleString()}</span>
+                    </div>
+                  )}
+                  {autoDiscounts.loyalty_discount > 0 && (
+                    <div className="flex justify-between text-xs text-green-600" data-testid="discount-loyalty">
+                      <span>Loyalty Discount</span><span>-{symbol} {autoDiscounts.loyalty_discount.toLocaleString()}</span>
+                    </div>
+                  )}
                   {discount > 0 && (
                     <div className="flex justify-between text-xs text-green-600">
                       <span>Promo ({promoResult.code})</span><span>-{symbol} {discount.toLocaleString()}</span>

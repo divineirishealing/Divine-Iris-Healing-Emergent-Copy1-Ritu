@@ -1,0 +1,72 @@
+{
+  "summary": "Iteration 17 - All discount frontend display features verified. Group discounts (3+ participants = 10% off) and Combo discounts (2+ programs = 5% off) are correctly displaying on CartPage, CartCheckoutPage, and EnrollmentPage. Backend API POST /api/discounts/calculate returns correct discount breakdown. Admin Panel Discounts & Loyalty tab shows all 4 toggles working correctly.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iteration17_discounts_frontend.py",
+    "/app/test_reports/pytest/pytest_iteration17.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "CartPage.jsx: autoDiscounts state + useEffect with debounced POST /api/discounts/calculate - working correctly",
+    "CartPage.jsx: data-testid='cart-discount-group' and data-testid='cart-discount-combo' correctly displaying green discount lines",
+    "CartCheckoutPage.jsx: data-testid='discount-group', data-testid='discount-combo', data-testid='discount-loyalty' in Order Summary",
+    "EnrollmentPage.jsx: data-testid='enroll-discount-group' and data-testid='enroll-discount-loyalty' in price summary panel",
+    "discounts.py: POST /calculate correctly applies group discount first, then combo on remaining amount",
+    "All discount calculations are rounded to nearest integer"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iteration17_discounts_frontend.py"
+  ],
+  "success_rate": {
+    "backend": "100% (9/9 tests passed)",
+    "frontend": "100% (all discount features verified)"
+  },
+  "test_credentials": {
+    "admin_url": "/admin",
+    "admin_username": "admin",
+    "admin_password": "divineadmin2024"
+  },
+  "seed_data_creation": "No new seed data created.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "All discount frontend display features verified in iteration 17: (1) CartPage shows Combo Discount when 2+ programs and Group Discount when 3+ participants, (2) CartCheckoutPage Order Summary shows all discount lines (group, combo, loyalty), (3) EnrollmentPage left panel shows Group Discount and Loyalty Discount, (4) Admin Panel Discounts & Loyalty tab has all 4 toggles working (Referral, Group, Combo, Loyalty) with Active Discounts Preview section. Current settings: group_discount ON (3+ participants = 10% off), combo_discount ON (2+ programs = 5% off), loyalty ON (8% for returning clients). Phone OTP is MOCKED.",
+  "mocked_features": {
+    "phone_otp": "MOCKED - OTP generated server-side, returned in API response field 'mock_otp' for testing"
+  },
+  "features_tested": {
+    "cart_page_discounts": {
+      "combo_discount_display": "PASS - Green line 'Combo Discount (2 programs) -USD 42' visible when 2+ programs",
+      "group_discount_display": "PASS - Green line 'Group Discount (4 people) -USD 94' visible when 3+ participants",
+      "estimated_total_calculation": "PASS - Total reflects subtotal minus auto-discounts",
+      "dynamic_recalculation": "PASS - Discounts recalculate when participants added/removed"
+    },
+    "cart_checkout_page_discounts": {
+      "order_summary_group_discount": "PASS - data-testid='discount-group' shows green discount line",
+      "order_summary_combo_discount": "PASS - data-testid='discount-combo' shows green discount line",
+      "total_includes_auto_discounts": "PASS - Final total = subtotal - group - combo - promo"
+    },
+    "enrollment_page_discounts": {
+      "group_discount_3_participants": "PASS - 'Group Discount (3 people) -USD 54' visible in price summary",
+      "loyalty_discount_placeholder": "PASS - Loyalty discount line appears when returning client email detected"
+    },
+    "admin_panel_discounts_tab": {
+      "referral_toggle": "PASS - ON with description",
+      "group_discount_toggle": "PASS - ON with rule (3+ participants = 10% off)",
+      "combo_discount_toggle": "PASS - ON with settings (2+ programs = 5% off)",
+      "loyalty_toggle": "PASS - ON with setting (8% off for returning clients)",
+      "active_discounts_preview": "PASS - Shows status of all 4 features"
+    },
+    "backend_discount_api": {
+      "GET /api/discounts/settings": "PASS - Returns all discount settings",
+      "POST /api/discounts/calculate": "PASS - Returns group_discount, combo_discount, loyalty_discount, total_discount"
+    }
+  }
+}

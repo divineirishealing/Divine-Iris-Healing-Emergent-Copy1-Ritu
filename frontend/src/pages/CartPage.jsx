@@ -278,6 +278,24 @@ function CartPage() {
   }, 0);
 
   const totalParticipants = items.reduce((sum, i) => sum + i.participants.length, 0);
+  const numPrograms = items.length;
+
+  const [autoDiscounts, setAutoDiscounts] = useState({ group_discount: 0, combo_discount: 0, loyalty_discount: 0, total_discount: 0 });
+
+  useEffect(() => {
+    if (totalAmount <= 0) return;
+    const fetchDiscounts = async () => {
+      try {
+        const res = await axios.post(`${API}/discounts/calculate`, {
+          num_programs: numPrograms, num_participants: totalParticipants,
+          subtotal: totalAmount, email: '', currency: 'aed',
+        });
+        setAutoDiscounts(res.data);
+      } catch { setAutoDiscounts({ group_discount: 0, combo_discount: 0, loyalty_discount: 0, total_discount: 0 }); }
+    };
+    const timer = setTimeout(fetchDiscounts, 300);
+    return () => clearTimeout(timer);
+  }, [totalAmount, totalParticipants, numPrograms]);
 
   const validateAndProceed = () => {
     for (const item of items) {
@@ -332,15 +350,25 @@ function CartPage() {
 
           {/* Summary & Checkout */}
           <div className="bg-white rounded-xl border shadow-sm p-5 mt-6">
-            <div className="flex justify-between items-center mb-2">
+            <div className="flex justify-between items-center mb-1">
               <span className="text-sm text-gray-600">Subtotal ({totalParticipants} participant{totalParticipants > 1 ? 's' : ''})</span>
               <span className="text-sm text-gray-600">{symbol} {totalAmount.toLocaleString()}</span>
             </div>
+            {autoDiscounts.group_discount > 0 && (
+              <div className="flex justify-between items-center text-xs text-green-600 mb-0.5" data-testid="cart-discount-group">
+                <span>Group Discount ({totalParticipants} people)</span><span>-{symbol} {autoDiscounts.group_discount.toLocaleString()}</span>
+              </div>
+            )}
+            {autoDiscounts.combo_discount > 0 && (
+              <div className="flex justify-between items-center text-xs text-green-600 mb-0.5" data-testid="cart-discount-combo">
+                <span>Combo Discount ({numPrograms} programs)</span><span>-{symbol} {autoDiscounts.combo_discount.toLocaleString()}</span>
+              </div>
+            )}
             <div className="flex justify-between items-center border-t pt-3 mt-3">
-              <span className="font-bold text-lg text-gray-900">Total</span>
-              <span className="font-bold text-lg text-[#D4AF37]">{symbol} {totalAmount.toLocaleString()}</span>
+              <span className="font-bold text-lg text-gray-900">Estimated Total</span>
+              <span className="font-bold text-lg text-[#D4AF37]">{symbol} {Math.max(0, totalAmount - (autoDiscounts.total_discount || 0)).toLocaleString()}</span>
             </div>
-            <p className="text-[10px] text-gray-400 text-right mb-4">Promo codes can be applied at checkout</p>
+            <p className="text-[10px] text-gray-400 text-right mb-4">Promo codes & loyalty discounts applied at checkout</p>
 
             <Button data-testid="proceed-checkout-btn" onClick={validateAndProceed}
               className="w-full bg-[#D4AF37] hover:bg-[#b8962e] text-white py-3 rounded-full text-sm">
