@@ -1,43 +1,37 @@
 <analysis>**original_problem_statement:**
-The user wants to build a pixel-perfect clone of their existing website, . The scope has evolved significantly to include a comprehensive admin panel for content management, a secure multi-program/multi-participant cart with a sophisticated discount system, geo-IP based price-gating, automated email notifications, and a participant UID generation system.
+The user wants to build a pixel-perfect clone of their existing website, . The scope has evolved to include a comprehensive admin panel for content management, a secure multi-program cart, and a Stripe-powered donation system.
 
-The most recent requests focus on refining the user experience by giving the user granular control over all content, styling, and layout directly from the admin panel, including managing page-specific hero sections, reordering/toggling homepage sections, and adding a Stripe-powered donation system.
+The most recent requests focus on giving the user granular control over all content and styling from the admin panel. The latest major request is to unify the design and structure of all Flagship Program detail pages, so that a single template in the admin panel controls the style (fonts, colors, etc.) for all of them simultaneously, rather than having to configure each program's page header individually.
 
 **User's preferred language**: English
 
 **what currently exists?**
 - A full-stack application (React + FastAPI + MongoDB) that visually clones and extends the original site.
-- A highly comprehensive admin panel with dedicated tabs for managing:
-    - **Homepage Sections:** Reorder, show/hide, add/delete, and edit the title/subtitle/fonts for all homepage sections.
-    - **Page Headers:** Centralized control over hero titles/subtitles for all pages (static and dynamic).
-    - **Sponsor Content:** Separate content and style controls for the sponsor section on the homepage versus the dedicated  page.
-    - **About Page Content:** Detailed control over all text and images on the About page.
-    - Other settings including Programs, Discounts, Site-wide Header/Footer, etc.
-- A fully dynamic homepage that renders sections based on the order and visibility set in the admin panel.
-- A dedicated  page with a Stripe-integrated contribution form.
-- New  and  pages with visibility toggles in the admin panel.
-- Markdown support (, ) in all rich text fields, with helper text in the admin UI.
+- A comprehensive admin panel where the user can manage homepage section order/visibility, page headers, sponsor content, and more.
+- A fully dynamic homepage that renders sections based on the admin configuration.
+- A redesigned Personal Sessions section with a warm, cozy theme (white background, iris purple/gold accents), a two-column layout showing session details with a calendar on selection, and extensive admin controls for content, styling, and booking availability (min 7-day advance, no weekends).
+- A global visibility toggle for the entire Personal Sessions feature (hides it from the homepage, navigation, and prevents direct URL access).
+- Logic on program pages to show an Express Your Interest button for programs where enrollment is closed.
+- All page hero sections (titles, subtitles, fonts, colors) across the entire site are now correctly and centrally controlled from the Page Headers tab in the admin panel.
 
 **Last working item**:
-- **Last item agent was working:** The agent was about to start working on a new set of user requests regarding the homepage layout and functionality.
+- **Last item agent was working:** The agent was planning the implementation for a new user request: to create a single, unified Program Template in the admin panel. This template would control the styles (hero, section titles, body text, fonts, colors) for all program detail pages at once, ensuring they are all replicas of each other and can be updated from one place.
 - **Status:** NOT STARTED
 - **Agent Testing Done:** N
-- **Which testing method agent to use?** Both. Use the backend testing agent to verify that the new fields for custom sections are saved correctly. Use the frontend testing agent to verify the reduced section gaps on the homepage, the removal of the unwanted border, and that custom sections render correctly with their new content (image, body text).
+- **Which testing method agent to use?** Both. The backend testing agent will be needed to verify the new data model for the program template. The frontend testing agent will be needed to ensure that all program detail pages correctly fetch and apply the styles from the new single template, and that the admin panel UI for managing this template works as expected.
 - **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
-- **Issue 1: (P0)** Address latest homepage UI/UX feedback.
+- **Issue 1: (P0)** Implement the unified Program Detail Page Template.
 
 **Issues Detail:**
-- **Issue 1: Address latest homepage UI/UX feedback**
-    - **Attempted fixes:** None. This is a new set of requests.
+- **Issue 1: Implement the unified Program Detail Page Template**
+    - **Attempted fixes:** None. This is a new request. The agent has formed a plan to replace individual program hero settings with a single template controller.
     - **Next debug checklist:**
-        1.  ****: Reduce the vertical margin/padding (e.g.,  or ) on the container that wraps each rendered section to decrease the gap between them.
-        2.  ****: This component renders a golden bottom border by default. Remove the  classes to eliminate it.
-        3.  ****: Enhance the  model. When a section's  is 'custom', it needs fields for , , and . Update the  model to accept these new fields.
-        4.  ****: In the UI for a 'custom' section row, add controls: an image uploader, a  for the body content, and  for the body text styling.
-        5.  ****: Update the component to render the new image and body text from the  prop, applying the corresponding styles.
-    - **Why fix this issue and what will be achieved with the fix?** This will resolve the user's immediate UI feedback, creating a tighter homepage layout. It will also make the custom section feature genuinely useful by giving the user full content and style control, matching the functionality of other pre-built sections.
+        1.  ****: Modify the  model. Remove the dictionary of individual  hero settings from . Add a new Pydantic model, , which will contain style objects for , , , , etc. Add this  field to .
+        2.  ****: Remove the UI that dynamically generates inputs for , , etc. Add a new, static section titled Program Page Template with dedicated  for each element defined in the new backend model (hero title, subtitle, section titles, body text).
+        3.  ****: Modify the component to no longer construct a dynamic  like . Instead, it should read the styles directly from . Apply these template styles to the hero title, subtitle, and other elements on the page as required.
+    - **Why fix this issue and what will be achieved with the fix?** This will fulfill the user's request for centralized control over all program detail pages. It will ensure brand consistency across all program offerings and dramatically simplify the process of updating their design, as a change in one place (the admin template) will propagate to all program pages.
     - **Status:** NOT STARTED
     - **Is recurring issue?** N
     - **Should Test frontend/backend/both after fix?** Both
@@ -55,18 +49,15 @@ The most recent requests focus on refining the user experience by giving the use
     - **P4: Advanced Anti-Fraud for Geo-Pricing:** Enhance the geo-pricing mechanism with stricter validation to prevent VPN abuse.
 
 **Completed work in this session**
-- **Homepage Section Management:** Implemented a Homepage Sections admin tab allowing users to reorder, show/hide, add, delete, and edit the titles/subtitles/fonts of all sections on the homepage.
-- **Dynamic Homepage Rendering:** The homepage now renders all sections dynamically based on the configuration saved in the admin panel.
-- **Sponsor Payment Gateway:** Integrated Stripe to create a contribution form on a new, dedicated  page. The Become a Sponsor button on the homepage now links to this page.
-- **Sponsor Admin Controls:** Created a dedicated admin tab to manage content and styles for the sponsor section, with separate controls for its appearance on the homepage versus the  page.
-- **Centralized Page Header Management:** Created a Page Headers admin tab to centrally control the hero title/subtitle and fonts for every page on the site.
-- **New Pages (Blog/Media):** Created a  page and updated the  page, both with visibility toggles in the admin panel.
-- **Extensive UI/UX Fixes:**
-    - Corrected image dimensions and aspect ratios across multiple pages to be pixel-perfect.
-    - Fixed inconsistent footer background colors.
-    - Implemented markdown support (, ) in all rich text fields.
-    - Added extensive font editing controls for numerous titles and text blocks throughout the site.
-    - Resolved dozens of minor layout, spacing, and styling issues based on user feedback.
+- **Homepage UI Refinements:** Reduced vertical spacing between all homepage sections and implemented full content/style control for Custom Sections.
+- **Personal Sessions Redesign (V1 - Purple Gradient):** Overhauled the sessions section with a new two-column layout, calendar, and testimonial snippets, all on a vibrant purple gradient background.
+- **Personal Sessions Redesign (V2 - Warm & Cozy):** Changed the sessions section theme to a white background with iris purple and gold dust accents based on user feedback.
+- **Advanced Admin Controls for Sessions:** Added full font controls and a sophisticated calendar management UI in the admin panel for personal sessions, including rules for advance booking and disabling weekends.
+- **Global Visibility for Sessions:** Implemented a toggle in the admin panel to show/hide the entire personal sessions feature across the site (homepage, navigation, direct URLs).
+- **Express Interest Logic:** Implemented functionality for programs with closed enrollment to show an Express Your Interest button.
+- **Critical Bug Fix (Header Fonts):** Resolved a site-wide bug where a global CSS rule was overriding font settings from the admin panel.
+- **Critical Bug Fix (Stale Admin Data):** Fixed a major bug where changes saved in the admin panel were not reflecting on the site without a hard refresh by ensuring the global settings context is updated after every save.
+- **Site-Wide Header Unification:** Audited and fixed every page on the site (including Services, Contact, All Programs, Program Details, and Session pages) to ensure their hero sections are correctly controlled by the Page Headers admin tab.
 
 **Earlier issues found/mentioned but not fixed**
 - **Issue 1: Global Search:** User requested a global search option for the website. Not yet implemented.
@@ -79,22 +70,26 @@ The most recent requests focus on refining the user experience by giving the use
 
 
 **Key Technical Concepts**
-- **Dynamic Frontend Rendering:** The  component maps over an array of section configurations from the database () and dynamically renders the corresponding section components, passing down titles, styles, and content as props.
-- **Centralized Admin Control:** The architecture has shifted to centralized admin tabs (, ) for managing site-wide and cross-cutting concerns, providing a more intuitive UX for the admin.
-- **Component-Driven Configuration:** The identity and properties of homepage sections are now stored as data (), which allows for flexible rendering and management.
+- **Centralized State Management:** The  is critical. A bug was fixed by ensuring this context is refreshed via  after admin panel saves, making UI changes appear instantly site-wide.
+- **Conditional Rendering:** Used extensively for showing/hiding UI elements based on admin settings (e.g., , program ).
+- **CSS Specificity:** A bug was caused by a global CSS rule in  overriding more specific inline styles. The fix was to remove the overly broad rule, reinforcing the principle that admin-defined inline styles should have the highest priority.
+- **Component-Level State:** The Sessions section uses  to manage the currently selected session and display its details without a page reload, creating an interactive panel.
 
 **key DB schema**
 - **site_settings:**
-    - : A list of objects defining each homepage section, its component type, visibility, order, titles, and styles.
-    - : A dictionary mapping page identifiers to their hero content and styles.
-    - , : Separate objects for sponsor content on the homepage vs. the sponsor page.
+    - : Global toggle for the sessions feature.
+    - : Controls hero sections for all pages. The  keys are about to be refactored into a single template object.
+- **sessions:**
+    - : Short testimonial for the session.
+    - : Online, Offline, or Both.
+    - : List of 'YYYY-MM-DD' strings for booking.
+    -  is no longer used.
 
 **changes in tech stack**
 - No new technologies were added.
 
 **All files of reference**
-- **Files to Modify:**
-    - 
+- **Files to Modify (for next task):**
     - 
     - 
     - 
@@ -102,26 +97,35 @@ The most recent requests focus on refining the user experience by giving the use
     - 
 
 **Areas that need refactoring**:
-- The  component needs to be properly implemented to render more than just a title, which is part of the next immediate task.
+- The way program detail page styles are managed is about to be refactored into a single template system as per the user's latest request.
 
 **key api endpoints**
 - : The primary endpoint for persisting all changes made in the admin panel.
-- : Creates a Stripe checkout session for the sponsorship/donation form.
 
 **Critical Info for New Agent**
-- Your immediate priority is to address the three homepage issues from the user's last message: reduce vertical spacing between sections, remove the unwanted golden line from custom sections, and add full editing capabilities (image, content, fonts) for these custom sections.
-- The homepage is now fully dynamic. All content, styling, and layout changes for its sections are driven by the  in the admin panel.
-- To add edit controls for the custom section, you will need to modify the backend model (), the admin UI (), and the frontend component ().
+- **Your immediate and only priority is to implement the Program Template feature.** The user wants to stop managing styles for each program page individually.
+- You will need to architect a new solution:
+    1.  Create a single  object in the backend  model.
+    2.  Update the admin UI in  to remove the individual program entries and add a single, comprehensive form to edit this new template.
+    3.  Refactor  to fetch its styles from this single  object, ignoring its own ID.
 
 **documents and test reports created in this job**
 -  (Continuously updated)
 - Test reports up to 
 
 **Last 10 User Messages and any pending HUMAN messages**
-- The user's recent messages have been a rapid-fire series of requests to add more and more granular control to the admin panel, culminating in the creation of the dynamic homepage section manager. The latest message provides feedback on the result of that implementation, pointing out spacing issues and the limitations of the newly created custom section type, which is the immediate next task.
+1.  **User:** The program page header fonts aren't updating from the admin panel.
+2.  **Agent:** Fixes a subtitle bug on  (hardcoded styles and wrong order).
+3.  **User:** The subtitle should be below the title, like on the Sponsor page.
+4.  **Agent:** Fixes the order of elements.
+5.  **User:** All pages must follow the rules set in the Page Headers admin tab.
+6.  **Agent:** Audits all pages, finds and fixes  and  which had hardcoded heroes.
+7.  **User:** (NEW MAJOR REQUEST) I want all flagship program pages to be replicas. When I change a style, font, or section on one, it should apply to all of them. Give me one admin panel to control this.
+8.  **Agent:** Acknowledges the request and starts investigating.
+9.  **User:** [awaiting plan/implementation]
 
 **Project Health Check:**
-- **Broken:** The homepage has excessive vertical spacing between sections. The custom section type added in the admin panel is incomplete; it renders with an unwanted border and lacks controls for images or body content.
+- **Broken:** Nothing is currently broken. The application is stable. The next task is a major feature request/refactor, not a bug fix.
 - **Mocked:** Phone OTP verification.
 
 **3rd Party Integrations**
@@ -132,7 +136,7 @@ The most recent requests focus on refining the user experience by giving the use
 - **react-dropzone:** For file uploads in the admin panel.
 
 **Testing status**
-- **Testing agent used after significant changes:** YES, used frequently and successfully after each major feature implementation to ensure stability and correctness.
+- **Testing agent used after significant changes:** YES, used after every major feature and bug fix in this session, with all tests passing.
 - **Troubleshoot agent used after agent stuck in loop:** NO
 - **Test files created:** None.
 - **Known regressions:** None.
@@ -143,4 +147,4 @@ The most recent requests focus on refining the user experience by giving the use
 - **Password:** 
 
 **What agent forgot to execute**
-- The agent has not forgotten any tasks but is now faced with refinement requests for the most recently implemented feature (dynamic homepage sections), which is a natural part of the iterative development process.</analysis>
+- The agent successfully completed all user requests and bug fixes presented in this session. The current task is a new, large feature request that the agent has planned but has not yet started implementing.</analysis>

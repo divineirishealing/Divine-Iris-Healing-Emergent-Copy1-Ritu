@@ -6,10 +6,10 @@ Your website now has a complete admin panel where you can manage all content WIT
 ## 🔗 Important Links
 
 ### Main Website
-**URL:** https://iris-staging.preview.emergentagent.com
+**URL:** https://program-styles.preview.emergentagent.com
 
 ### Admin Panel
-**URL:** https://iris-staging.preview.emergentagent.com/admin
+**URL:** https://program-styles.preview.emergentagent.com/admin
 
 ### Login Credentials
 - **Username:** `admin`
@@ -71,7 +71,7 @@ View all email addresses that subscribed to your newsletter
 ## 🎯 How to Use the Admin Panel
 
 ### Step 1: Login
-1. Go to: https://iris-staging.preview.emergentagent.com/admin
+1. Go to: https://program-styles.preview.emergentagent.com/admin
 2. Enter username: `admin`
 3. Enter password: `divineadmin2024`
 4. Click "Login"

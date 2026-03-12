@@ -1,8 +1,8 @@
 import React from 'react';
 import { Input } from '../../ui/input';
 import { Label } from '../../ui/label';
-import { Switch } from '../../ui/switch';
 import { Button } from '../../ui/button';
+import { Switch } from '../../ui/switch';
 import { Copy } from 'lucide-react';
 
 const FONT_OPTIONS = [
@@ -12,23 +12,25 @@ const FONT_OPTIONS = [
   { value: "'Lato', sans-serif", label: 'Lato' },
   { value: "'Montserrat', sans-serif", label: 'Montserrat' },
 ];
+const SIZE_OPTIONS = ['10px','12px','14px','16px','18px','20px','24px','28px','32px','36px','42px','48px'];
 
-const SIZE_OPTIONS = ['12px','14px','16px','18px','20px','24px','28px','32px','36px','42px','48px','56px','64px','72px'];
-
-const StyleCell = ({ style = {}, onStyleChange }) => {
+const StyleCell = ({ style = {}, onStyleChange, label }) => {
   const update = (prop, val) => onStyleChange({ ...style, [prop]: val });
   return (
-    <div className="flex gap-1 items-center flex-wrap">
-      <input type="color" value={style.font_color || '#ffffff'} onChange={e => update('font_color', e.target.value)} className="w-5 h-5 rounded cursor-pointer border-0" title="Color" />
-      <select value={style.font_family || ''} onChange={e => update('font_family', e.target.value)} className="text-[9px] border rounded px-1 py-0.5 w-16">
-        {FONT_OPTIONS.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
-      </select>
-      <select value={style.font_size || ''} onChange={e => update('font_size', e.target.value)} className="text-[9px] border rounded px-1 py-0.5 w-12">
-        <option value="">Size</option>
-        {SIZE_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
-      </select>
-      <button onClick={() => update('font_weight', style.font_weight === 'bold' ? '400' : 'bold')} className={`text-[9px] px-1 py-0.5 rounded border ${style.font_weight === 'bold' ? 'bg-gray-800 text-white' : 'bg-white'}`}><b>B</b></button>
-      <button onClick={() => update('font_style', style.font_style === 'italic' ? 'normal' : 'italic')} className={`text-[9px] px-1 py-0.5 rounded border ${style.font_style === 'italic' ? 'bg-gray-800 text-white' : 'bg-white'}`}><i>I</i></button>
+    <div className="mt-1">
+      {label && <span className="text-[8px] text-gray-400 uppercase tracking-wider">{label}</span>}
+      <div className="flex gap-1 items-center flex-wrap">
+        <input type="color" value={style.font_color || '#000000'} onChange={e => update('font_color', e.target.value)} className="w-5 h-5 rounded cursor-pointer border-0" />
+        <select value={style.font_family || ''} onChange={e => update('font_family', e.target.value)} className="text-[9px] border rounded px-1 py-0.5 w-16">
+          {FONT_OPTIONS.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
+        </select>
+        <select value={style.font_size || ''} onChange={e => update('font_size', e.target.value)} className="text-[9px] border rounded px-1 py-0.5 w-12">
+          <option value="">Size</option>
+          {SIZE_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+        </select>
+        <button type="button" onClick={() => update('font_weight', style.font_weight === 'bold' ? '400' : 'bold')} className={`text-[9px] px-1 py-0.5 rounded border ${style.font_weight === 'bold' ? 'bg-gray-800 text-white' : 'bg-white'}`}><b>B</b></button>
+        <button type="button" onClick={() => update('font_style', style.font_style === 'italic' ? 'normal' : 'italic')} className={`text-[9px] px-1 py-0.5 rounded border ${style.font_style === 'italic' ? 'bg-gray-800 text-white' : 'bg-white'}`}><i>I</i></button>
+      </div>
     </div>
   );
 };
@@ -46,6 +48,15 @@ const STATIC_PAGES = [
   { key: 'sessions', label: 'Personal Sessions', defaultTitle: 'Personal Healing Sessions', defaultSubtitle: 'Individual sessions tailored to your unique healing journey', toggleKey: 'sessions_page_visible' },
 ];
 
+const TEMPLATE_STYLE_KEYS = [
+  { key: 'title_style', label: 'Hero Title' },
+  { key: 'subtitle_style', label: 'Hero Subtitle' },
+  { key: 'section_title_style', label: 'Section Titles' },
+  { key: 'section_subtitle_style', label: 'Section Subtitles' },
+  { key: 'body_style', label: 'Body / Description Text' },
+  { key: 'cta_style', label: 'CTA / Pricing Text' },
+];
+
 const PageHeadersTab = ({ settings, programs = [], onChange }) => {
   const heroes = settings.page_heroes || {};
   const getHero = (key) => heroes[key] || {};
@@ -58,13 +69,8 @@ const PageHeadersTab = ({ settings, programs = [], onChange }) => {
   const applyToAll = () => {
     const src = getHero('home');
     const updated = { ...heroes };
-    const allKeys = [...STATIC_PAGES.map(p => p.key), ...programs.map(p => `program_${p.id}`)];
-    allKeys.forEach(key => {
-      updated[key] = {
-        ...getHero(key),
-        title_style: { ...(src.title_style || {}) },
-        subtitle_style: { ...(src.subtitle_style || {}) },
-      };
+    STATIC_PAGES.forEach(p => {
+      updated[p.key] = { ...getHero(p.key), title_style: { ...(src.title_style || {}) }, subtitle_style: { ...(src.subtitle_style || {}) } };
     });
     onChange({ ...settings, page_heroes: updated });
   };
@@ -98,6 +104,10 @@ const PageHeadersTab = ({ settings, programs = [], onChange }) => {
     );
   };
 
+  // Program Template
+  const template = getHero('program_template');
+  const updateTemplate = (field, value) => updateHero('program_template', field, value);
+
   return (
     <div data-testid="page-headers-tab">
       <div className="flex items-center justify-between mb-4">
@@ -115,15 +125,35 @@ const PageHeadersTab = ({ settings, programs = [], onChange }) => {
         <PageRow key={p.key} pageKey={p.key} label={p.label} defaultTitle={p.defaultTitle} defaultSubtitle={p.defaultSubtitle} toggleKey={p.toggleKey} />
       ))}
 
-      <p className="text-[10px] font-semibold text-gray-500 mb-2 mt-4">FLAGSHIP PROGRAMS</p>
-      {programs.filter(p => p.is_flagship).map(p => (
-        <PageRow key={`program_${p.id}`} pageKey={`program_${p.id}`} label={p.title} defaultTitle={p.title} defaultSubtitle={p.category || ''} />
-      ))}
+      {/* ===== FLAGSHIP PROGRAM TEMPLATE ===== */}
+      <div className="mt-6 mb-2 flex items-center gap-2">
+        <p className="text-[10px] font-semibold text-gray-500">FLAGSHIP PROGRAM PAGES — SHARED TEMPLATE</p>
+        <span className="text-[8px] bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full font-medium">Applies to all program pages</span>
+      </div>
+      <div className="bg-gradient-to-br from-purple-50/50 to-white rounded-xl border border-purple-100 p-4" data-testid="program-template-section">
+        <p className="text-[9px] text-gray-500 mb-3">Style changes here apply to <strong>every</strong> program detail page under Flagship Programs. Title/subtitle text comes from each program's data — only the styling is shared.</p>
 
-      <p className="text-[10px] font-semibold text-gray-500 mb-2 mt-4">OTHER PROGRAMS</p>
-      {programs.filter(p => !p.is_flagship).map(p => (
-        <PageRow key={`program_${p.id}`} pageKey={`program_${p.id}`} label={p.title} defaultTitle={p.title} defaultSubtitle={p.category || ''} />
-      ))}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          {TEMPLATE_STYLE_KEYS.map(({ key, label }) => (
+            <div key={key} className="bg-white rounded-lg border border-gray-100 p-2.5">
+              <Label className="text-[9px] text-gray-500 font-semibold block mb-1">{label}</Label>
+              <StyleCell style={template[key] || {}} onStyleChange={v => updateTemplate(key, v)} />
+            </div>
+          ))}
+        </div>
+
+        {/* Hero background color */}
+        <div className="mt-3 flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <Label className="text-[9px] text-gray-500">Hero Background</Label>
+            <input type="color" value={template.hero_bg || '#1a1a1a'} onChange={e => updateTemplate('hero_bg', e.target.value)} className="w-6 h-6 rounded cursor-pointer border" />
+          </div>
+          <div className="flex items-center gap-2">
+            <Label className="text-[9px] text-gray-500">Gold Line Color</Label>
+            <input type="color" value={template.accent_color || '#D4AF37'} onChange={e => updateTemplate('accent_color', e.target.value)} className="w-6 h-6 rounded cursor-pointer border" />
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

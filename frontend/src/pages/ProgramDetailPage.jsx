@@ -84,14 +84,14 @@ function ProgramDetailPage() {
     : getDefaultSections(program);
 
   const SectionTitle = ({ children, style: extra }) => (
-    <h2 className="text-center mb-4" style={applyStyle(extra, { ...HEADING, fontSize: '1.6rem' })}>{children}</h2>
+    <h2 className="text-center mb-4" style={applyStyle(extra || template.section_title_style, { ...HEADING, fontSize: '1.6rem' })}>{children}</h2>
   );
-  const GoldLine = () => <div className="w-12 h-0.5 mx-auto mb-10" style={{ background: GOLD }} />;
+  const GoldLine = () => <div className="w-12 h-0.5 mx-auto mb-10" style={{ background: heroAccent }} />;
   const SubtitleText = ({ children, style: extra }) => (
-    <p className="text-center mb-8" style={applyStyle(extra, { ...SUBTITLE })}>{children}</p>
+    <p className="text-center mb-8" style={applyStyle(extra || template.section_subtitle_style, { ...SUBTITLE })}>{children}</p>
   );
   const BodyText = ({ children, style: extra, className: cls = '' }) => (
-    <p className={`whitespace-pre-wrap ${cls}`} style={applyStyle(extra, { ...BODY })} dangerouslySetInnerHTML={{ __html: renderMarkdown(children || '') }} />
+    <p className={`whitespace-pre-wrap ${cls}`} style={applyStyle(extra || template.body_style, { ...BODY })} dangerouslySetInnerHTML={{ __html: renderMarkdown(children || '') }} />
   );
 
   const renderSection = (section, idx) => {
@@ -115,13 +115,13 @@ function ProgramDetailPage() {
         <section key={section.id || idx} data-testid={`section-${idx}`} className={`${SECTION_PY} bg-[#f8f8f8]`}>
           <div className={CONTAINER}><div className={NARROW}>
             <SectionTitle style={section.title_style}>{section.title || 'Who It Is For?'}</SectionTitle>
-            <div className="w-12 h-0.5 mx-auto mb-4" style={{ background: GOLD }} />
+            <div className="w-12 h-0.5 mx-auto mb-4" style={{ background: heroAccent }} />
             {section.subtitle && <SubtitleText style={section.subtitle_style}>{section.subtitle}</SubtitleText>}
             {lines.length > 0 && (
               <div className="grid md:grid-cols-2 gap-x-16 gap-y-5 max-w-3xl mx-auto">
                 {lines.map((line, i) => (
                   <div key={i} className="flex items-start gap-3">
-                    <span className="mt-0.5 text-lg flex-shrink-0" style={{ color: GOLD }}>&#10038;</span>
+                    <span className="mt-0.5 text-lg flex-shrink-0" style={{ color: heroAccent }}>&#10038;</span>
                     <p style={{ ...BODY }} dangerouslySetInnerHTML={{ __html: renderMarkdown(line.replace(/^[-•*]\s*/, '')) }} />
                   </div>
                 ))}
@@ -137,17 +137,17 @@ function ProgramDetailPage() {
       return (
         <section key={section.id || idx} data-testid={`section-${idx}`} className={SECTION_PY} style={{ background: '#1a1a1a' }}>
           <div className={CONTAINER}><div className={WIDE}>
-            <h2 className="text-center mb-4" style={applyStyle(section.title_style, { ...HEADING, color: GOLD, fontStyle: 'italic', fontSize: '1.6rem' })}>
+            <h2 className="text-center mb-4" style={applyStyle(section.title_style || template.section_title_style, { ...HEADING, color: heroAccent, fontStyle: 'italic', fontSize: '1.6rem' })}>
               {section.title || 'Your Experience'}
             </h2>
-            <div className="w-12 h-0.5 mx-auto mb-12" style={{ background: GOLD }} />
+            <div className="w-12 h-0.5 mx-auto mb-12" style={{ background: heroAccent }} />
             <div className="grid md:grid-cols-12 gap-12 items-center">
               <div className="md:col-span-5 overflow-hidden rounded-md">
                 {sectionImg && <img src={sectionImg} alt="Experience" className="w-full" style={{ objectFit: section.image_fit || 'contain', objectPosition: section.image_position || 'center top', maxHeight: '520px' }} onError={(e) => { e.target.style.display = 'none'; }} />}
               </div>
               <div className="md:col-span-7">
                 {section.body && (
-                  <div className="border-l-2 pl-6" style={{ borderColor: GOLD }}>
+                  <div className="border-l-2 pl-6" style={{ borderColor: heroAccent }}>
                     <BodyText style={section.body_style} className="italic" >{section.body}</BodyText>
                   </div>
                 )}
@@ -206,13 +206,10 @@ function ProgramDetailPage() {
     );
   };
 
-  const heroKey = `program_${program.id}`;
-  const hero = settings?.page_heroes?.[heroKey] || {};
-
-  const applyHeroStyle = (styleObj, defaults = {}) => {
-    if (!styleObj || Object.keys(styleObj).length === 0) return defaults;
-    return { ...defaults, ...(styleObj.font_family && { fontFamily: styleObj.font_family }), ...(styleObj.font_size && { fontSize: styleObj.font_size }), ...(styleObj.font_color && { color: styleObj.font_color }), ...(styleObj.font_weight && { fontWeight: styleObj.font_weight }), ...(styleObj.font_style && { fontStyle: styleObj.font_style }) };
-  };
+  // Unified program template — one template controls all program detail pages
+  const template = settings?.page_heroes?.program_template || {};
+  const heroAccent = template.accent_color || GOLD;
+  const heroBg = template.hero_bg || '#1a1a1a';
 
   return (
     <div className="min-h-screen">
@@ -220,12 +217,12 @@ function ProgramDetailPage() {
 
       {/* HERO */}
       <section data-testid="program-hero" className="min-h-[50vh] flex flex-col items-center justify-center text-center px-6 pt-20"
-        style={{ background: 'linear-gradient(180deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%)' }}>
-        <h1 data-testid="program-title" className="text-white mb-4 max-w-4xl" style={applyHeroStyle(hero.title_style, { ...HEADING, color: '#fff', fontSize: 'clamp(1.8rem, 4vw, 3rem)', fontVariant: 'small-caps', letterSpacing: '0.05em', lineHeight: 1.3 })}>
-          {hero.title_text || program.title}
+        style={{ background: `linear-gradient(180deg, ${heroBg} 0%, ${heroBg}dd 50%, ${heroBg} 100%)` }}>
+        <h1 data-testid="program-title" className="text-white mb-4 max-w-4xl" style={applyStyle(template.title_style, { ...HEADING, color: '#fff', fontSize: 'clamp(1.8rem, 4vw, 3rem)', fontVariant: 'small-caps', letterSpacing: '0.05em', lineHeight: 1.3 })}>
+          {program.title}
         </h1>
-        <p className="mb-6" style={applyHeroStyle(hero.subtitle_style, { ...LABEL, color: GOLD })}>{hero.subtitle_text || program.category || 'FLAGSHIP PROGRAM'}</p>
-        <div className="w-14 h-0.5" style={{ background: GOLD }} />
+        <p className="mb-6" style={applyStyle(template.subtitle_style, { ...LABEL, color: heroAccent })}>{program.category || 'FLAGSHIP PROGRAM'}</p>
+        <div className="w-14 h-0.5" style={{ background: heroAccent }} />
       </section>
 
       {sections.map((section, idx) => renderSection(section, idx))}
@@ -234,9 +231,9 @@ function ProgramDetailPage() {
       <section className={`${SECTION_PY} bg-white`} data-testid="cta-section">
         <div className={CONTAINER}>
           <div className="max-w-3xl mx-auto text-center">
-            <div className="w-14 h-0.5 mx-auto mb-6" style={{ background: GOLD }} />
-            <p className="mb-6" style={LABEL}>When you are seeking</p>
-            <p className="mb-10 leading-relaxed" style={{ ...BODY, fontSize: '1rem', color: '#666' }}>
+            <div className="w-14 h-0.5 mx-auto mb-6" style={{ background: heroAccent }} />
+            <p className="mb-6" style={applyStyle(template.cta_style, LABEL)}>When you are seeking</p>
+            <p className="mb-10 leading-relaxed" style={applyStyle(template.body_style, { ...BODY, fontSize: '1rem', color: '#666' })}>
               When you are ready to experience deep inner transformation and lasting change, this program becomes the foundation for that shift.
             </p>
 
@@ -251,15 +248,16 @@ function ProgramDetailPage() {
                     return (
                       <div key={tIdx} data-testid={`tier-${tIdx}`}
                         className="border border-gray-200 hover:border-[#D4AF37] rounded-lg p-5 transition-all duration-300 cursor-pointer group hover:shadow-md"
+                        style={{ '--hover-accent': heroAccent }}
                         onClick={() => showContact ? navigate(`/contact?program=${program.id}&title=${encodeURIComponent(program.title)}&tier=${tier.label}`) : navigate(`/enroll/program/${program.id}?tier=${tIdx}`)}>
-                        <p className="text-sm font-medium text-gray-900 group-hover:text-[#D4AF37] transition-colors mb-2" style={{ fontFamily: "'Lato', sans-serif" }}>{tier.label}</p>
+                        <p className="text-sm font-medium text-gray-900 transition-colors mb-2" style={{ fontFamily: "'Lato', sans-serif" }}>{tier.label}</p>
                         {showContact ? (
                           <div><p className="text-gray-400 text-[10px] mb-3">Custom pricing</p>
-                            <span className="inline-block text-white text-[10px] py-2 px-6 tracking-[0.15em] uppercase" style={{ background: GOLD }}>Contact Us</span></div>
+                            <span className="inline-block text-white text-[10px] py-2 px-6 tracking-[0.15em] uppercase" style={{ background: heroAccent }}>Contact Us</span></div>
                         ) : (
                           <div><div className="mb-3">
-                            {tierOffer > 0 ? (<><p className="text-base font-semibold" style={{ ...HEADING, color: GOLD, fontSize: '1rem' }}>{symbol} {tierOffer.toLocaleString()}</p><p className="text-[10px] text-gray-400 line-through">{symbol} {tierPrice.toLocaleString()}</p></>) : tierPrice > 0 ? (<p className="text-base font-semibold" style={{ ...HEADING, fontSize: '1rem' }}>{symbol} {tierPrice.toLocaleString()}</p>) : (<p className="text-xs text-gray-400 italic">Contact for pricing</p>)}
-                          </div><span className="inline-block bg-gray-900 group-hover:bg-[#D4AF37] text-white text-[10px] py-2 px-6 tracking-[0.15em] uppercase transition-colors">Select</span></div>
+                            {tierOffer > 0 ? (<><p className="text-base font-semibold" style={{ ...HEADING, color: heroAccent, fontSize: '1rem' }}>{symbol} {tierOffer.toLocaleString()}</p><p className="text-[10px] text-gray-400 line-through">{symbol} {tierPrice.toLocaleString()}</p></>) : tierPrice > 0 ? (<p className="text-base font-semibold" style={{ ...HEADING, fontSize: '1rem' }}>{symbol} {tierPrice.toLocaleString()}</p>) : (<p className="text-xs text-gray-400 italic">Contact for pricing</p>)}
+                          </div><span className="inline-block bg-gray-900 text-white text-[10px] py-2 px-6 tracking-[0.15em] uppercase transition-colors" style={{ ':hover': { background: heroAccent } }}>Select</span></div>
                         )}
                       </div>
                     );
@@ -271,10 +269,10 @@ function ProgramDetailPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               {program.enrollment_open !== false ? (
                 <button data-testid="enroll-btn" onClick={() => navigate(`/enroll/program/${program.id}`)}
-                  className="text-white px-10 py-3 text-xs tracking-[0.2em] uppercase transition-colors hover:opacity-90" style={{ background: GOLD }}>Enroll Now</button>
+                  className="text-white px-10 py-3 text-xs tracking-[0.2em] uppercase transition-colors hover:opacity-90" style={{ background: heroAccent }}>Enroll Now</button>
               ) : (
                 <button data-testid="express-interest-btn" onClick={() => navigate(`/contact?program=${program.id}&title=${encodeURIComponent(program.title)}`)}
-                  className="text-white px-10 py-3 text-xs tracking-[0.2em] uppercase transition-colors hover:opacity-90" style={{ background: GOLD }}>Express Your Interest</button>
+                  className="text-white px-10 py-3 text-xs tracking-[0.2em] uppercase transition-colors hover:opacity-90" style={{ background: heroAccent }}>Express Your Interest</button>
               )}
             </div>
           </div>
@@ -284,7 +282,7 @@ function ProgramDetailPage() {
       {testimonials.length > 0 && (
         <section className="py-16 bg-white" data-testid="testimonials-section">
           <div className={CONTAINER}>
-            <h2 className="text-center mb-10" style={{ ...HEADING, color: GOLD, fontStyle: 'italic', fontSize: '1.6rem' }}>Testimonials</h2>
+            <h2 className="text-center mb-10" style={{ ...HEADING, color: heroAccent, fontStyle: 'italic', fontSize: '1.6rem' }}>Testimonials</h2>
             <div className="max-w-5xl mx-auto relative flex items-center justify-center gap-4">
               <button onClick={prevT} data-testid="prev-testimonial" className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 flex-shrink-0"><ChevronLeft size={18} /></button>
               <div className="flex gap-3 overflow-hidden">
