@@ -69,7 +69,7 @@ export default function AboutPage() {
             <div className="md:col-span-5">
               {aboutImage && (
                 <div className="rounded-md overflow-hidden">
-                  <img src={aboutImage} alt={s.about_name || ''} data-testid="about-image" className="w-full" style={{ objectFit: s.about_image_fit || 'fill', objectPosition: s.about_image_position || 'center', aspectRatio: '539/558' }} />
+                  <img src={aboutImage} alt={s.about_name || ''} data-testid="about-image" className="w-full" style={{ objectFit: s.about_image_fit || 'contain', objectPosition: s.about_image_position || 'center top', maxHeight: '520px' }} />
                 </div>
               )}
             </div>

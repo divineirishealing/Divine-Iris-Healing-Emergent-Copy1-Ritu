@@ -143,7 +143,7 @@ function ProgramDetailPage() {
             <div className="w-12 h-0.5 mx-auto mb-12" style={{ background: GOLD }} />
             <div className="grid md:grid-cols-12 gap-12 items-center">
               <div className="md:col-span-5 overflow-hidden rounded-md">
-                {sectionImg && <img src={sectionImg} alt="Experience" className="w-full" style={{ objectFit: section.image_fit || 'fill', objectPosition: section.image_position || 'center', aspectRatio: '539/558' }} onError={(e) => { e.target.style.display = 'none'; }} />}
+                {sectionImg && <img src={sectionImg} alt="Experience" className="w-full" style={{ objectFit: section.image_fit || 'contain', objectPosition: section.image_position || 'center top', maxHeight: '520px' }} onError={(e) => { e.target.style.display = 'none'; }} />}
               </div>
               <div className="md:col-span-7">
                 {section.body && (

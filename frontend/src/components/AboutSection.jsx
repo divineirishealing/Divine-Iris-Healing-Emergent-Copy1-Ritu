@@ -34,7 +34,7 @@ const AboutSection = () => {
           <div className="md:col-span-5 order-2 md:order-1">
             {aboutImage && (
               <div className="rounded-md overflow-hidden">
-                <img src={aboutImage} alt={s.about_name || 'Healer'} data-testid="about-image" className="w-full" style={{ objectFit: s.about_image_fit || 'fill', objectPosition: s.about_image_position || 'center', aspectRatio: '539/558' }} onError={(e) => { e.target.style.display = 'none'; }} />
+                <img src={aboutImage} alt={s.about_name || 'Healer'} data-testid="about-image" className="w-full" style={{ objectFit: s.about_image_fit || 'contain', objectPosition: s.about_image_position || 'center top', maxHeight: '520px' }} onError={(e) => { e.target.style.display = 'none'; }} />
               </div>
             )}
           </div>
