@@ -12,6 +12,18 @@ function resolveUrl(url) {
   return url;
 }
 
+const applyStyle = (styleObj, defaults = {}) => {
+  if (!styleObj || Object.keys(styleObj).length === 0) return defaults;
+  return {
+    ...defaults,
+    ...(styleObj.font_family && { fontFamily: styleObj.font_family }),
+    ...(styleObj.font_size && { fontSize: styleObj.font_size }),
+    ...(styleObj.font_color && { color: styleObj.font_color }),
+    ...(styleObj.font_weight && { fontWeight: styleObj.font_weight }),
+    ...(styleObj.font_style && { fontStyle: styleObj.font_style }),
+  };
+};
+
 const AboutSection = () => {
   const [settings, setSettings] = useState(null);
   useEffect(() => { axios.get(`${API}/settings`).then(r => setSettings(r.data)).catch(() => {}); }, []);
@@ -41,15 +53,15 @@ const AboutSection = () => {
 
           <div className="md:col-span-7 order-1 md:order-2">
             <p className="mb-3" style={LABEL}>{s.about_subtitle || 'Meet the Healer'}</p>
-            <h2 data-testid="about-heading" className="mb-2" style={{ ...HEADING, fontSize: '2rem' }}>{s.about_name || 'Dimple Ranawat'}</h2>
-            <h3 className="mb-6" style={{ ...SUBTITLE, color: GOLD, fontSize: '0.9rem' }}>{s.about_title || 'Founder, Divine Iris – Soulful Healing Studio'}</h3>
+            <h2 data-testid="about-heading" className="mb-0" style={applyStyle(s.about_name_style, { ...HEADING, fontSize: '2rem' })}>{s.about_name || 'Dimple Ranawat'}</h2>
+            <h3 className="mb-6 mt-1" style={applyStyle(s.about_title_style, { ...SUBTITLE, color: GOLD, fontSize: '0.9rem' })}>{s.about_title || 'Founder, Divine Iris – Soulful Healing Studio'}</h3>
 
             <div className="space-y-4">
-              <p style={BODY} dangerouslySetInnerHTML={{ __html: renderMarkdown(s.about_bio || 'Dimple Ranawat is an internationally recognised healer, accountability coach, and life transformation mentor whose work is reshaping how the world understands healing, growth, and well-being.') }} />
+              <p style={applyStyle(s.about_bio_style, BODY)} dangerouslySetInnerHTML={{ __html: renderMarkdown(s.about_bio || 'Dimple Ranawat is an internationally recognised healer, accountability coach, and life transformation mentor whose work is reshaping how the world understands healing, growth, and well-being.') }} />
               {s.about_bio_2 && (
                 <>
                   <h4 className="font-semibold text-sm mt-4 mb-2" style={{ ...BODY, fontWeight: 600, color: '#1a1a1a' }}>Personal Journey</h4>
-                  <p style={BODY} dangerouslySetInnerHTML={{ __html: renderMarkdown(s.about_bio_2) }} />
+                  <p style={applyStyle(s.about_bio_style, BODY)} dangerouslySetInnerHTML={{ __html: renderMarkdown(s.about_bio_2) }} />
                 </>
               )}
             </div>

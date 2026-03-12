@@ -75,8 +75,8 @@ export default function AboutPage() {
             </div>
             <div className="md:col-span-7">
               <p className="mb-3" style={LABEL}>{s.about_subtitle || 'MEET THE HEALER'}</p>
-              <h2 data-testid="about-name" className="mb-2" style={applyStyle(s.about_name_style, { ...HEADING, fontSize: '2rem' })}>{s.about_name || 'Dimple Ranawat'}</h2>
-              <p className="mb-6" style={applyStyle(s.about_title_style, { ...SUBTITLE, color: GOLD, fontSize: '0.9rem' })}>{s.about_title || 'Founder, Divine Iris – Soulful Healing Studio'}</p>
+              <h2 data-testid="about-name" className="mb-0" style={applyStyle(s.about_name_style, { ...HEADING, fontSize: '2rem' })}>{s.about_name || 'Dimple Ranawat'}</h2>
+              <p className="mb-6 mt-1" style={applyStyle(s.about_title_style, { ...SUBTITLE, color: GOLD, fontSize: '0.9rem' })}>{s.about_title || 'Founder, Divine Iris – Soulful Healing Studio'}</p>
               <RichText className="mb-6" style={applyStyle(s.about_bio_style, BODY)}>{s.about_bio || 'Dimple Ranawat is an internationally recognised healer, accountability coach, and life transformation mentor whose work is reshaping how the world understands healing, growth, and well-being.'}</RichText>
               {s.about_bio_2 && (
                 <>

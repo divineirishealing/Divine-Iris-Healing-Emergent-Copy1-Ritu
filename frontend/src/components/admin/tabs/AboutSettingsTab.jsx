@@ -92,7 +92,7 @@ const AboutSettingsTab = ({ settings, onChange }) => {
       {/* Text Content */}
       <div className="bg-white rounded-lg p-5 shadow-sm border mb-4">
         <p className="text-xs font-semibold text-gray-800 mb-1">Bio Content</p>
-        <p className="text-[10px] text-gray-400 mb-3">Shown on homepage and /about page. Use **bold** and *italic* for formatting.</p>
+        <p className="text-[10px] text-gray-400 mb-3">Shown on homepage and /about page. Wrap words in **double stars** for <strong>bold</strong> and *single stars* for <em>italic</em>.</p>
         <div className="space-y-3">
           <div>
             <Label className="text-[10px] text-gray-500">Small Label Above Name</Label>
