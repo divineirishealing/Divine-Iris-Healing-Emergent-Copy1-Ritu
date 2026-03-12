@@ -221,10 +221,10 @@ function ProgramDetailPage() {
       {/* HERO */}
       <section data-testid="program-hero" className="min-h-[50vh] flex flex-col items-center justify-center text-center px-6 pt-20"
         style={{ background: 'linear-gradient(180deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%)' }}>
-        <p className="mb-5" style={applyHeroStyle(hero.subtitle_style, { ...LABEL, color: GOLD })}>{hero.subtitle_text || program.category || 'FLAGSHIP PROGRAM'}</p>
-        <h1 data-testid="program-title" className="text-white mb-6 max-w-4xl" style={applyHeroStyle(hero.title_style, { ...HEADING, color: '#fff', fontSize: 'clamp(1.8rem, 4vw, 3rem)', fontVariant: 'small-caps', letterSpacing: '0.05em', lineHeight: 1.3 })}>
+        <h1 data-testid="program-title" className="text-white mb-4 max-w-4xl" style={applyHeroStyle(hero.title_style, { ...HEADING, color: '#fff', fontSize: 'clamp(1.8rem, 4vw, 3rem)', fontVariant: 'small-caps', letterSpacing: '0.05em', lineHeight: 1.3 })}>
           {hero.title_text || program.title}
         </h1>
+        <p className="mb-6" style={applyHeroStyle(hero.subtitle_style, { ...LABEL, color: GOLD })}>{hero.subtitle_text || program.category || 'FLAGSHIP PROGRAM'}</p>
         <div className="w-14 h-0.5" style={{ background: GOLD }} />
       </section>
 
