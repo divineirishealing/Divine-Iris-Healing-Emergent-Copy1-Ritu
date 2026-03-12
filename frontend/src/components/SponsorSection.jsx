@@ -7,10 +7,10 @@ const SponsorSection = () => {
         <div className="grid md:grid-cols-2 gap-12 items-center max-w-7xl mx-auto">
           {/* Content */}
           <div>
-            <h2 className="text-3xl md:text-4xl text-gray-900 mb-6 leading-tight">
+            <h2 className="text-gray-900 mb-6 leading-tight" style={{ fontFamily: "'Cinzel', serif", fontSize: 'clamp(1.5rem, 3vw, 2.2rem)', fontWeight: 400 }}>
               Shine a Light in a Life
             </h2>
-            <p className="text-gray-700 text-base mb-4 leading-relaxed">
+            <p className="text-gray-700 mb-4 leading-relaxed" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1rem' }}>
               Healing flows when we support each other.
             </p>
             <div className="text-gray-600 mb-6 leading-relaxed text-sm space-y-1">

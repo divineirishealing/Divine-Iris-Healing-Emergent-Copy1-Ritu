@@ -89,7 +89,7 @@ const Footer = () => {
             <h4 className="text-xs font-medium mb-3 tracking-wider text-gray-300">MENU</h4>
             <ul className="space-y-1.5 text-gray-400 text-[11px]">
               <li><a href="/" className="hover:text-[#D4AF37] transition-colors">HOME</a></li>
-              <li><a href="/#about" className="hover:text-[#D4AF37] transition-colors">ABOUT</a></li>
+              <li><a href="/about" className="hover:text-[#D4AF37] transition-colors">ABOUT</a></li>
               <li><a href="/services" className="hover:text-[#D4AF37] transition-colors">SERVICES</a></li>
               <li><a href="/sessions" className="hover:text-[#D4AF37] transition-colors">UPCOMING SESSIONS</a></li>
               <li><a href="/media" className="hover:text-[#D4AF37] transition-colors">MEDIA</a></li>

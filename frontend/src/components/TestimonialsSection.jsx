@@ -50,7 +50,7 @@ const TestimonialsSection = () => {
   return (
     <section id="media" data-testid="testimonials-section" className="py-20 bg-white">
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl md:text-4xl text-center text-gray-900 mb-8">
+        <h2 className="text-center text-gray-900 mb-8" style={{ fontFamily: "'Cinzel', serif", fontSize: 'clamp(1.5rem, 3vw, 2.2rem)', fontWeight: 400 }}>
           Testimonials
         </h2>
 

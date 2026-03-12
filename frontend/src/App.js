@@ -18,6 +18,7 @@ import CartPage from './pages/CartPage';
 import CartCheckoutPage from './pages/CartCheckoutPage';
 import TermsPage from './pages/TermsPage';
 import PrivacyPage from './pages/PrivacyPage';
+import AboutPage from './pages/AboutPage';
 import { Toaster } from './components/ui/toaster';
 import { SiteSettingsProvider } from './context/SiteSettingsContext';
 import { CurrencyProvider } from './context/CurrencyContext';
@@ -49,6 +50,7 @@ function App() {
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/terms" element={<TermsPage />} />
                 <Route path="/privacy" element={<PrivacyPage />} />
+                <Route path="/about" element={<AboutPage />} />
               </Routes>
             </BrowserRouter>
             <Toaster />

@@ -37,8 +37,8 @@ const SessionsSection = () => {
         {/* Section Title */}
         <div className="text-center mb-12">
           <h2
-            className="text-3xl md:text-4xl italic"
-            style={{ color: '#D4AF37', fontFamily: "'Playfair Display', Georgia, serif", fontWeight: 400 }}
+            className="italic"
+            style={{ color: '#D4AF37', fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 400, fontSize: 'clamp(1.5rem, 3vw, 2.2rem)' }}
           >
             Book Personal Session
           </h2>

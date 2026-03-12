@@ -37,10 +37,10 @@ const NewsletterSection = () => {
     <section data-testid="newsletter-section" className="py-20 bg-white">
       <div className="container mx-auto px-4">
         <div className="max-w-2xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl text-[#8B6914] mb-6">
+          <h2 className="text-[#8B6914] mb-6" style={{ fontFamily: "'Cinzel', serif", fontSize: 'clamp(1.5rem, 3vw, 2.2rem)', fontWeight: 400 }}>
             {s.newsletter_heading || 'Join Our Community'}
           </h2>
-          <p className="text-gray-600 mb-8 leading-relaxed text-sm">
+          <p className="text-gray-600 mb-8 leading-relaxed" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '0.9rem' }}>
             {s.newsletter_description || 'Sign up to receive updates on upcoming workshops, new courses and more information'}
           </p>
 

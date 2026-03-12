@@ -68,9 +68,9 @@ const ProgramCard = ({ program }) => {
         )}
       </div>
       <div className="p-5 flex flex-col flex-1">
-        <h3 className="text-base font-semibold text-gray-900 mb-2 leading-tight cursor-pointer"
+        <h3 className="text-sm font-semibold text-gray-900 mb-2 leading-tight cursor-pointer" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1rem' }}
           onClick={() => navigate(`/program/${program.id}`)}>{program.title}</h3>
-        <p className="text-gray-500 text-xs leading-relaxed mb-3 line-clamp-2 flex-1">{program.description}</p>
+        <p className="text-gray-500 text-xs leading-relaxed mb-3 line-clamp-2 flex-1" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '0.8rem' }}>{program.description}</p>
 
         {hasTiers && (
           <div data-testid={`tier-selector-${program.id}`} className="flex gap-1 mb-3">
@@ -146,7 +146,7 @@ const ProgramsSection = () => {
   return (
     <section id="programs" data-testid="programs-section" className="py-20 bg-white">
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl md:text-4xl text-center text-gray-900 mb-4">Flagship Programs</h2>
+        <h2 className="text-center text-gray-900 mb-4" style={{ fontFamily: "'Cinzel', serif", fontSize: 'clamp(1.5rem, 3vw, 2.2rem)', fontWeight: 400 }}>Flagship Programs</h2>
         {!programs.some(p => p.enable_in_person) && (
           <p className="text-center text-xs text-gray-400 mb-16">All sessions are conducted online via Zoom or through remote distance healing — no in-person sessions at this time.</p>
         )}
