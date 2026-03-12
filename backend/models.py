@@ -271,7 +271,11 @@ class SiteSettings(BaseModel):
     about_bio_2: str = "Dimple's journey began with a profound question: \"Why do people continue to suffer despite awareness, effort, and access to solutions?\" Her work is rooted in lived experience and deep inquiry."
     about_image: str = ""
     about_button_text: str = "Read Full Bio"
-    about_button_link: str = "/#about"
+    about_button_link: str = "/about"
+    about_philosophy: str = ""
+    about_impact: str = ""
+    about_mission: str = ""
+    about_vision: str = ""
     # Newsletter section
     newsletter_heading: str = "Join Our Community"
     newsletter_description: str = "Sign up to receive updates on upcoming workshops, new courses and more information"
@@ -355,6 +359,10 @@ class SiteSettingsUpdate(BaseModel):
     about_image: Optional[str] = None
     about_button_text: Optional[str] = None
     about_button_link: Optional[str] = None
+    about_philosophy: Optional[str] = None
+    about_impact: Optional[str] = None
+    about_mission: Optional[str] = None
+    about_vision: Optional[str] = None
     newsletter_heading: Optional[str] = None
     newsletter_description: Optional[str] = None
     newsletter_button_text: Optional[str] = None

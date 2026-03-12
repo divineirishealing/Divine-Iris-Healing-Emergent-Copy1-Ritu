@@ -408,6 +408,9 @@ const AdminPanel = () => {
                           <div className="flex items-center justify-between mb-3">
                             <div className="flex items-center gap-2">
                               <span className="text-[10px] font-medium text-gray-400">#{sIdx + 1}</span>
+                              <span className="text-[9px] px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded">{
+                                ({journey:'Journey', who_for:'Who For', experience:'Experience', why_now:'Why Now', cta:'CTA', custom:'Custom'})[section.section_type] || 'Custom'
+                              }</span>
                               <Switch
                                 checked={section.is_enabled}
                                 onCheckedChange={v => {
@@ -437,7 +440,29 @@ const AdminPanel = () => {
                             </div>
                           </div>
 
-                          <div className="grid md:grid-cols-2 gap-3">
+                          <div className="grid md:grid-cols-3 gap-3">
+                            <div>
+                              <Label className="text-[10px]">Section Type</Label>
+                              <select
+                                data-testid={`section-type-${sIdx}`}
+                                value={section.section_type || 'custom'}
+                                onChange={e => {
+                                  const sections = [...programForm.content_sections];
+                                  const newType = e.target.value;
+                                  const defaults = { journey: 'The Journey', who_for: 'Who It Is For?', experience: 'Your Experience', why_now: 'Why You Need This Now?', cta: 'When You Are Seeking', custom: '' };
+                                  sections[sIdx] = {...sections[sIdx], section_type: newType, title: sections[sIdx].title || defaults[newType] || ''};
+                                  setProgramForm({...programForm, content_sections: sections});
+                                }}
+                                className="w-full text-[10px] border rounded px-2 py-1.5"
+                              >
+                                <option value="journey">The Journey</option>
+                                <option value="who_for">Who It Is For?</option>
+                                <option value="experience">Your Experience (Dark BG)</option>
+                                <option value="why_now">Why You Need This Now?</option>
+                                <option value="cta">CTA Section</option>
+                                <option value="custom">Custom</option>
+                              </select>
+                            </div>
                             <div>
                               <Label className="text-[10px]">Section Title</Label>
                               <Input value={section.title} onChange={e => {

@@ -28,26 +28,26 @@ const applyStyle = (styleObj, defaults = {}) => {
 const getDefaultSections = (program) => [
   {
     id: 'journey', section_type: 'journey', is_enabled: true, order: 0,
-    title: 'The Journey',
-    subtitle: '',
-    body: program.description || '',
-    image_url: '',
+    title: 'The Journey', subtitle: '', body: program.description || '', image_url: '',
   },
   {
     id: 'who_for', section_type: 'who_for', is_enabled: true, order: 1,
-    title: 'Who it is for',
-    subtitle: 'A Sacred Invitation for those who resonate',
-    body: '',
-    image_url: '',
+    title: 'Who It Is For?', subtitle: 'A Sacred Invitation for those who resonate', body: '', image_url: '',
   },
   {
     id: 'experience', section_type: 'experience', is_enabled: true, order: 2,
-    title: 'Your Experience',
-    subtitle: '',
-    body: '',
-    image_url: '',
+    title: 'Your Experience', subtitle: '', body: '', image_url: '',
+  },
+  {
+    id: 'why_now', section_type: 'why_now', is_enabled: true, order: 3,
+    title: 'Why You Need This Now?', subtitle: '', body: '', image_url: '',
   },
 ];
+
+/* Section title style - Lato Bold by default */
+const TITLE_DEFAULTS = { fontFamily: "'Lato', sans-serif", fontSize: '1.6rem', fontWeight: 700, color: '#1a1a1a' };
+const SUBTITLE_DEFAULTS = { fontFamily: "'Cormorant Garamond', serif", fontSize: '0.9rem', color: '#999' };
+const BODY_DEFAULTS = { fontFamily: "'Cormorant Garamond', serif", fontSize: '0.95rem', color: '#666', lineHeight: '1.9' };
 
 function ProgramDetailPage() {
   const { id } = useParams();
@@ -108,24 +108,24 @@ function ProgramDetailPage() {
   const renderSection = (section, idx) => {
     const sType = section.section_type || 'custom';
 
-    /* ===== The Journey / default text section ===== */
+    /* ===== The Journey / text-only section ===== */
     if (sType === 'journey' || (sType === 'custom' && !section.image_url)) {
       return (
         <section key={section.id || idx} data-testid={`section-${idx}`} className="py-20 bg-white">
           <div className="container mx-auto px-4 max-w-4xl">
             {section.title && (
-              <h2 className="text-center mb-4" style={applyStyle(section.title_style, { fontFamily: "'Cormorant Garamond', serif", fontSize: '1.8rem', fontWeight: 700, color: '#1a1a1a' })}>
+              <h2 className="text-center mb-4" style={applyStyle(section.title_style, TITLE_DEFAULTS)}>
                 {section.title}
               </h2>
             )}
             {section.title && <div className="w-12 h-0.5 bg-[#D4AF37] mx-auto mb-10"></div>}
             {section.subtitle && (
-              <p className="text-center mb-6" style={applyStyle(section.subtitle_style, { fontFamily: "'Cormorant Garamond', serif", fontSize: '0.9rem', color: '#999' })}>
+              <p className="text-center mb-6" style={applyStyle(section.subtitle_style, SUBTITLE_DEFAULTS)}>
                 {section.subtitle}
               </p>
             )}
             {section.body && (
-              <p className="leading-relaxed text-justify" style={applyStyle(section.body_style, { fontFamily: "'Cormorant Garamond', serif", fontSize: '0.95rem', color: '#666', lineHeight: '1.9' })}>
+              <p className="leading-relaxed text-justify whitespace-pre-wrap" style={applyStyle(section.body_style, BODY_DEFAULTS)}>
                 {section.body}
               </p>
             )}
@@ -134,18 +134,18 @@ function ProgramDetailPage() {
       );
     }
 
-    /* ===== Who it is for ===== */
+    /* ===== Who It Is For? ===== */
     if (sType === 'who_for') {
       const lines = section.body ? section.body.split('\n').filter(l => l.trim()) : [];
       return (
         <section key={section.id || idx} data-testid={`section-${idx}`} className="py-20 bg-[#f8f8f8]">
           <div className="container mx-auto px-4 max-w-4xl">
-            <h2 className="text-center mb-4" style={applyStyle(section.title_style, { fontFamily: "'Cormorant Garamond', serif", fontSize: '1.8rem', fontWeight: 700, color: '#1a1a1a' })}>
-              {section.title || 'Who it is for'}
+            <h2 className="text-center mb-4" style={applyStyle(section.title_style, TITLE_DEFAULTS)}>
+              {section.title || 'Who It Is For?'}
             </h2>
             <div className="w-12 h-0.5 bg-[#D4AF37] mx-auto mb-4"></div>
             {section.subtitle && (
-              <p className="text-center mb-12" style={applyStyle(section.subtitle_style, { fontFamily: "'Cormorant Garamond', serif", fontSize: '0.85rem', color: '#999' })}>
+              <p className="text-center mb-12" style={applyStyle(section.subtitle_style, SUBTITLE_DEFAULTS)}>
                 {section.subtitle}
               </p>
             )}
@@ -154,7 +154,7 @@ function ProgramDetailPage() {
                 {lines.map((line, i) => (
                   <div key={i} className="flex items-start gap-3">
                     <span className="text-[#D4AF37] mt-0.5 text-lg flex-shrink-0">&#10038;</span>
-                    <p style={applyStyle(section.body_style, { fontFamily: "'Cormorant Garamond', serif", fontSize: '0.9rem', color: '#444' })}>
+                    <p style={applyStyle(section.body_style, BODY_DEFAULTS)}>
                       {line.replace(/^[-•*]\s*/, '')}
                     </p>
                   </div>
@@ -166,12 +166,13 @@ function ProgramDetailPage() {
       );
     }
 
-    /* ===== Your Experience (dark bg with image + italic quote) ===== */
+    /* ===== Your Experience (dark bg with image) ===== */
     if (sType === 'experience') {
+      const sectionImage = section.image_url ? resolveImageUrl(section.image_url) : aboutImage;
       return (
-        <section key={section.id || idx} data-testid={`section-${idx}`} className="py-20" style={{ background: 'linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%)' }}>
+        <section key={section.id || idx} data-testid={`section-${idx}`} className="py-20" style={{ background: '#1a1a1a' }}>
           <div className="container mx-auto px-4 max-w-5xl">
-            <h2 className="text-center mb-4" style={applyStyle(section.title_style, { fontFamily: "'Cormorant Garamond', serif", fontSize: '1.8rem', fontWeight: 600, color: '#D4AF37', fontStyle: 'italic' })}>
+            <h2 className="text-center mb-4" style={applyStyle(section.title_style, { ...TITLE_DEFAULTS, color: '#D4AF37', fontStyle: 'italic' })}>
               {section.title || 'Your Experience'}
             </h2>
             <div className="w-12 h-0.5 bg-[#D4AF37] mx-auto mb-12"></div>
@@ -179,22 +180,51 @@ function ProgramDetailPage() {
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div className="overflow-hidden rounded-lg">
                 <img
-                  src={section.image_url ? resolveImageUrl(section.image_url) : aboutImage}
+                  src={sectionImage}
                   alt="Experience"
-                  className="w-full h-80 object-cover grayscale"
+                  className="w-full h-80 object-cover"
                   onError={(e) => { e.target.src = aboutImage; }}
                 />
               </div>
               <div>
                 {section.body && (
                   <div className="border-l-2 border-[#D4AF37] pl-6">
-                    <p className="italic leading-relaxed" style={applyStyle(section.body_style, { fontFamily: "'Cormorant Garamond', serif", fontSize: '0.95rem', color: '#ccc', lineHeight: '1.9', fontStyle: 'italic' })}>
+                    <p className="italic leading-relaxed whitespace-pre-wrap" style={applyStyle(section.body_style, { ...BODY_DEFAULTS, color: '#ccc', fontStyle: 'italic' })}>
                       {section.body}
                     </p>
                   </div>
                 )}
               </div>
             </div>
+          </div>
+        </section>
+      );
+    }
+
+    /* ===== Why You Need This Now? ===== */
+    if (sType === 'why_now') {
+      return (
+        <section key={section.id || idx} data-testid={`section-${idx}`} className="py-20 bg-white">
+          <div className="container mx-auto px-4 max-w-4xl">
+            <h2 className="text-center mb-4" style={applyStyle(section.title_style, TITLE_DEFAULTS)}>
+              {section.title || 'Why You Need This Now?'}
+            </h2>
+            <div className="w-12 h-0.5 bg-[#D4AF37] mx-auto mb-10"></div>
+            {section.subtitle && (
+              <p className="text-center mb-6" style={applyStyle(section.subtitle_style, SUBTITLE_DEFAULTS)}>
+                {section.subtitle}
+              </p>
+            )}
+            {section.body && (
+              <p className="leading-relaxed text-justify whitespace-pre-wrap" style={applyStyle(section.body_style, BODY_DEFAULTS)}>
+                {section.body}
+              </p>
+            )}
+            {section.image_url && (
+              <div className="mt-10 rounded-lg overflow-hidden">
+                <img src={resolveImageUrl(section.image_url)} alt={section.title} className="w-full max-h-96 object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
+              </div>
+            )}
           </div>
         </section>
       );
@@ -207,13 +237,13 @@ function ProgramDetailPage() {
         <section key={section.id || idx} data-testid={`section-${idx}`} className={`py-20 ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f8f8f8]'}`}>
           <div className="container mx-auto px-4 max-w-5xl">
             {section.title && (
-              <h2 className="text-center mb-4" style={applyStyle(section.title_style, { fontFamily: "'Cormorant Garamond', serif", fontSize: '1.8rem', fontWeight: 700, color: '#1a1a1a' })}>
+              <h2 className="text-center mb-4" style={applyStyle(section.title_style, TITLE_DEFAULTS)}>
                 {section.title}
               </h2>
             )}
             {section.title && <div className="w-12 h-0.5 bg-[#D4AF37] mx-auto mb-10"></div>}
             {section.subtitle && (
-              <p className="text-center mb-8" style={applyStyle(section.subtitle_style, { fontFamily: "'Cormorant Garamond', serif", fontSize: '0.85rem', color: '#999' })}>
+              <p className="text-center mb-8" style={applyStyle(section.subtitle_style, SUBTITLE_DEFAULTS)}>
                 {section.subtitle}
               </p>
             )}
@@ -222,7 +252,7 @@ function ProgramDetailPage() {
                 <img src={resolveImageUrl(section.image_url)} alt={section.title} className="w-full rounded-lg" onError={(e) => { e.target.style.display = 'none'; }} />
               </div>
               <div className={imgLeft ? 'order-2' : 'order-2 md:order-1'}>
-                <p className="leading-relaxed" style={applyStyle(section.body_style, { fontFamily: "'Cormorant Garamond', serif", fontSize: '0.95rem', color: '#666', lineHeight: '1.9' })}>
+                <p className="leading-relaxed whitespace-pre-wrap" style={applyStyle(section.body_style, BODY_DEFAULTS)}>
                   {section.body}
                 </p>
               </div>
@@ -237,18 +267,18 @@ function ProgramDetailPage() {
       <section key={section.id || idx} data-testid={`section-${idx}`} className={`py-20 ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f8f8f8]'}`}>
         <div className="container mx-auto px-4 max-w-4xl">
           {section.title && (
-            <h2 className="text-center mb-4" style={applyStyle(section.title_style, { fontFamily: "'Cormorant Garamond', serif", fontSize: '1.8rem', fontWeight: 700, color: '#1a1a1a' })}>
+            <h2 className="text-center mb-4" style={applyStyle(section.title_style, TITLE_DEFAULTS)}>
               {section.title}
             </h2>
           )}
           {section.title && <div className="w-12 h-0.5 bg-[#D4AF37] mx-auto mb-10"></div>}
           {section.subtitle && (
-            <p className="text-center mb-6" style={applyStyle(section.subtitle_style, { fontFamily: "'Cormorant Garamond', serif", fontSize: '0.85rem', color: '#999' })}>
+            <p className="text-center mb-6" style={applyStyle(section.subtitle_style, SUBTITLE_DEFAULTS)}>
               {section.subtitle}
             </p>
           )}
           {section.body && (
-            <p className="leading-relaxed text-justify" style={applyStyle(section.body_style, { fontFamily: "'Cormorant Garamond', serif", fontSize: '0.95rem', color: '#666', lineHeight: '1.9' })}>
+            <p className="leading-relaxed text-justify whitespace-pre-wrap" style={applyStyle(section.body_style, BODY_DEFAULTS)}>
               {section.body}
             </p>
           )}
@@ -283,33 +313,26 @@ function ProgramDetailPage() {
       <section className="py-20 bg-white" data-testid="cta-section">
         <div className="container mx-auto px-4 max-w-3xl text-center">
           <div className="w-14 h-0.5 bg-[#D4AF37] mx-auto mb-6"></div>
-          <p className="text-xs tracking-[0.3em] text-gray-500 uppercase mb-6" style={{ fontFamily: "'Lato', sans-serif" }}>When you are seeking</p>
+          <p className="tracking-[0.3em] text-gray-500 uppercase mb-6" style={{ fontFamily: "'Lato', sans-serif", fontSize: '0.7rem' }}>When you are seeking</p>
 
-          {/* CTA body from first matching content_section or program description */}
-          {sections.find(s => s.section_type === 'cta') ? (
-            <p className="text-gray-600 text-lg mb-10 leading-relaxed" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-              {sections.find(s => s.section_type === 'cta').body}
-            </p>
-          ) : (
-            <p className="text-gray-600 text-lg mb-10 leading-relaxed" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-              When you are ready to experience deep inner transformation and lasting change, this program becomes the foundation for that shift.
-            </p>
-          )}
+          <p className="text-gray-600 mb-10 leading-relaxed" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.1rem' }}>
+            When you are ready to experience deep inner transformation and lasting change, this program becomes the foundation for that shift.
+          </p>
 
-          {/* Duration Tiers for flagship programs */}
+          {/* Duration Tiers */}
           {program.is_flagship && program.duration_tiers && program.duration_tiers.length > 0 && (
             <div data-testid="duration-tiers" className="max-w-3xl mx-auto mb-10">
               <div className={`grid gap-4 ${program.duration_tiers.length === 3 ? 'sm:grid-cols-3' : program.duration_tiers.length === 2 ? 'sm:grid-cols-2' : 'max-w-xs mx-auto'}`}>
-                {program.duration_tiers.map((tier, idx) => {
+                {program.duration_tiers.map((tier, tIdx) => {
                   const isAnnual = tier.label?.toLowerCase().includes('annual') || tier.label?.toLowerCase().includes('year') || tier.duration_unit === 'year';
-                  const tierPrice = getPrice(program, idx);
-                  const tierOffer = getOfferPrice(program, idx);
+                  const tierPrice = getPrice(program, tIdx);
+                  const tierOffer = getOfferPrice(program, tIdx);
                   const showContact = isAnnual && tierPrice === 0;
                   return (
-                    <div key={idx} data-testid={`tier-${idx}`}
+                    <div key={tIdx} data-testid={`tier-${tIdx}`}
                       className="border border-gray-200 hover:border-[#D4AF37] rounded-lg p-5 transition-all duration-300 cursor-pointer group hover:shadow-md"
-                      onClick={() => showContact ? navigate(`/contact?program=${program.id}&title=${encodeURIComponent(program.title)}&tier=${tier.label}`) : navigate(`/enroll/program/${program.id}?tier=${idx}`)}>
-                      <p className="text-sm font-medium text-gray-900 group-hover:text-[#D4AF37] transition-colors mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>{tier.label}</p>
+                      onClick={() => showContact ? navigate(`/contact?program=${program.id}&title=${encodeURIComponent(program.title)}&tier=${tier.label}`) : navigate(`/enroll/program/${program.id}?tier=${tIdx}`)}>
+                      <p className="text-sm font-medium text-gray-900 group-hover:text-[#D4AF37] transition-colors mb-2" style={{ fontFamily: "'Lato', sans-serif" }}>{tier.label}</p>
                       {showContact ? (
                         <div>
                           <p className="text-gray-400 text-[10px] mb-3">Custom pricing</p>
@@ -363,7 +386,7 @@ function ProgramDetailPage() {
               Testimonials
             </h2>
             <div className="max-w-5xl mx-auto relative flex items-center justify-center gap-4">
-              <button onClick={prevT} data-testid="prev-testimonial" className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 flex-shrink-0 transition-colors"><ChevronLeft size={18} /></button>
+              <button onClick={prevT} data-testid="prev-testimonial" className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 flex-shrink-0"><ChevronLeft size={18} /></button>
               <div className="flex gap-3 overflow-hidden">
                 {[0, 1, 2, 3, 4].map((offset) => {
                   if (testimonials.length === 0) return null;
@@ -372,17 +395,13 @@ function ProgramDetailPage() {
                   if (!t) return null;
                   const imgSrc = t.type === 'graphic' ? resolveImageUrl(t.image) : `https://img.youtube.com/vi/${t.videoId}/hqdefault.jpg`;
                   return (
-                    <img
-                      key={offset}
-                      src={imgSrc}
-                      alt={t.name || `Testimonial ${tIdx + 1}`}
+                    <img key={offset} src={imgSrc} alt={t.name || `Testimonial ${tIdx + 1}`}
                       className="w-36 h-36 object-cover rounded-lg shadow flex-shrink-0"
-                      onError={(e) => { e.target.style.display = 'none'; }}
-                    />
+                      onError={(e) => { e.target.style.display = 'none'; }} />
                   );
                 })}
               </div>
-              <button onClick={nextT} data-testid="next-testimonial" className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 flex-shrink-0 transition-colors"><ChevronRight size={18} /></button>
+              <button onClick={nextT} data-testid="next-testimonial" className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 flex-shrink-0"><ChevronRight size={18} /></button>
             </div>
           </div>
         </section>
