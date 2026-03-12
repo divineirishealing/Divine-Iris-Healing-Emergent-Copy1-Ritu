@@ -24,6 +24,15 @@ const COUNTRIES = [
   { code: "SA", name: "Saudi Arabia", phone: "+966" }, { code: "QA", name: "Qatar", phone: "+974" },
   { code: "PK", name: "Pakistan", phone: "+92" }, { code: "BD", name: "Bangladesh", phone: "+880" },
   { code: "MY", name: "Malaysia", phone: "+60" }, { code: "JP", name: "Japan", phone: "+81" },
+  { code: "FR", name: "France", phone: "+33" }, { code: "LK", name: "Sri Lanka", phone: "+94" },
+  { code: "ZA", name: "South Africa", phone: "+27" }, { code: "NP", name: "Nepal", phone: "+977" },
+  { code: "KW", name: "Kuwait", phone: "+965" }, { code: "OM", name: "Oman", phone: "+968" },
+  { code: "BH", name: "Bahrain", phone: "+973" }, { code: "PH", name: "Philippines", phone: "+63" },
+  { code: "ID", name: "Indonesia", phone: "+62" }, { code: "TH", name: "Thailand", phone: "+66" },
+  { code: "KE", name: "Kenya", phone: "+254" }, { code: "NG", name: "Nigeria", phone: "+234" },
+  { code: "EG", name: "Egypt", phone: "+20" }, { code: "TR", name: "Turkey", phone: "+90" },
+  { code: "IT", name: "Italy", phone: "+39" }, { code: "ES", name: "Spain", phone: "+34" },
+  { code: "NL", name: "Netherlands", phone: "+31" }, { code: "NZ", name: "New Zealand", phone: "+64" },
 ].sort((a, b) => a.name.localeCompare(b.name));
 
 const StepDot = ({ active, done }) => (
@@ -33,7 +42,7 @@ const StepDot = ({ active, done }) => (
 function CartCheckoutPage() {
   const navigate = useNavigate();
   const { items, clearCart } = useCart();
-  const { getPrice, symbol, currency, country: detectedCountry } = useCurrency();
+  const { getPrice, getOfferPrice, symbol, currency, country: detectedCountry } = useCurrency();
   const { toast } = useToast();
 
   const [step, setStep] = useState(0); // 0=Review+Promo, 1=Billing+OTP, 2=Pay
@@ -76,11 +85,21 @@ function CartCheckoutPage() {
   }, [bookerCountry]);
 
   const getItemPrice = (item) => {
-    const fakeProgram = { is_flagship: item.isFlagship, duration_tiers: item.durationTiers || [] };
+    const fakeProgram = { is_flagship: item.isFlagship, duration_tiers: item.durationTiers || [], price_aed: item.price_aed, price_inr: item.price_inr, price_usd: item.price_usd };
     return getPrice(fakeProgram, item.tierIndex);
   };
 
-  const subtotal = items.reduce((sum, item) => sum + getItemPrice(item) * item.participants.length, 0);
+  const getItemOfferPrice = (item) => {
+    const fakeProgram = { is_flagship: item.isFlagship, duration_tiers: item.durationTiers || [], offer_price_aed: item.offer_price_aed, offer_price_inr: item.offer_price_inr, offer_price_usd: item.offer_price_usd };
+    return getOfferPrice(fakeProgram, item.tierIndex);
+  };
+
+  const getEffectivePrice = (item) => {
+    const offer = getItemOfferPrice(item);
+    return offer > 0 ? offer : getItemPrice(item);
+  };
+
+  const subtotal = items.reduce((sum, item) => sum + getEffectivePrice(item) * item.participants.length, 0);
   const totalParticipants = items.reduce((sum, i) => sum + i.participants.length, 0);
 
   const discount = (() => {
@@ -121,6 +140,7 @@ function CartCheckoutPage() {
           whatsapp: p.whatsapp || null,
           program_id: item.programId, program_title: item.programTitle,
           is_first_time: p.is_first_time || false, referral_source: p.referral_source || '',
+          referred_by_name: p.has_referral ? (p.referred_by_name || '') : '',
         }))
       );
 
@@ -194,7 +214,11 @@ function CartCheckoutPage() {
                       <p className="text-xs font-medium text-gray-900 truncate">{item.programTitle}</p>
                       <p className="text-[10px] text-gray-500">{item.tierLabel} &middot; {item.participants.length} person{item.participants.length > 1 ? 's' : ''}</p>
                     </div>
-                    <span className="text-xs font-bold text-gray-900">{symbol} {(getItemPrice(item) * item.participants.length).toLocaleString()}</span>
+                    <span className="text-xs font-bold text-gray-900">
+                      {getItemOfferPrice(item) > 0 ? (
+                        <><span className="text-[#D4AF37]">{symbol} {(getItemOfferPrice(item) * item.participants.length).toLocaleString()}</span>{' '}<span className="line-through text-gray-400 font-normal">{symbol} {(getItemPrice(item) * item.participants.length).toLocaleString()}</span></>
+                      ) : `${symbol} ${(getItemPrice(item) * item.participants.length).toLocaleString()}`}
+                    </span>
                   </div>
                 ))}
                 <div className="border-t mt-3 pt-3 space-y-1">

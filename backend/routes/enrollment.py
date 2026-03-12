@@ -62,6 +62,7 @@ class ParticipantData(BaseModel):
     program_title: Optional[str] = None
     is_first_time: bool = False
     referral_source: str = ""
+    referred_by_name: str = ""
 
 
 class ProfileData(BaseModel):

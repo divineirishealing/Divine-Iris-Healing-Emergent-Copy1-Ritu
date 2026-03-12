@@ -38,6 +38,14 @@ export const CartProvider = ({ children }) => {
       tierLabel: tier?.label || 'Standard',
       isFlagship: program.is_flagship,
       durationTiers: tiers,
+      // Store offer price fields for non-flagship programs
+      offer_price_aed: program.offer_price_aed || 0,
+      offer_price_inr: program.offer_price_inr || 0,
+      offer_price_usd: program.offer_price_usd || 0,
+      // Store base prices for non-flagship
+      price_aed: program.price_aed || 0,
+      price_inr: program.price_inr || 0,
+      price_usd: program.price_usd || 0,
       participants: [{
         name: '', relationship: 'Myself', age: '', gender: '',
         country: 'AE', attendance_mode: program.session_mode === 'remote' ? 'offline' : 'online',

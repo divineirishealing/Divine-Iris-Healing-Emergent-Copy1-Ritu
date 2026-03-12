@@ -37,9 +37,13 @@ def enrollment_confirmation_email(booker_name, item_title, participants, total, 
         mode_label = "Online (Zoom)" if mode == "online" else "Remote Healing"
         mode_color = "#2563eb" if mode == "online" else "#7c3aed"
         first_time = "Yes" if p.get("is_first_time") else "No"
+        uid = p.get("uid", "")
+        uid_html = f'<br><span style="font-size:10px;color:#D4AF37;font-weight:600">UID: {uid}</span>' if uid else ""
+        referred = p.get("referred_by_name", "")
+        ref_html = f'<br><span style="font-size:10px;color:#888">Ref: {referred}</span>' if referred else ""
         participant_rows += f"""
         <tr>
-          <td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:14px;color:#333">{p['name']}</td>
+          <td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:14px;color:#333">{p['name']}{uid_html}{ref_html}</td>
           <td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:14px;color:#333">{p.get('relationship','')}</td>
           <td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:13px;">
             <span style="background:{mode_color};color:#fff;padding:3px 10px;border-radius:12px;font-size:11px">{mode_label}</span>

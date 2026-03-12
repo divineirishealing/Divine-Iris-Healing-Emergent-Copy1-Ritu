@@ -18,7 +18,12 @@ const COUNTRIES = [
   { code: "SG", name: "Singapore" }, { code: "DE", name: "Germany" }, { code: "FR", name: "France" },
   { code: "SA", name: "Saudi Arabia" }, { code: "QA", name: "Qatar" }, { code: "PK", name: "Pakistan" },
   { code: "BD", name: "Bangladesh" }, { code: "LK", name: "Sri Lanka" }, { code: "MY", name: "Malaysia" },
-  { code: "JP", name: "Japan" }, { code: "ZA", name: "South Africa" },
+  { code: "JP", name: "Japan" }, { code: "ZA", name: "South Africa" }, { code: "NP", name: "Nepal" },
+  { code: "KW", name: "Kuwait" }, { code: "OM", name: "Oman" }, { code: "BH", name: "Bahrain" },
+  { code: "PH", name: "Philippines" }, { code: "ID", name: "Indonesia" }, { code: "TH", name: "Thailand" },
+  { code: "KE", name: "Kenya" }, { code: "NG", name: "Nigeria" }, { code: "EG", name: "Egypt" },
+  { code: "TR", name: "Turkey" }, { code: "IT", name: "Italy" }, { code: "ES", name: "Spain" },
+  { code: "NL", name: "Netherlands" }, { code: "NZ", name: "New Zealand" },
 ].sort((a, b) => a.name.localeCompare(b.name));
 const GENDERS = ["Female", "Male", "Non-Binary", "Prefer not to say"];
 const RELATIONSHIPS = ["Myself", "Mother", "Father", "Sister", "Brother", "Spouse", "Friend", "Colleague", "Other"];
@@ -31,7 +36,12 @@ const COUNTRIES_PHONE = [
   { code: "SG", phone: "+65" }, { code: "DE", phone: "+49" }, { code: "FR", phone: "+33" },
   { code: "SA", phone: "+966" }, { code: "QA", phone: "+974" }, { code: "PK", phone: "+92" },
   { code: "BD", phone: "+880" }, { code: "LK", phone: "+94" }, { code: "MY", phone: "+60" },
-  { code: "JP", phone: "+81" }, { code: "ZA", phone: "+27" },
+  { code: "JP", phone: "+81" }, { code: "ZA", phone: "+27" }, { code: "NP", phone: "+977" },
+  { code: "KW", phone: "+965" }, { code: "OM", phone: "+968" }, { code: "BH", phone: "+973" },
+  { code: "PH", phone: "+63" }, { code: "ID", phone: "+62" }, { code: "TH", phone: "+66" },
+  { code: "KE", phone: "+254" }, { code: "NG", phone: "+234" }, { code: "EG", phone: "+20" },
+  { code: "TR", phone: "+90" }, { code: "IT", phone: "+39" }, { code: "ES", phone: "+34" },
+  { code: "NL", phone: "+31" }, { code: "NZ", phone: "+64" },
 ];
 
 const emptyParticipant = (mode = 'online') => ({
@@ -41,10 +51,12 @@ const emptyParticipant = (mode = 'online') => ({
   is_first_time: false, referral_source: '',
 });
 
-const CartItemCard = ({ item, onRemove, onUpdateParticipants, symbol, getItemPrice }) => {
+const CartItemCard = ({ item, onRemove, onUpdateParticipants, symbol, getItemPrice, getItemOfferPrice }) => {
   const [expanded, setExpanded] = useState(true);
   const tier = item.durationTiers?.[item.tierIndex];
   const price = getItemPrice(item);
+  const offerPrice = getItemOfferPrice(item);
+  const effectivePrice = offerPrice > 0 ? offerPrice : price;
   const pCount = item.participants.length;
 
   const updateParticipant = (idx, field, value) => {
@@ -73,11 +85,15 @@ const CartItemCard = ({ item, onRemove, onUpdateParticipants, symbol, getItemPri
           <h3 className="text-sm font-semibold text-gray-900 truncate">{item.programTitle}</h3>
           <div className="flex items-center gap-2 mt-0.5">
             <span className="text-[10px] bg-[#D4AF37]/10 text-[#D4AF37] px-2 py-0.5 rounded-full font-medium">{tier?.label || 'Standard'}</span>
-            <span className="text-[10px] text-gray-400">{symbol} {price.toLocaleString()} / person</span>
+            {offerPrice > 0 ? (
+              <span className="text-[10px] text-gray-400"><span className="text-[#D4AF37] font-medium">{symbol} {offerPrice.toLocaleString()}</span> <span className="line-through">{symbol} {price.toLocaleString()}</span> / person</span>
+            ) : (
+              <span className="text-[10px] text-gray-400">{symbol} {price.toLocaleString()} / person</span>
+            )}
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-sm font-bold text-[#D4AF37]">{symbol} {(price * pCount).toLocaleString()}</span>
+          <span className="text-sm font-bold text-[#D4AF37]">{symbol} {(effectivePrice * pCount).toLocaleString()}</span>
           <button onClick={onRemove} data-testid={`cart-remove-${item.id}`} className="text-red-400 hover:text-red-600 transition-colors p-1">
             <Trash2 size={16} />
           </button>
@@ -175,6 +191,13 @@ const CartItemCard = ({ item, onRemove, onUpdateParticipants, symbol, getItemPri
                     {REFERRAL_SOURCES.map(r => <option key={r} value={r}>{r}</option>)}
                   </select>
                 </div>
+                <label className="flex items-center gap-1.5 cursor-pointer mb-1.5" data-testid={`cp-referred-toggle-${item.id}-${idx}`}>
+                  <input type="checkbox" checked={p.has_referral || false} onChange={e => updateParticipant(idx, 'has_referral', e.target.checked)} className="w-3.5 h-3.5 rounded border-gray-300 text-[#D4AF37]" />
+                  <span className="text-[10px] text-gray-600">Referred by a Divine Iris member</span>
+                </label>
+                {p.has_referral && (
+                  <Input value={p.referred_by_name || ''} onChange={e => updateParticipant(idx, 'referred_by_name', e.target.value)} placeholder="Referrer's name" className="text-xs h-7 mb-1.5" />
+                )}
                 <label className="flex items-center gap-1.5 cursor-pointer mb-1">
                   <input type="checkbox" checked={p.notify} onChange={e => updateParticipant(idx, 'notify', e.target.checked)} className="w-3.5 h-3.5 rounded border-gray-300 text-[#D4AF37]" />
                   <span className="text-[10px] text-gray-600">Notify this participant</span>
@@ -217,20 +240,28 @@ const CartItemCard = ({ item, onRemove, onUpdateParticipants, symbol, getItemPri
 function CartPage() {
   const navigate = useNavigate();
   const { items, removeItem, updateItemParticipants, clearCart } = useCart();
-  const { getPrice, symbol } = useCurrency();
+  const { getPrice, getOfferPrice, symbol } = useCurrency();
   const { toast } = useToast();
 
   const getItemPrice = (item) => {
     const tiers = item.durationTiers || [];
-    const tier = tiers[item.tierIndex];
-    if (!tier) return 0;
-    // Build a fake item for getPrice
-    const fakeProgram = { is_flagship: item.isFlagship, duration_tiers: tiers };
+    const fakeProgram = { is_flagship: item.isFlagship, duration_tiers: tiers, price_aed: item.price_aed, price_inr: item.price_inr, price_usd: item.price_usd };
     return getPrice(fakeProgram, item.tierIndex);
   };
 
+  const getItemOfferPrice = (item) => {
+    const tiers = item.durationTiers || [];
+    const fakeProgram = { is_flagship: item.isFlagship, duration_tiers: tiers, offer_price_aed: item.offer_price_aed, offer_price_inr: item.offer_price_inr, offer_price_usd: item.offer_price_usd };
+    return getOfferPrice(fakeProgram, item.tierIndex);
+  };
+
+  const getEffectivePrice = (item) => {
+    const offer = getItemOfferPrice(item);
+    return offer > 0 ? offer : getItemPrice(item);
+  };
+
   const totalAmount = items.reduce((sum, item) => {
-    return sum + getItemPrice(item) * item.participants.length;
+    return sum + getEffectivePrice(item) * item.participants.length;
   }, 0);
 
   const totalParticipants = items.reduce((sum, i) => sum + i.participants.length, 0);
@@ -282,7 +313,7 @@ function CartPage() {
             <CartItemCard key={item.id} item={item}
               onRemove={() => removeItem(item.id)}
               onUpdateParticipants={(p) => updateItemParticipants(item.id, p)}
-              symbol={symbol} getItemPrice={getItemPrice} />
+              symbol={symbol} getItemPrice={getItemPrice} getItemOfferPrice={getItemOfferPrice} />
           ))}
 
           {/* Summary & Checkout */}

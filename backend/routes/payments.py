@@ -13,6 +13,7 @@ from emergentintegrations.payments.stripe.checkout import (
     StripeCheckout, CheckoutSessionRequest, CheckoutSessionResponse, CheckoutStatusResponse
 )
 from routes.emails import send_email, enrollment_confirmation_email, participant_notification_email
+from utils.uid_generator import generate_uid
 
 ROOT_DIR = Path(__file__).parent.parent
 load_dotenv(ROOT_DIR / '.env')
@@ -30,6 +31,37 @@ logger = logging.getLogger(__name__)
 CURRENCY_SYMBOLS = {
     'aed': 'AED ', 'usd': '$', 'inr': '₹', 'eur': '€', 'gbp': '£'
 }
+
+
+async def generate_participant_uids(session_id: str):
+    """Generate UIDs for all participants in an enrollment linked to this payment."""
+    tx = await db.payment_transactions.find_one({"stripe_session_id": session_id}, {"_id": 0})
+    if not tx:
+        return
+
+    enrollment_id = tx.get("enrollment_id")
+    if not enrollment_id:
+        return
+
+    enrollment = await db.enrollments.find_one({"id": enrollment_id})
+    if not enrollment:
+        return
+
+    participants = enrollment.get("participants", [])
+    item_title = tx.get("item_title", "Program")
+    updated = False
+
+    for i, p in enumerate(participants):
+        if not p.get("uid"):
+            uid = await generate_uid(db, item_title, p.get("name", "Unknown"))
+            participants[i]["uid"] = uid
+            updated = True
+
+    if updated:
+        await db.enrollments.update_one(
+            {"id": enrollment_id},
+            {"$set": {"participants": participants}}
+        )
 
 
 async def send_enrollment_emails(session_id: str):
@@ -136,10 +168,13 @@ async def create_checkout(req: CreateCheckoutRequest, http_request: Request):
 
     # Check offer price first for programs
     amount = 0.0
-    if req.item_type == "program" and item.get("offer_price_usd", 0) > 0 and currency == "usd":
-        amount = float(item.get("offer_price_usd", 0))
-    elif req.item_type == "program" and item.get("offer_price_inr", 0) > 0 and currency == "inr":
-        amount = float(item.get("offer_price_inr", 0))
+    if req.item_type == "program":
+        offer_field = f"offer_price_{currency}"
+        offer_amount = float(item.get(offer_field, 0))
+        if offer_amount > 0:
+            amount = offer_amount
+        else:
+            amount = float(item.get(price_field, 0))
     else:
         amount = float(item.get(price_field, 0))
 
@@ -258,7 +293,15 @@ async def check_payment_status(session_id: str, http_request: Request, backgroun
 
         # Send confirmation emails when payment is newly confirmed
         if new_status == "paid" and not tx.get("emails_sent"):
+            # Generate UIDs for all participants
+            await generate_participant_uids(session_id)
             background_tasks.add_task(send_enrollment_emails, session_id)
+
+        # Re-fetch participants after UID generation
+        if enrollment_id:
+            enrollment = await db.enrollments.find_one({"id": enrollment_id}, {"_id": 0})
+            if enrollment:
+                participants = enrollment.get("participants", [])
 
         return {
             "status": status.status,

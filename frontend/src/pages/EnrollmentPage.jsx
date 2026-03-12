@@ -26,7 +26,14 @@ const COUNTRIES = [
   { code: "QA", name: "Qatar", phone: "+974" }, { code: "PK", name: "Pakistan", phone: "+92" },
   { code: "BD", name: "Bangladesh", phone: "+880" }, { code: "LK", name: "Sri Lanka", phone: "+94" },
   { code: "MY", name: "Malaysia", phone: "+60" }, { code: "JP", name: "Japan", phone: "+81" },
-  { code: "ZA", name: "South Africa", phone: "+27" },
+  { code: "ZA", name: "South Africa", phone: "+27" }, { code: "NP", name: "Nepal", phone: "+977" },
+  { code: "KW", name: "Kuwait", phone: "+965" }, { code: "OM", name: "Oman", phone: "+968" },
+  { code: "BH", name: "Bahrain", phone: "+973" }, { code: "PH", name: "Philippines", phone: "+63" },
+  { code: "ID", name: "Indonesia", phone: "+62" }, { code: "TH", name: "Thailand", phone: "+66" },
+  { code: "KE", name: "Kenya", phone: "+254" }, { code: "NG", name: "Nigeria", phone: "+234" },
+  { code: "EG", name: "Egypt", phone: "+20" }, { code: "TR", name: "Turkey", phone: "+90" },
+  { code: "IT", name: "Italy", phone: "+39" }, { code: "ES", name: "Spain", phone: "+34" },
+  { code: "NL", name: "Netherlands", phone: "+31" }, { code: "NZ", name: "New Zealand", phone: "+64" },
 ].sort((a, b) => a.name.localeCompare(b.name));
 const GENDERS = ["Female", "Male", "Non-Binary", "Prefer not to say"];
 const RELATIONSHIPS = ["Myself", "Mother", "Father", "Sister", "Brother", "Spouse", "Husband", "Wife", "Friend", "Colleague", "Other"];
@@ -106,6 +113,13 @@ const ParticipantRow = ({ index, data, onChange, onRemove, canRemove }) => {
           <option value="">Select (optional)</option>{REFERRAL_SOURCES.map(r => <option key={r} value={r}>{r}</option>)}
         </select>
       </div>
+      <label className="flex items-center gap-1.5 cursor-pointer mb-1.5" data-testid={`p-referred-toggle-${index}`}>
+        <input type="checkbox" checked={data.has_referral || false} onChange={e => update('has_referral', e.target.checked)} className="w-3.5 h-3.5 rounded border-gray-300 text-[#D4AF37]" />
+        <span className="text-[10px] text-gray-600">Referred by a Divine Iris member</span>
+      </label>
+      {data.has_referral && (
+        <Input data-testid={`p-referred-name-${index}`} type="text" value={data.referred_by_name || ''} onChange={e => update('referred_by_name', e.target.value)} placeholder="Referrer's name" className="text-xs h-8 mb-2" />
+      )}
       <label className="flex items-center gap-1.5 cursor-pointer" data-testid={`p-notify-${index}`}>
         <input type="checkbox" checked={data.notify} onChange={e => update('notify', e.target.checked)} className="w-3.5 h-3.5 rounded border-gray-300 text-[#D4AF37]" />
         <span className="text-[10px] text-gray-600 flex items-center gap-1">
@@ -223,7 +237,7 @@ function EnrollmentPage() {
     try {
       const enrollRes = await axios.post(`${API}/enrollment/start`, {
         booker_name: bookerName, booker_email: bookerEmail, booker_country: bookerCountry,
-        participants: participants.map(p => ({ name: p.name, relationship: p.relationship, age: parseInt(p.age), gender: p.gender, country: p.country, attendance_mode: p.attendance_mode, notify: p.notify, email: p.notify ? p.email : null, phone: p.notify && p.phone ? `${p.phone_code || '+971'}${p.phone}` : null, whatsapp: p.whatsapp ? `${p.wa_code || '+971'}${p.whatsapp}` : null, is_first_time: p.is_first_time || false, referral_source: p.referral_source || '' })),
+        participants: participants.map(p => ({ name: p.name, relationship: p.relationship, age: parseInt(p.age), gender: p.gender, country: p.country, attendance_mode: p.attendance_mode, notify: p.notify, email: p.notify ? p.email : null, phone: p.notify && p.phone ? `${p.phone_code || '+971'}${p.phone}` : null, whatsapp: p.whatsapp ? `${p.wa_code || '+971'}${p.whatsapp}` : null, is_first_time: p.is_first_time || false, referral_source: p.referral_source || '', referred_by_name: p.has_referral ? (p.referred_by_name || '') : '' })),
       });
       setEnrollmentId(enrollRes.data.enrollment_id);
       setVpnDetected(enrollRes.data.vpn_detected);

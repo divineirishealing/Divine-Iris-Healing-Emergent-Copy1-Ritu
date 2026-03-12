@@ -91,6 +91,12 @@ function PaymentSuccessPage() {
                               <div>
                                 <p className="text-sm font-medium text-gray-900">{p.name}</p>
                                 <p className="text-[10px] text-gray-400">{p.relationship}</p>
+                                {p.uid && (
+                                  <p className="text-[10px] font-mono font-bold text-[#D4AF37]" data-testid={`receipt-uid-${i}`}>{p.uid}</p>
+                                )}
+                                {p.referred_by_name && (
+                                  <p className="text-[10px] text-gray-400">Referred by: {p.referred_by_name}</p>
+                                )}
                               </div>
                             </div>
                             <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
