@@ -40,6 +40,9 @@ const SessionsSection = ({ sectionConfig }) => {
           <h2 style={applySectionStyle(sectionConfig?.title_style, { ...HEADING, color: GOLD, fontStyle: 'italic', fontSize: 'clamp(1.5rem, 3vw, 2rem)' })}>
             {sectionConfig?.title || 'Book Personal Session'}
           </h2>
+          {sectionConfig?.subtitle && (
+            <p className="text-xs text-gray-400 mt-3" style={applySectionStyle(sectionConfig?.subtitle_style, {})}>{sectionConfig.subtitle}</p>
+          )}
           <div className="h-[3px] w-10 mx-auto mt-4" style={{ background: GOLD }}></div>
         </div>
 

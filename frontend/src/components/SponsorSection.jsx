@@ -32,11 +32,11 @@ const SponsorSection = ({ sectionConfig }) => {
       <div className={CONTAINER}>
         <div className="grid md:grid-cols-2 gap-12 items-center max-w-7xl mx-auto">
           <div style={h.align ? { textAlign: h.align } : {}}>
-            <h2 className="mb-6 leading-tight" style={applyStyle(h.title_style, { ...HEADING, fontSize: 'clamp(1.5rem, 3vw, 2rem)' })}>
-              {h.title || 'Shine a Light in a Life'}
+            <h2 className="mb-6 leading-tight" style={applyStyle(sectionConfig?.title_style || h.title_style, { ...HEADING, fontSize: 'clamp(1.5rem, 3vw, 2rem)' })}>
+              {sectionConfig?.title || h.title || 'Shine a Light in a Life'}
             </h2>
-            <p className="mb-4 leading-relaxed" style={applyStyle(h.subtitle_style, BODY)}>
-              {h.subtitle || 'Healing flows when we support each other.'}
+            <p className="mb-4 leading-relaxed" style={applyStyle(sectionConfig?.subtitle_style || h.subtitle_style, BODY)}>
+              {sectionConfig?.subtitle || h.subtitle || 'Healing flows when we support each other.'}
             </p>
             <div className="mb-6 leading-relaxed text-sm space-y-1" style={applyStyle(h.body_style, BODY)}>
               <p dangerouslySetInnerHTML={{ __html: renderMarkdown(h.body_1 || 'Be the Sponsor allows anyone to contribute towards someone else\'s healing — anonymously or intentionally.') }} />

@@ -148,10 +148,10 @@ const ProgramsSection = ({ sectionConfig }) => {
     <section id="programs" data-testid="programs-section" className="py-20 bg-white">
       <div className={CONTAINER}>
         <h2 className="text-center mb-4" style={applySectionStyle(sectionConfig?.title_style, { ...HEADING, fontSize: 'clamp(1.5rem, 3vw, 2rem)' })}>{sectionConfig?.title || 'Flagship Programs'}</h2>
-        {!programs.some(p => p.enable_in_person) && (
-          <p className="text-center text-xs text-gray-400 mb-16">All sessions are conducted online via Zoom or through remote distance healing — no in-person sessions at this time.</p>
+        {(sectionConfig?.subtitle || (!programs.some(p => p.enable_in_person) && !sectionConfig)) && (
+          <p className="text-center text-xs text-gray-400 mb-16" style={applySectionStyle(sectionConfig?.subtitle_style, {})}>{sectionConfig?.subtitle || 'All sessions are conducted online via Zoom or through remote distance healing — no in-person sessions at this time.'}</p>
         )}
-        {programs.some(p => p.enable_in_person) && <div className="mb-16" />}
+        {!sectionConfig?.subtitle && programs.some(p => p.enable_in_person) && <div className="mb-16" />}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {programs.slice(0, 6).map(p => <ProgramCard key={p.id} program={p} />)}
         </div>

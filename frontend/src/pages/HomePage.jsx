@@ -10,6 +10,7 @@ import SessionsSection from '../components/SessionsSection';
 import StatsSection from '../components/StatsSection';
 import TestimonialsSection from '../components/TestimonialsSection';
 import NewsletterSection from '../components/NewsletterSection';
+import CustomSection from '../components/CustomSection';
 import Footer from '../components/Footer';
 import FloatingButtons from '../components/FloatingButtons';
 
@@ -25,6 +26,7 @@ const COMPONENT_MAP = {
   StatsSection,
   TestimonialsSection,
   NewsletterSection,
+  custom: CustomSection,
 };
 
 const DEFAULT_ORDER = [
