@@ -20,6 +20,7 @@ import TermsPage from './pages/TermsPage';
 import PrivacyPage from './pages/PrivacyPage';
 import AboutPage from './pages/AboutPage';
 import BlogPage from './pages/BlogPage';
+import SponsorPage from './pages/SponsorPage';
 import { Toaster } from './components/ui/toaster';
 import { SiteSettingsProvider } from './context/SiteSettingsContext';
 import { CurrencyProvider } from './context/CurrencyContext';
@@ -53,6 +54,7 @@ function App() {
                 <Route path="/privacy" element={<PrivacyPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/blog" element={<BlogPage />} />
+                <Route path="/sponsor" element={<SponsorPage />} />
               </Routes>
             </BrowserRouter>
             <Toaster />
