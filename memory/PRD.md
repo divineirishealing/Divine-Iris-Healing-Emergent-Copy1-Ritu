@@ -17,6 +17,12 @@ Build a pixel-perfect clone of https://divineirishealing.com/ with comprehensive
 - [x] **Duration tier pricing** flows correctly through enrollment → OTP → Stripe checkout
 - [x] **Multi-currency support** — Stripe receives correct amount in detected currency (USD/AED/INR)
 
+### Discounts Frontend Display Fix (COMPLETED - Mar 12, 2026)
+- [x] **Cart Page** — Shows Combo Discount (green line) when 2+ programs, Group Discount when 3+ participants
+- [x] **Cart Checkout Page** — Full discount breakdown (group, combo, loyalty, promo) in order summary with reduced total
+- [x] **Enrollment Page** — Group Discount and Loyalty Discount lines in price summary sidebar
+- [x] **Dynamic recalculation** — Discounts update in real-time as participants/programs change
+
 ### Discounts & Loyalty System (COMPLETED - Mar 12, 2026)
 - [x] **Admin "Discounts & Loyalty" tab** — Clean UI with 4 toggle-based sections + active preview
 - [x] **Referral Program toggle** — Show/hide "Referred by" field during enrollment globally for all flagship programs
