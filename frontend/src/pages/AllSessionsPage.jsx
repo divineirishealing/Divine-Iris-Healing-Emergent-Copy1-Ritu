@@ -8,9 +8,15 @@ import FloatingButtons from '../components/FloatingButtons';
 import { useCurrency } from '../context/CurrencyContext';
 import { renderMarkdown } from '../lib/renderMarkdown';
 import { useSiteSettings } from '../context/SiteSettingsContext';
+import { HEADING, SUBTITLE } from '../lib/designTokens';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
+
+const applyStyle = (styleObj, defaults = {}) => {
+  if (!styleObj || Object.keys(styleObj).length === 0) return defaults;
+  return { ...defaults, ...(styleObj.font_family && { fontFamily: styleObj.font_family }), ...(styleObj.font_size && { fontSize: styleObj.font_size }), ...(styleObj.font_color && { color: styleObj.font_color }), ...(styleObj.font_weight && { fontWeight: styleObj.font_weight }), ...(styleObj.font_style && { fontStyle: styleObj.font_style }) };
+};
 
 function AllSessionsPage() {
   const navigate = useNavigate();
@@ -19,6 +25,8 @@ function AllSessionsPage() {
   useEffect(() => {
     if (settings && settings.sessions_page_visible === false) navigate('/', { replace: true });
   }, [settings, navigate]);
+
+  const hero = settings?.page_heroes?.sessions || {};
   const { getPrice, formatPrice } = useCurrency();
   const [sessions, setSessions] = useState([]);
 
@@ -46,11 +54,11 @@ function AllSessionsPage() {
           style={{ background: 'linear-gradient(135deg, #1e1033 0%, #2d1b69 25%, #4c1d95 50%, #6d28d9 75%, #7c3aed 100%)' }}>
           <div className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-10" style={{ background: 'radial-gradient(circle, #a78bfa, transparent 70%)' }} />
           <div className="container mx-auto px-6 md:px-8 lg:px-12 relative z-10 text-center">
-            <h1 className="text-3xl md:text-4xl text-white mb-3" style={{ fontFamily: "'Cinzel', serif", fontWeight: 700 }}>
-              Personal Healing Sessions
+            <h1 className="mb-3" style={applyStyle(hero.title_style, { ...HEADING, color: '#fff', fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontVariant: 'small-caps', letterSpacing: '0.08em' })}>
+              {hero.title_text || 'Personal Healing Sessions'}
             </h1>
-            <p className="text-white/50 text-sm max-w-lg mx-auto">
-              Individual sessions tailored to your unique healing journey
+            <p className="text-sm max-w-lg mx-auto" style={applyStyle(hero.subtitle_style, { color: 'rgba(255,255,255,0.5)', fontFamily: "'Lato', sans-serif", fontSize: '14px' })}>
+              {hero.subtitle_text || 'Individual sessions tailored to your unique healing journey'}
             </p>
           </div>
         </div>

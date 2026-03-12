@@ -8,9 +8,15 @@ import FloatingButtons from '../components/FloatingButtons';
 import { useCurrency } from '../context/CurrencyContext';
 import { renderMarkdown } from '../lib/renderMarkdown';
 import { useSiteSettings } from '../context/SiteSettingsContext';
+import { HEADING, SUBTITLE } from '../lib/designTokens';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
+
+const applyStyle = (styleObj, defaults = {}) => {
+  if (!styleObj || Object.keys(styleObj).length === 0) return defaults;
+  return { ...defaults, ...(styleObj.font_family && { fontFamily: styleObj.font_family }), ...(styleObj.font_size && { fontSize: styleObj.font_size }), ...(styleObj.font_color && { color: styleObj.font_color }), ...(styleObj.font_weight && { fontWeight: styleObj.font_weight }), ...(styleObj.font_style && { fontStyle: styleObj.font_style }) };
+};
 
 /* ---- Calendar Component ---- */
 const BookingCalendar = ({ availableDates = [], selectedDate, onSelectDate }) => {
@@ -132,6 +138,8 @@ function SessionDetailPage() {
     </div>
   );
 
+  const hero = settings?.page_heroes?.sessions || {};
+
   return (
     <>
       <Header />
@@ -162,9 +170,12 @@ function SessionDetailPage() {
                   </span>
                 )}
               </div>
-              <h1 className="text-3xl md:text-4xl text-white mb-4" style={{ fontFamily: "'Cinzel', serif", fontWeight: 700 }} data-testid="session-detail-title">
+              <h1 className="mb-2" style={applyStyle(hero.title_style, { ...HEADING, color: '#fff', fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontVariant: 'small-caps', letterSpacing: '0.08em' })} data-testid="session-detail-title">
                 {session.title}
               </h1>
+              <p className="mb-4" style={applyStyle(hero.subtitle_style, { color: 'rgba(255,255,255,0.5)', fontFamily: "'Lato', sans-serif", fontSize: '14px' })}>
+                {hero.subtitle_text || ''}
+              </p>
               {formatPrice(getPrice(session)) && (
                 <span className="text-xl font-bold" style={{ color: '#c084fc' }}>{formatPrice(getPrice(session))}</span>
               )}
