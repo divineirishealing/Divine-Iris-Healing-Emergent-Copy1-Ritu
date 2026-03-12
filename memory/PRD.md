@@ -17,6 +17,11 @@ Build a pixel-perfect clone of https://divineirishealing.com/ with comprehensive
 - [x] **Duration tier pricing** flows correctly through enrollment → OTP → Stripe checkout
 - [x] **Multi-currency support** — Stripe receives correct amount in detected currency (USD/AED/INR)
 
+### Bug Fixes — Mar 12, 2026
+- [x] **Image Upload Fixed** — Rewrote ImageUploader with proper drag-and-drop support (onDrop, onDragOver handlers) and click-to-upload via hidden file input ref
+- [x] **Phone/WhatsApp Country Codes** — Added mandatory country code dropdown (+91, +971, +1, etc.) before phone and WhatsApp fields in both Enrollment and Cart pages, with 10-digit limit
+- [x] **Strike-off Prices Fixed** — Added `offer_price_aed` to backend model, fixed admin "Offer AED" column (was saving to wrong field), fixed CurrencyContext to return AED offers for non-flagship programs
+
 ### Post-Payment Links & Participant Insights (COMPLETED - Mar 11, 2026)
 - [x] **Program Links in Admin Panel** — WhatsApp Group, Zoom Meeting, Custom Link fields with toggle switches in program form
 - [x] **Links on Payment Success Page** — Beautiful card-based link buttons (WhatsApp green, Zoom blue, custom gold) shown after payment
