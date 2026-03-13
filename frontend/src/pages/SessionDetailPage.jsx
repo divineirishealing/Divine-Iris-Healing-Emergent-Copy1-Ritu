@@ -310,7 +310,7 @@ function SessionDetailPage() {
     ),
     testimonials: testimonials.length > 0 ? (
       <div key="test" data-testid="session-testimonials">
-        <h2 className="text-lg font-semibold mb-6" style={applyStyle(sessionTpl.testimonial_style, { fontFamily: "'Cinzel', serif", color: '#4c1d95', fontStyle: 'italic' })}>
+        <h2 className="text-lg font-semibold mb-6" style={applyStyle(sessionTpl.testimonial_heading_style || sessionTpl.testimonial_style, { fontFamily: "'Cinzel', serif", color: '#4c1d95', fontStyle: 'italic' })}>
           What Clients Say
         </h2>
         <div className="space-y-4">
@@ -329,28 +329,34 @@ function SessionDetailPage() {
         </div>
       </div>
     ) : null,
-    info_cards: (
-      <div key="cards" className="grid md:grid-cols-2 gap-5">
-        <div className="bg-purple-50/40 border border-purple-100 p-5 rounded-xl">
-          <h3 className="text-sm font-semibold mb-3" style={{ color: '#4c1d95', fontFamily: "'Cinzel', serif" }}>What to Expect</h3>
-          <ul className="space-y-2 text-gray-600 text-xs">
-            <li className="flex items-start gap-2"><span className="text-[#D4AF37] mt-0.5">&#10038;</span> Personalized healing approach</li>
-            <li className="flex items-start gap-2"><span className="text-[#D4AF37] mt-0.5">&#10038;</span> Safe and supportive environment</li>
-            <li className="flex items-start gap-2"><span className="text-[#D4AF37] mt-0.5">&#10038;</span> Immediate energetic shifts</li>
-            <li className="flex items-start gap-2"><span className="text-[#D4AF37] mt-0.5">&#10038;</span> Practical guidance for integration</li>
-          </ul>
+    info_cards: (() => {
+      const card1Title = sessionTpl.card1_title || 'What to Expect';
+      const card1Items = sessionTpl.card1_items?.length ? sessionTpl.card1_items : ['Personalized healing approach','Safe and supportive environment','Immediate energetic shifts','Practical guidance for integration'];
+      const card2Title = sessionTpl.card2_title || 'Who Is This For';
+      const card2Items = sessionTpl.card2_items?.length ? sessionTpl.card2_items : ['Anyone seeking deep healing','Those ready for transformation','Individuals committed to growth','Open to energetic work'];
+      const headingStyle = applyStyle(sessionTpl.info_card_heading_style, { color: '#4c1d95', fontFamily: "'Cinzel', serif" });
+      const textStyle = applyStyle(sessionTpl.info_card_text_style, {});
+      return (
+        <div key="cards" className="grid md:grid-cols-2 gap-5">
+          <div className="bg-purple-50/40 border border-purple-100 p-5 rounded-xl">
+            <h3 className="text-sm font-semibold mb-3" style={headingStyle}>{card1Title}</h3>
+            <ul className="space-y-2 text-gray-600 text-xs">
+              {card1Items.filter(Boolean).map((item, i) => (
+                <li key={i} className="flex items-start gap-2" style={textStyle}><span className="mt-0.5" style={{ color: accentColor }}>&#10038;</span> {item}</li>
+              ))}
+            </ul>
+          </div>
+          <div className="bg-purple-50/40 border border-purple-100 p-5 rounded-xl">
+            <h3 className="text-sm font-semibold mb-3" style={headingStyle}>{card2Title}</h3>
+            <ul className="space-y-2 text-gray-600 text-xs">
+              {card2Items.filter(Boolean).map((item, i) => (
+                <li key={i} className="flex items-start gap-2" style={textStyle}><span className="mt-0.5" style={{ color: accentColor }}>&#10038;</span> {item}</li>
+              ))}
+            </ul>
+          </div>
         </div>
-        <div className="bg-purple-50/40 border border-purple-100 p-5 rounded-xl">
-          <h3 className="text-sm font-semibold mb-3" style={{ color: '#4c1d95', fontFamily: "'Cinzel', serif" }}>Who Is This For</h3>
-          <ul className="space-y-2 text-gray-600 text-xs">
-            <li className="flex items-start gap-2"><span className="text-[#D4AF37] mt-0.5">&#10038;</span> Anyone seeking deep healing</li>
-            <li className="flex items-start gap-2"><span className="text-[#D4AF37] mt-0.5">&#10038;</span> Those ready for transformation</li>
-            <li className="flex items-start gap-2"><span className="text-[#D4AF37] mt-0.5">&#10038;</span> Individuals committed to growth</li>
-            <li className="flex items-start gap-2"><span className="text-[#D4AF37] mt-0.5">&#10038;</span> Open to energetic work</li>
-          </ul>
-        </div>
-      </div>
-    ),
+      );
+    })(),
   };
 
   const bodyRightElements = {

@@ -375,8 +375,40 @@ const PageHeadersTab = ({ settings, programs = [], onChange }) => {
                     <StyleCell style={sessionTpl.description_style || {}} onStyleChange={v => updateSessionTpl('description_style', v)} />
                   </div>
                   <div className="bg-gray-50 rounded-lg border border-gray-100 p-2.5">
+                    <Label className="text-[9px] text-gray-500 font-semibold block mb-1">"What Clients Say" Heading</Label>
+                    <StyleCell style={sessionTpl.testimonial_heading_style || {}} onStyleChange={v => updateSessionTpl('testimonial_heading_style', v)} />
+                  </div>
+                  <div className="bg-gray-50 rounded-lg border border-gray-100 p-2.5">
                     <Label className="text-[9px] text-gray-500 font-semibold block mb-1">Testimonial Text</Label>
                     <StyleCell style={sessionTpl.testimonial_style || {}} onStyleChange={v => updateSessionTpl('testimonial_style', v)} />
+                  </div>
+                  <div className="bg-gray-50 rounded-lg border border-gray-100 p-2.5">
+                    <Label className="text-[9px] text-gray-500 font-semibold block mb-1">Info Card Heading</Label>
+                    <StyleCell style={sessionTpl.info_card_heading_style || {}} onStyleChange={v => updateSessionTpl('info_card_heading_style', v)} />
+                  </div>
+                  <div className="bg-gray-50 rounded-lg border border-gray-100 p-2.5">
+                    <Label className="text-[9px] text-gray-500 font-semibold block mb-1">Info Card Bullet Text</Label>
+                    <StyleCell style={sessionTpl.info_card_text_style || {}} onStyleChange={v => updateSessionTpl('info_card_text_style', v)} />
+                  </div>
+                </div>
+
+                {/* Editable Info Cards */}
+                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="bg-purple-50/40 rounded-lg border border-purple-100 p-3">
+                    <Label className="text-[9px] text-gray-500 font-semibold block mb-1">Card 1 Title</Label>
+                    <Input value={sessionTpl.card1_title || 'What to Expect'} onChange={e => updateSessionTpl('card1_title', e.target.value)} className="text-[10px] h-7 mb-2" placeholder="What to Expect" />
+                    <Label className="text-[9px] text-gray-500 font-semibold block mb-1">Bullet Points (one per line)</Label>
+                    <textarea value={(sessionTpl.card1_items || ['Personalized healing approach','Safe and supportive environment','Immediate energetic shifts','Practical guidance for integration']).join('\n')}
+                      onChange={e => updateSessionTpl('card1_items', e.target.value.split('\n'))}
+                      className="w-full text-[10px] border rounded px-2 py-1.5 resize-none" rows={4} placeholder="One bullet per line" />
+                  </div>
+                  <div className="bg-purple-50/40 rounded-lg border border-purple-100 p-3">
+                    <Label className="text-[9px] text-gray-500 font-semibold block mb-1">Card 2 Title</Label>
+                    <Input value={sessionTpl.card2_title || 'Who Is This For'} onChange={e => updateSessionTpl('card2_title', e.target.value)} className="text-[10px] h-7 mb-2" placeholder="Who Is This For" />
+                    <Label className="text-[9px] text-gray-500 font-semibold block mb-1">Bullet Points (one per line)</Label>
+                    <textarea value={(sessionTpl.card2_items || ['Anyone seeking deep healing','Those ready for transformation','Individuals committed to growth','Open to energetic work']).join('\n')}
+                      onChange={e => updateSessionTpl('card2_items', e.target.value.split('\n'))}
+                      className="w-full text-[10px] border rounded px-2 py-1.5 resize-none" rows={4} placeholder="One bullet per line" />
                   </div>
                 </div>
               </div>
