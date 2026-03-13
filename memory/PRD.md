@@ -32,10 +32,16 @@ Build a pixel-perfect clone of https://divineirishealing.com/ with comprehensive
 
 ### API Keys Admin Tab (Mar 13, 2026) - COMPLETED
 - [x] New "API Keys" tab in admin panel sidebar
-- [x] Shows all configured keys: Stripe, Resend, Google Workspace SMTP, Sender Email, Receipt Email
-- [x] Masked values by default, eye toggle to reveal, copy-to-clipboard button
-- [x] Security note banner
-- [x] Backend endpoint: GET /api/admin/api-keys
+- [x] **Fully editable** — paste/edit keys directly in the admin panel
+- [x] Keys stored in MongoDB (api_keys collection), falls back to .env
+- [x] 8 managed keys: Stripe, SMTP Host/Port/User/Pass, Sender Email, Receipt Email, Resend
+- [x] Grouped by service (Payments, Email, Email Config)
+- [x] Password masking for sensitive keys, eye toggle, copy button
+- [x] "Custom" badge for admin-saved keys, "Unsaved" badge for pending changes
+- [x] Save button + sticky bottom save bar
+- [x] Services (email, payments) dynamically read keys from key_manager
+- [x] Backend: GET/PUT /api/admin/api-keys, key_manager.py
+- [x] All tests passing (14/14 backend, 10/10 frontend - iteration 41)
 
 ### Personal Sessions Visual Redesign & Admin Controls
 - [x] Purple gradient intensity controls (homepage & detail page)
