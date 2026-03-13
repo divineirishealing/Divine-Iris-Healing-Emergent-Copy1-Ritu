@@ -81,7 +81,7 @@ async def send_otp_email(to: str, otp: str, name: str = ""):
     return await send_email(to, "Your Verification Code - Divine Iris Healing", html, from_email=cfg["sender"])
 
 
-def enrollment_confirmation_email(booker_name, item_title, participants, total, currency_symbol, attendance_modes, booker_email, phone, program_links=None):
+def enrollment_confirmation_email(booker_name, item_title, participants, total, currency_symbol, attendance_modes, booker_email, phone, program_links=None, program_description="", program_start_date=""):
     participant_rows = ""
     for p in participants:
         mode = p.get("attendance_mode", "online")
@@ -92,9 +92,17 @@ def enrollment_confirmation_email(booker_name, item_title, participants, total, 
         uid_html = f'<br><span style="font-size:10px;color:#D4AF37;font-weight:600">UID: {uid}</span>' if uid else ""
         referred = p.get("referred_by_name", "")
         ref_html = f'<br><span style="font-size:10px;color:#888">Ref: {referred}</span>' if referred else ""
+        p_phone = p.get("phone", "")
+        p_wa = p.get("whatsapp", "")
+        contact_parts = []
+        if p_phone:
+            contact_parts.append(f"Ph: {p_phone}")
+        if p_wa:
+            contact_parts.append(f"WA: {p_wa}")
+        contact_html = f'<br><span style="font-size:10px;color:#555">{" | ".join(contact_parts)}</span>' if contact_parts else ""
         participant_rows += f"""
         <tr>
-          <td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:14px;color:#333">{p['name']}{uid_html}{ref_html}</td>
+          <td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:14px;color:#333">{p['name']}{uid_html}{ref_html}{contact_html}</td>
           <td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:14px;color:#333">{p.get('relationship','')}</td>
           <td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:13px;">
             <span style="background:{mode_color};color:#fff;padding:3px 10px;border-radius:12px;font-size:11px">{mode_label}</span>
@@ -102,25 +110,41 @@ def enrollment_confirmation_email(booker_name, item_title, participants, total, 
           <td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:13px;color:#555">{first_time}</td>
         </tr>"""
 
+    # Links section — WhatsApp, Zoom, custom
     links_html = ""
     if program_links:
         link_items = ""
         if program_links.get("whatsapp_group_link"):
-            link_items += f'<a href="{program_links["whatsapp_group_link"]}" style="display:inline-block;background:#25D366;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-size:13px;margin:4px">Join WhatsApp Group</a>'
+            link_items += f'<a href="{program_links["whatsapp_group_link"]}" style="display:inline-block;background:#25D366;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-size:14px;margin:6px;font-weight:600">Join WhatsApp Group</a>'
         if program_links.get("zoom_link"):
-            link_items += f'<a href="{program_links["zoom_link"]}" style="display:inline-block;background:#2D8CFF;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-size:13px;margin:4px">Join Zoom Meeting</a>'
+            link_items += f'<a href="{program_links["zoom_link"]}" style="display:inline-block;background:#2D8CFF;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-size:14px;margin:6px;font-weight:600">Join Zoom Meeting</a>'
         if program_links.get("custom_link"):
             label = program_links.get("custom_link_label", "View Link")
-            link_items += f'<a href="{program_links["custom_link"]}" style="display:inline-block;background:#D4AF37;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-size:13px;margin:4px">{label}</a>'
+            link_items += f'<a href="{program_links["custom_link"]}" style="display:inline-block;background:#D4AF37;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-size:14px;margin:6px;font-weight:600">{label}</a>'
         if link_items:
             links_html = f"""
             <div style="padding:0 32px 24px">
-              <div style="background:#f0f7ff;border:1px solid #d0e3f7;border-radius:10px;padding:20px;text-align:center">
-                <p style="color:#333;font-size:14px;margin:0 0 12px;font-weight:600">Important Links</p>
-                <p style="color:#666;font-size:12px;margin:0 0 16px">Please save these links for your upcoming sessions</p>
+              <div style="background:#f0f7ff;border:2px solid #d0e3f7;border-radius:12px;padding:24px;text-align:center">
+                <p style="color:#333;font-size:16px;margin:0 0 8px;font-weight:600">Your Session Links</p>
+                <p style="color:#666;font-size:12px;margin:0 0 20px">Save these links — you'll need them for your sessions</p>
                 {link_items}
               </div>
             </div>"""
+
+    # Program info section
+    program_info = ""
+    if program_description or program_start_date:
+        details = ""
+        if program_start_date:
+            details += f'<p style="color:#555;font-size:13px;margin:0 0 4px"><strong>Starts:</strong> {program_start_date}</p>'
+        if program_description:
+            details += f'<p style="color:#666;font-size:12px;margin:8px 0 0;line-height:1.6">{program_description[:300]}</p>'
+        program_info = f"""
+        <div style="padding:0 32px 16px">
+          <div style="background:#faf8f0;border-left:4px solid #D4AF37;padding:16px 20px;border-radius:0 8px 8px 0">
+            {details}
+          </div>
+        </div>"""
 
     html = f"""
     <!DOCTYPE html>
@@ -131,6 +155,7 @@ def enrollment_confirmation_email(booker_name, item_title, participants, total, 
         
         <div style="background:#1a1a1a;padding:32px 24px;text-align:center">
           <h1 style="color:#D4AF37;margin:0;font-size:24px;font-weight:400;letter-spacing:3px">DIVINE IRIS HEALING</h1>
+          <p style="color:#888;font-size:11px;margin:8px 0 0;letter-spacing:1px">PAYMENT RECEIPT</p>
         </div>
 
         <div style="padding:40px 32px;text-align:center">
@@ -165,13 +190,23 @@ def enrollment_confirmation_email(booker_name, item_title, participants, total, 
           </div>
         </div>
 
+        {program_info}
+
         {links_html}
 
-        <div style="padding:0 32px 32px">
+        <div style="padding:0 32px 24px">
           <div style="background:#f9f9f9;border-radius:10px;padding:16px 20px;font-size:13px;color:#555">
             <p style="margin:0 0 4px"><strong>Booked by:</strong> {booker_name}</p>
             <p style="margin:0 0 4px"><strong>Email:</strong> {booker_email}</p>
-            <p style="margin:0"><strong>Phone:</strong> {phone}</p>
+            {f'<p style="margin:0"><strong>Phone:</strong> {phone}</p>' if phone else ''}
+          </div>
+        </div>
+
+        <div style="padding:0 32px 32px">
+          <div style="background:linear-gradient(135deg, #faf8f0, #fff8e7);border:1px solid #e8e0c8;border-radius:12px;padding:24px;text-align:center">
+            <p style="color:#D4AF37;font-size:18px;margin:0 0 8px;font-weight:600">Thank You</p>
+            <p style="color:#555;font-size:13px;margin:0;line-height:1.6">We are truly grateful for your trust in Divine Iris Healing. Your healing journey has now begun, and we are honoured to walk this path with you. May this experience bring you deep peace, clarity, and transformation.</p>
+            <p style="color:#D4AF37;font-size:12px;margin:16px 0 0;font-style:italic">With love and light</p>
           </div>
         </div>
 

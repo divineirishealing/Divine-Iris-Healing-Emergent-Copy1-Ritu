@@ -112,8 +112,22 @@ async def send_enrollment_emails(session_id: str):
                 program_links["custom_link"] = program["custom_link"]
                 program_links["custom_link_label"] = program.get("custom_link_label", "Link")
 
-    # 1. Send booker confirmation
+    # 1. Send booker confirmation (from receipt email)
     if booker_email:
+        # Get program description and start date
+        program_description = ""
+        program_start_date = ""
+        if item_id and item_type == "program":
+            program = await db.programs.find_one({"id": item_id}, {"_id": 0})
+            if program:
+                program_description = program.get("description", "")
+                program_start_date = program.get("start_date", "")
+        elif item_id and item_type == "session":
+            session = await db.sessions.find_one({"id": item_id}, {"_id": 0})
+            if session:
+                program_description = session.get("description", "")
+                program_start_date = session.get("date", "")
+
         html = enrollment_confirmation_email(
             booker_name=booker_name,
             item_title=item_title,
@@ -124,8 +138,13 @@ async def send_enrollment_emails(session_id: str):
             booker_email=booker_email,
             phone=phone,
             program_links=program_links,
+            program_description=program_description,
+            program_start_date=program_start_date,
         )
-        await send_email(booker_email, f"Enrollment Confirmed — {item_title}", html)
+        # Use receipt email as sender
+        from key_manager import get_key
+        receipt_sender = await get_key("receipt_email") or os.environ.get("RECEIPT_EMAIL", "receipt@divineirishealing.com")
+        await send_email(booker_email, f"Payment Receipt — {item_title} — Divine Iris Healing", html, from_email=receipt_sender)
 
     # 2. Send participant notifications (only those who opted in)
     for p in participants:
