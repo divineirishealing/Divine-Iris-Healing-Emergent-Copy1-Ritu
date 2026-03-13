@@ -138,12 +138,10 @@ const ProgramCard = ({ program }) => {
                 Enroll Now
               </button>
             </div>
-            {program.is_flagship && (
-              <button onClick={() => navigate(`/program/${program.id}`)} data-testid={`know-more-btn-${program.id}`}
-                className="w-full mt-2 border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-white text-[10px] py-2 rounded-full transition-all tracking-wider uppercase font-medium">
-                Know More
-              </button>
-            )}
+            <button onClick={() => navigate(`/program/${program.id}`)} data-testid={`know-more-btn-${program.id}`}
+              className="w-full mt-2 border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-white text-[10px] py-2 rounded-full transition-all tracking-wider uppercase font-medium">
+              Know More
+            </button>
           </div>
         )}
       </div>

@@ -256,6 +256,13 @@ function ProgramDetailPage() {
           {program.title}
         </h1>
         <p className="mb-6" style={applyStyle(template.subtitle_style, { ...LABEL, color: heroAccent })}>{program.category || 'FLAGSHIP PROGRAM'}</p>
+        {(program.duration || program.timing || program.start_date) && (
+          <div className="flex flex-wrap items-center justify-center gap-4 mb-4 text-white/70 text-xs">
+            {program.duration && <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full" style={{ background: heroAccent }} /> {program.duration}</span>}
+            {program.start_date && <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full" style={{ background: heroAccent }} /> Starts: {program.start_date}</span>}
+            {program.timing && <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full" style={{ background: heroAccent }} /> {program.timing}{program.time_zone ? ` (${program.time_zone})` : ''}</span>}
+          </div>
+        )}
         {template.hero_line_visible !== false && <div className="w-14 h-0.5" style={{ background: heroAccent, marginTop: `${template.hero_line_gap || '10'}px` }} />}
       </section>
 
@@ -267,7 +274,7 @@ function ProgramDetailPage() {
           <div className="max-w-3xl mx-auto text-center">
             <GoldLine type="cta" />
 
-            {program.is_flagship && program.duration_tiers?.length > 0 && (
+            {program.duration_tiers?.length > 0 && (
               <div data-testid="duration-tiers" className="max-w-3xl mx-auto mb-10">
                 <div className={`grid gap-4 ${program.duration_tiers.length === 3 ? 'sm:grid-cols-3' : program.duration_tiers.length === 2 ? 'sm:grid-cols-2' : 'max-w-xs mx-auto'}`}>
                   {program.duration_tiers.map((tier, tIdx) => {

@@ -134,7 +134,19 @@ const UpcomingCard = ({ program }) => {
           <div className="flex items-center gap-2 text-gray-500 text-xs mb-1"><Calendar size={14} /><span>Starts: {program.start_date}</span></div>
         )}
         {program.end_date && (
-          <div className="flex items-center gap-2 text-gray-500 text-xs mb-3"><Calendar size={14} /><span>Ends: {program.end_date}</span></div>
+          <div className="flex items-center gap-2 text-gray-500 text-xs mb-1"><Calendar size={14} /><span>Ends: {program.end_date}</span></div>
+        )}
+        {program.duration && (
+          <div className="flex items-center gap-2 text-gray-500 text-xs mb-1"><Clock size={14} /><span>Duration: {program.duration}</span></div>
+        )}
+        {program.timing && (
+          <div className="flex items-center gap-2 text-gray-500 text-xs mb-3">
+            <Clock size={14} />
+            <span>
+              {program.timing}
+              {program.time_zone ? ` (${program.time_zone})` : ''}
+            </span>
+          </div>
         )}
 
         {deadline && <div className="mb-4"><CountdownTimer deadline={deadline} /></div>}
