@@ -399,6 +399,10 @@ const PageHeadersTab = ({ settings, programs = [], onChange }) => {
                     <StyleCell style={sessionTpl.question_label_style || {}} onStyleChange={v => updateSessionTpl('question_label_style', v)} />
                   </div>
                 </div>
+                <div className="mt-3 bg-gray-50 rounded-lg border border-gray-100 p-2.5">
+                  <Label className="text-[9px] text-gray-500 font-semibold block mb-1">Question Form Intro Text</Label>
+                  <Input value={sessionTpl.question_intro_text || "Have a question? We'll respond within 7 working days."} onChange={e => updateSessionTpl('question_intro_text', e.target.value)} className="text-[10px] h-7" placeholder="Have a question? We'll respond within 7 working days." />
+                </div>
 
                 {/* Editable Info Cards */}
                 <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -508,6 +512,18 @@ const PageHeadersTab = ({ settings, programs = [], onChange }) => {
                   <div className="bg-white rounded-lg border border-gray-100 p-2.5">
                     <Label className="text-[9px] text-gray-500 font-semibold block mb-1">Price Style</Label>
                     <StyleCell style={sessionTpl.price_style || {}} onStyleChange={v => updateSessionTpl('price_style', v)} />
+                  </div>
+                </div>
+                <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="bg-white rounded-lg border border-gray-100 p-2.5">
+                    <Label className="text-[9px] text-gray-500 font-semibold block mb-1">Placeholder Title ("Choose Your...")</Label>
+                    <Input value={sessionTpl.placeholder_title || 'Choose Your Healing Journey'} onChange={e => updateSessionTpl('placeholder_title', e.target.value)} className="text-[10px] h-7 mb-1" />
+                    <StyleCell style={sessionTpl.placeholder_title_style || {}} onStyleChange={v => updateSessionTpl('placeholder_title_style', v)} />
+                  </div>
+                  <div className="bg-white rounded-lg border border-gray-100 p-2.5">
+                    <Label className="text-[9px] text-gray-500 font-semibold block mb-1">Placeholder Subtitle</Label>
+                    <Input value={sessionTpl.placeholder_subtitle || 'Select a session from the left to explore details, read testimonials, and book your personal appointment.'} onChange={e => updateSessionTpl('placeholder_subtitle', e.target.value)} className="text-[10px] h-7 mb-1" />
+                    <StyleCell style={sessionTpl.placeholder_subtitle_style || {}} onStyleChange={v => updateSessionTpl('placeholder_subtitle_style', v)} />
                   </div>
                 </div>
               </div>

@@ -225,11 +225,11 @@ const SessionsSection = ({ sectionConfig }) => {
                   <div className="w-20 h-20 mx-auto mb-5 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.12), rgba(212,175,55,0.08))' }}>
                     <CalendarIcon size={32} className="text-purple-400" />
                   </div>
-                  <h3 className="text-purple-900/80 text-lg font-light mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
-                    Choose Your Healing Journey
+                  <h3 className="text-purple-900/80 text-lg font-light mb-2" style={sessionTpl.placeholder_title_style ? applySectionStyle(sessionTpl.placeholder_title_style, { fontFamily: "'Playfair Display', serif" }) : { fontFamily: "'Playfair Display', serif" }}>
+                    {sessionTpl.placeholder_title || 'Choose Your Healing Journey'}
                   </h3>
-                  <p className="text-gray-400 text-sm max-w-xs mx-auto leading-relaxed">
-                    Select a session from the left to explore details, read testimonials, and book your personal appointment.
+                  <p className="text-gray-400 text-sm max-w-xs mx-auto leading-relaxed" style={sessionTpl.placeholder_subtitle_style ? applySectionStyle(sessionTpl.placeholder_subtitle_style, {}) : {}}>
+                    {sessionTpl.placeholder_subtitle || 'Select a session from the left to explore details, read testimonials, and book your personal appointment.'}
                   </p>
                 </div>
               </div>

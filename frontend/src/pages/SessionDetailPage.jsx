@@ -141,7 +141,7 @@ const QuestionForm = ({ sessionId, sessionTpl, whiteTheme }) => {
 
   return (
     <form onSubmit={submit} className="space-y-3" data-testid="session-question-form">
-      <p className={`text-xs mb-2 ${whiteTheme ? 'text-gray-500' : 'text-white/70'}`}>Have a question? We'll respond within <span className="text-purple-600 font-medium">7 working days</span>.</p>
+      <p className={`text-xs mb-2 ${whiteTheme ? 'text-gray-500' : 'text-white/70'}`}>{sessionTpl?.question_intro_text || "Have a question? We'll respond within 7 working days."}</p>
       <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Your name" required
         className={inputClass} style={applyStyle(sessionTpl?.question_label_style)} />
       <input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} type="email" placeholder="Your email" required
