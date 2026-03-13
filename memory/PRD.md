@@ -180,6 +180,17 @@ Build a pixel-perfect clone of https://divineirishealing.com/ with comprehensive
 - [x] Session detail page: booking sidebar retains dark purple gradient
 - [x] 15/15 frontend tests passing, 100% verification
 
+### Session Visibility Control Panel (Mar 13, 2026)
+- [x] New `SessionVisibilityPanel.jsx` admin component with 4 configurable areas
+- [x] Homepage Session List: toggle/reorder session name, type, duration (type & duration OFF by default)
+- [x] Homepage Selected Session Detail: toggle/reorder 9 elements (badges, title, desc, testimonial, price, calendar, time slots, book button)
+- [x] Session Page Hero: toggle/reorder 6 elements (back button, type badge, duration, title, gold line, price)
+- [x] Session Page Body: toggle/reorder 5 elements (about, testimonials, info cards, booking sidebar, question form)
+- [x] Unified control — applies to all sessions uniformly, stored in session_template.visibility
+- [x] Frontend components updated to consume visibility/order settings with smart defaults
+- [x] Save Visibility Settings button in admin Sessions tab
+- [x] 25/25 frontend tests passing, 100% verification
+
 ## Backlog
 ### P1
 - [ ] Global Site Search
