@@ -32,12 +32,6 @@ const SponsorSection = ({ sectionConfig, inline }) => {
       <h2 className={inline ? "mb-4 leading-tight" : "mb-6 leading-tight"} style={applyStyle(sectionConfig?.title_style || h.title_style, { ...HEADING, fontSize: inline ? 'clamp(1.2rem, 2.5vw, 1.6rem)' : 'clamp(1.5rem, 3vw, 2rem)' })}>
         {sectionConfig?.title || h.title || 'Shine a Light in a Life'}
       </h2>
-      {imgUrl && (
-        <div className={`rounded-lg overflow-hidden shadow-xl mb-5 ${inline ? 'max-w-full' : 'max-w-md'}`}>
-          <img src={imgUrl} alt="Be The Sponsor" className="w-full h-auto object-cover"
-            onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=600&h=400&fit=crop'; }} />
-        </div>
-      )}
       <p className={`${inline ? 'mb-3' : 'mb-4'} leading-relaxed`} style={applyStyle(sectionConfig?.subtitle_style || h.subtitle_style, { ...BODY, fontSize: inline ? '0.85rem' : undefined })}>
         {sectionConfig?.subtitle || h.subtitle || 'Healing flows when we support each other.'}
       </p>
