@@ -3,7 +3,7 @@ import { Input } from '../../ui/input';
 import { Label } from '../../ui/label';
 import { Button } from '../../ui/button';
 import { Switch } from '../../ui/switch';
-import { Copy } from 'lucide-react';
+import { Copy, Plus, Trash2, ArrowUp, ArrowDown } from 'lucide-react';
 
 const FONT_OPTIONS = [
   { value: '', label: 'Default' },
@@ -57,6 +57,14 @@ const TEMPLATE_STYLE_KEYS = [
   { key: 'cta_style', label: 'CTA / Pricing Text' },
 ];
 
+const SECTION_TYPE_OPTIONS = [
+  { value: 'journey', label: 'The Journey', defaultTitle: 'The Journey' },
+  { value: 'who_for', label: 'Who It Is For?', defaultTitle: 'Who It Is For?' },
+  { value: 'experience', label: 'Your Experience (Dark BG)', defaultTitle: 'Your Experience' },
+  { value: 'why_now', label: 'Why You Need This Now?', defaultTitle: 'Why You Need This Now?' },
+  { value: 'custom', label: 'Custom Section', defaultTitle: '' },
+];
+
 const PageHeadersTab = ({ settings, programs = [], onChange }) => {
   const heroes = settings.page_heroes || {};
   const getHero = (key) => heroes[key] || {};
@@ -104,9 +112,41 @@ const PageHeadersTab = ({ settings, programs = [], onChange }) => {
     );
   };
 
-  // Program Template
+  // Program Template (font styles)
   const template = getHero('program_template');
   const updateTemplate = (field, value) => updateHero('program_template', field, value);
+
+  // Section Template (structure)
+  const sectionTemplate = settings.program_section_template || [];
+  const updateSectionTemplate = (newTemplate) => {
+    onChange({ ...settings, program_section_template: newTemplate });
+  };
+
+  const addSection = () => {
+    const newSec = { id: Date.now().toString(), section_type: 'custom', default_title: '', default_subtitle: '', order: sectionTemplate.length, is_enabled: true };
+    updateSectionTemplate([...sectionTemplate, newSec]);
+  };
+
+  const updateSection = (idx, field, val) => {
+    const updated = [...sectionTemplate];
+    updated[idx] = { ...updated[idx], [field]: val };
+    updateSectionTemplate(updated);
+  };
+
+  const removeSection = (idx) => {
+    const updated = sectionTemplate.filter((_, i) => i !== idx);
+    updated.forEach((s, i) => s.order = i);
+    updateSectionTemplate(updated);
+  };
+
+  const moveSection = (idx, dir) => {
+    const sw = idx + dir;
+    if (sw < 0 || sw >= sectionTemplate.length) return;
+    const updated = [...sectionTemplate];
+    [updated[idx], updated[sw]] = [updated[sw], updated[idx]];
+    updated.forEach((s, i) => s.order = i);
+    updateSectionTemplate(updated);
+  };
 
   return (
     <div data-testid="page-headers-tab">
@@ -125,13 +165,13 @@ const PageHeadersTab = ({ settings, programs = [], onChange }) => {
         <PageRow key={p.key} pageKey={p.key} label={p.label} defaultTitle={p.defaultTitle} defaultSubtitle={p.defaultSubtitle} toggleKey={p.toggleKey} />
       ))}
 
-      {/* ===== FLAGSHIP PROGRAM TEMPLATE ===== */}
+      {/* ===== FLAGSHIP PROGRAM TEMPLATE — FONT STYLES ===== */}
       <div className="mt-6 mb-2 flex items-center gap-2">
-        <p className="text-[10px] font-semibold text-gray-500">FLAGSHIP PROGRAM PAGES — SHARED TEMPLATE</p>
+        <p className="text-[10px] font-semibold text-gray-500">FLAGSHIP PROGRAM PAGES — SHARED STYLES</p>
         <span className="text-[8px] bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full font-medium">Applies to all program pages</span>
       </div>
       <div className="bg-gradient-to-br from-purple-50/50 to-white rounded-xl border border-purple-100 p-4" data-testid="program-template-section">
-        <p className="text-[9px] text-gray-500 mb-3">Style changes here apply to <strong>every</strong> program detail page under Flagship Programs. Title/subtitle text comes from each program's data — only the styling is shared.</p>
+        <p className="text-[9px] text-gray-500 mb-3">Font & color changes here apply to <strong>every</strong> program detail page. Set once, used everywhere.</p>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {TEMPLATE_STYLE_KEYS.map(({ key, label }) => (
@@ -142,7 +182,6 @@ const PageHeadersTab = ({ settings, programs = [], onChange }) => {
           ))}
         </div>
 
-        {/* Hero background color */}
         <div className="mt-3 flex items-center gap-3">
           <div className="flex items-center gap-2">
             <Label className="text-[9px] text-gray-500">Hero Background</Label>
@@ -153,6 +192,46 @@ const PageHeadersTab = ({ settings, programs = [], onChange }) => {
             <input type="color" value={template.accent_color || '#D4AF37'} onChange={e => updateTemplate('accent_color', e.target.value)} className="w-6 h-6 rounded cursor-pointer border" />
           </div>
         </div>
+      </div>
+
+      {/* ===== PROGRAM PAGE SECTIONS — STRUCTURE ===== */}
+      <div className="mt-6 mb-2 flex items-center gap-2">
+        <p className="text-[10px] font-semibold text-gray-500">PROGRAM PAGE SECTIONS — STRUCTURE</p>
+        <span className="text-[8px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-medium">Shared across all programs</span>
+      </div>
+      <div className="bg-gradient-to-br from-blue-50/50 to-white rounded-xl border border-blue-100 p-4" data-testid="section-template-editor">
+        <p className="text-[9px] text-gray-500 mb-3">Define which sections appear on every program page and in what order. Add or remove sections here — it applies to <strong>all</strong> programs. Per-program text is edited in the Programs tab.</p>
+
+        <div className="space-y-2">
+          {sectionTemplate.map((sec, idx) => {
+            const typeInfo = SECTION_TYPE_OPTIONS.find(o => o.value === sec.section_type) || { label: 'Custom' };
+            const isDark = sec.section_type === 'experience';
+            return (
+              <div key={sec.id} data-testid={`template-section-${idx}`} className={`flex items-center gap-2 rounded-lg border p-2.5 ${isDark ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'}`}>
+                <div className="flex flex-col gap-0.5">
+                  <button type="button" disabled={idx === 0} onClick={() => moveSection(idx, -1)} className="p-0.5 hover:bg-black/10 rounded disabled:opacity-20"><ArrowUp size={10} className={isDark ? 'text-white' : ''} /></button>
+                  <button type="button" disabled={idx === sectionTemplate.length - 1} onClick={() => moveSection(idx, 1)} className="p-0.5 hover:bg-black/10 rounded disabled:opacity-20"><ArrowDown size={10} className={isDark ? 'text-white' : ''} /></button>
+                </div>
+                <span className={`text-[10px] font-bold w-5 ${isDark ? 'text-yellow-400' : 'text-gray-400'}`}>#{idx + 1}</span>
+                <select value={sec.section_type} onChange={e => {
+                  const newType = e.target.value;
+                  const typeOpt = SECTION_TYPE_OPTIONS.find(o => o.value === newType);
+                  updateSection(idx, 'section_type', newType);
+                  if (!sec.default_title && typeOpt?.defaultTitle) updateSection(idx, 'default_title', typeOpt.defaultTitle);
+                }} className={`text-[10px] border rounded px-2 py-1 w-40 ${isDark ? 'bg-gray-700 text-white border-gray-500' : ''}`}>
+                  {SECTION_TYPE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </select>
+                <Input value={sec.default_title || ''} onChange={e => updateSection(idx, 'default_title', e.target.value)} placeholder="Default title..." className={`text-[10px] h-7 flex-1 ${isDark ? 'bg-gray-700 text-white border-gray-500' : ''}`} />
+                <Switch checked={sec.is_enabled !== false} onCheckedChange={v => updateSection(idx, 'is_enabled', v)} />
+                <button type="button" onClick={() => removeSection(idx)} className={`p-1 rounded hover:bg-black/10 ${isDark ? 'text-red-400' : 'text-red-400'}`}><Trash2 size={12} /></button>
+              </div>
+            );
+          })}
+        </div>
+
+        <Button type="button" variant="outline" size="sm" className="mt-3 text-[10px] gap-1" onClick={addSection} data-testid="add-template-section-btn">
+          <Plus size={12} /> Add Section
+        </Button>
       </div>
     </div>
   );

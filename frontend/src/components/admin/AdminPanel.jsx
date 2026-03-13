@@ -295,6 +295,9 @@ const AdminPanel = () => {
                     <button onClick={resetProgramForm}><X size={18} /></button>
                   </div>
                   <div className="grid md:grid-cols-2 gap-4">
+                    <div className="md:col-span-2">
+                      <p className="text-[10px] font-semibold text-purple-600 bg-purple-50 border border-purple-100 rounded px-3 py-1.5 mb-3">PART 1 — HOMEPAGE CARD & GENERAL SETTINGS</p>
+                    </div>
                     <div><Label>Title</Label><Input data-testid="program-title-input" value={programForm.title} onChange={e => setProgramForm({...programForm, title: e.target.value})} /></div>
                     <div><Label>Category</Label><Input value={programForm.category} onChange={e => setProgramForm({...programForm, category: e.target.value})} /></div>
                     <div className="md:col-span-2"><Label>Description</Label><Textarea value={programForm.description} onChange={e => setProgramForm({...programForm, description: e.target.value})} rows={4} /></div>
@@ -414,152 +417,90 @@ const AdminPanel = () => {
                     </div>
                   </div>
 
-                  {/* Content Sections Editor */}
+                  {/* Content Sections Editor — Template-Driven */}
                   <div className="mt-5 border-t pt-5">
-                    <div className="flex items-center justify-between mb-3">
-                      <div>
-                        <p className="text-sm font-semibold text-gray-700">Page Content Sections</p>
-                        <p className="text-xs text-gray-400">Add sections like "The Journey", "Who it is for", etc. These appear on the program detail page.</p>
-                      </div>
-                      <Button size="sm" variant="outline" onClick={() => {
-                        const newSection = { id: Date.now().toString(), section_type: 'custom', title: '', subtitle: '', body: '', image_url: '', is_enabled: true, order: programForm.content_sections.length, title_style: {}, subtitle_style: {}, body_style: {} };
-                        setProgramForm({...programForm, content_sections: [...programForm.content_sections, newSection]});
-                      }} data-testid="add-section-btn">
-                        <Plus size={14} className="mr-1" /> Add Section
-                      </Button>
+                    <p className="text-[10px] font-semibold text-blue-600 bg-blue-50 border border-blue-100 rounded px-3 py-1.5 mb-3">PART 2 — PROGRAM PAGE CONTENT <span className="font-normal text-blue-400">(structure managed in Page Headers tab — font styles are global)</span></p>
+                    <div className="mb-3">
+                      <p className="text-sm font-semibold text-gray-700">Page Content Sections</p>
+                      <p className="text-xs text-gray-400">Section structure is shared across all programs (managed in Page Headers tab). Only fill in the text content unique to this program.</p>
                     </div>
 
-                    {programForm.content_sections.length === 0 && (
-                      <p className="text-xs text-gray-400 text-center py-4 border border-dashed rounded">No content sections yet. Click "Add Section" to create page content blocks.</p>
-                    )}
+                    {(() => {
+                      const secTemplate = siteSettings?.program_section_template || [];
+                      if (secTemplate.length === 0) return (
+                        <p className="text-xs text-gray-400 text-center py-4 border border-dashed rounded">No section template defined yet. Go to <strong>Page Headers</strong> tab to set up the shared section structure.</p>
+                      );
+                      // Map existing content_sections by section_type for lookup
+                      const existing = programForm.content_sections || [];
+                      const findContent = (tplSec) => existing.find(s => s.id === tplSec.id || s.section_type === tplSec.section_type) || {};
 
-                    <div className="space-y-3">
-                      {programForm.content_sections.map((section, sIdx) => {
-                        const typeLabel = ({journey:'The Journey', who_for:'Who It Is For?', experience:'Your Experience', why_now:'Why You Need This Now?', cta:'CTA', custom:'Custom'})[section.section_type] || 'Custom';
-                        const typeColor = ({journey:'bg-blue-50 border-blue-200', who_for:'bg-amber-50 border-amber-200', experience:'bg-gray-800 border-gray-600', why_now:'bg-green-50 border-green-200', cta:'bg-yellow-50 border-yellow-200', custom:'bg-white border-gray-200'})[section.section_type] || 'bg-white border-gray-200';
-                        const isDark = section.section_type === 'experience';
-                        const updateSection = (field, val) => {
-                          const sections = [...programForm.content_sections];
-                          sections[sIdx] = {...sections[sIdx], [field]: val};
-                          setProgramForm({...programForm, content_sections: sections});
-                        };
+                      const updateSectionContent = (tplSec, field, val) => {
+                        const sections = [...(programForm.content_sections || [])];
+                        const matchIdx = sections.findIndex(s => s.id === tplSec.id || s.section_type === tplSec.section_type);
+                        if (matchIdx >= 0) {
+                          sections[matchIdx] = { ...sections[matchIdx], [field]: val };
+                        } else {
+                          sections.push({ id: tplSec.id, section_type: tplSec.section_type, title: tplSec.default_title || '', subtitle: tplSec.default_subtitle || '', body: '', image_url: '', is_enabled: true, order: tplSec.order, [field]: val });
+                        }
+                        setProgramForm({ ...programForm, content_sections: sections });
+                      };
 
-                        return (
-                        <div key={section.id || sIdx} className={`border rounded-lg overflow-hidden ${section.is_enabled ? '' : 'opacity-60'}`} data-testid={`section-editor-${sIdx}`}>
-                          {/* Visual Preview Strip */}
-                          <div className={`px-4 py-2 border-b ${typeColor} flex items-center justify-between`}>
-                            <div className="flex items-center gap-2">
-                              <span className={`text-[10px] font-bold ${isDark ? 'text-yellow-400' : 'text-gray-700'}`}>#{sIdx + 1} {typeLabel}</span>
-                              {isDark && <span className="text-[8px] px-1.5 py-0.5 bg-black/30 text-white rounded">Dark Background</span>}
-                              {section.title && <span className={`text-[10px] ${isDark ? 'text-gray-300' : 'text-gray-500'}`}>— {section.title}</span>}
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                              <Switch checked={section.is_enabled} onCheckedChange={v => updateSection('is_enabled', v)} />
-                              <button disabled={sIdx === 0} onClick={() => {
-                                const sections = [...programForm.content_sections];
-                                [sections[sIdx], sections[sIdx-1]] = [sections[sIdx-1], sections[sIdx]];
-                                sections.forEach((s, i) => s.order = i);
-                                setProgramForm({...programForm, content_sections: sections});
-                              }} className="p-0.5 hover:bg-black/10 rounded disabled:opacity-30"><ArrowUp size={12} /></button>
-                              <button disabled={sIdx === programForm.content_sections.length - 1} onClick={() => {
-                                const sections = [...programForm.content_sections];
-                                [sections[sIdx], sections[sIdx+1]] = [sections[sIdx+1], sections[sIdx]];
-                                sections.forEach((s, i) => s.order = i);
-                                setProgramForm({...programForm, content_sections: sections});
-                              }} className="p-0.5 hover:bg-black/10 rounded disabled:opacity-30"><ArrowDown size={12} /></button>
-                              <button onClick={() => setProgramForm({...programForm, content_sections: programForm.content_sections.filter((_, i) => i !== sIdx)})}
-                                className="p-0.5 hover:bg-black/10 rounded text-red-400"><Trash2 size={12} /></button>
-                            </div>
-                          </div>
+                      return (
+                        <div className="space-y-3">
+                          {secTemplate.filter(t => t.is_enabled !== false).map((tplSec, tIdx) => {
+                            const content = findContent(tplSec);
+                            const typeLabels = { journey: 'The Journey', who_for: 'Who It Is For?', experience: 'Your Experience', why_now: 'Why You Need This Now?', custom: 'Custom' };
+                            const typeLabel = typeLabels[tplSec.section_type] || tplSec.default_title || 'Section';
+                            const isDark = tplSec.section_type === 'experience';
+                            const typeColor = { journey: 'bg-blue-50 border-blue-200', who_for: 'bg-amber-50 border-amber-200', experience: 'bg-gray-800 border-gray-600', why_now: 'bg-green-50 border-green-200', custom: 'bg-white border-gray-200' }[tplSec.section_type] || 'bg-white border-gray-200';
 
-                          <div className="p-4 bg-white">
-                            <div className="grid md:grid-cols-3 gap-3 mb-3">
-                              <div>
-                                <Label className="text-[10px]">Type</Label>
-                                <select value={section.section_type || 'custom'} onChange={e => {
-                                  const newType = e.target.value;
-                                  const defaults = { journey: 'The Journey', who_for: 'Who It Is For?', experience: 'Your Experience', why_now: 'Why You Need This Now?', cta: 'When You Are Seeking', custom: '' };
-                                  updateSection('section_type', newType);
-                                  if (!section.title) updateSection('title', defaults[newType] || '');
-                                }} className="w-full text-[10px] border rounded px-2 py-1.5">
-                                  <option value="journey">The Journey</option>
-                                  <option value="who_for">Who It Is For?</option>
-                                  <option value="experience">Your Experience (Dark BG)</option>
-                                  <option value="why_now">Why You Need This Now?</option>
-                                  <option value="cta">CTA Section</option>
-                                  <option value="custom">Custom</option>
-                                </select>
-                              </div>
-                              <div>
-                                <Label className="text-[10px]">Title</Label>
-                                <Input value={section.title} onChange={e => updateSection('title', e.target.value)} placeholder="Section heading..." className="text-xs" />
-                              </div>
-                              <div>
-                                <Label className="text-[10px]">Subtitle</Label>
-                                <Input value={section.subtitle} onChange={e => updateSection('subtitle', e.target.value)} placeholder="Optional subtitle..." className="text-xs" />
-                              </div>
-                            </div>
-
-                            <div className="mb-3">
-                              <Label className="text-[10px]">Body Content {section.section_type === 'who_for' && '(one item per line)'}</Label>
-                              <Textarea value={section.body} onChange={e => updateSection('body', e.target.value)} rows={3} placeholder={section.section_type === 'who_for' ? 'One bullet point per line...' : 'Section content...'} className="text-xs" />
-                            </div>
-
-                            {/* Image with Fit/Position Controls */}
-                            <div className="mb-3">
-                              <Label className="text-[10px]">Image {section.section_type === 'experience' ? '(shown on dark section)' : '(optional)'}</Label>
-                              <div className="flex gap-3 items-start">
-                                <div className="flex-1">
-                                  <ImageUploader value={section.image_url || ''} onChange={url => updateSection('image_url', url)} />
+                            return (
+                              <div key={tplSec.id} className="border rounded-lg overflow-hidden" data-testid={`section-editor-${tIdx}`}>
+                                <div className={`px-4 py-2 border-b ${typeColor} flex items-center gap-2`}>
+                                  <span className={`text-[10px] font-bold ${isDark ? 'text-yellow-400' : 'text-gray-700'}`}>#{tIdx + 1} {typeLabel}</span>
+                                  {isDark && <span className="text-[8px] px-1.5 py-0.5 bg-black/30 text-white rounded">Dark Background</span>}
                                 </div>
-                                {section.image_url && (
-                                  <div className="flex-shrink-0 space-y-1">
-                                    <img src={resolveImageUrl(section.image_url)} alt="" className="w-20 h-16 rounded border" style={{ objectFit: section.image_fit || 'cover', objectPosition: section.image_position || 'center' }} />
-                                    <select value={section.image_fit || 'cover'} onChange={e => updateSection('image_fit', e.target.value)} className="w-20 text-[8px] border rounded px-1 py-0.5">
-                                      <option value="cover">Cover</option><option value="contain">Contain</option><option value="fill">Fill</option>
-                                    </select>
-                                    <select value={section.image_position || 'center'} onChange={e => updateSection('image_position', e.target.value)} className="w-20 text-[8px] border rounded px-1 py-0.5">
-                                      <option value="center top">Top</option><option value="center">Center</option><option value="center bottom">Bottom</option>
-                                    </select>
+                                <div className="p-4 bg-white">
+                                  <div className="grid md:grid-cols-2 gap-3 mb-3">
+                                    <div>
+                                      <Label className="text-[10px]">Title</Label>
+                                      <Input value={content.title ?? tplSec.default_title ?? ''} onChange={e => updateSectionContent(tplSec, 'title', e.target.value)} placeholder={tplSec.default_title || 'Section heading...'} className="text-xs" />
+                                    </div>
+                                    <div>
+                                      <Label className="text-[10px]">Subtitle</Label>
+                                      <Input value={content.subtitle ?? tplSec.default_subtitle ?? ''} onChange={e => updateSectionContent(tplSec, 'subtitle', e.target.value)} placeholder="Optional subtitle..." className="text-xs" />
+                                    </div>
                                   </div>
-                                )}
-                              </div>
-                            </div>
-
-                            {/* Font Styling — Collapsed */}
-                            <details className="mt-2">
-                              <summary className="text-[10px] text-gray-400 cursor-pointer hover:text-gray-600">Font & Color Overrides</summary>
-                              <div className="mt-2 grid grid-cols-3 gap-2">
-                                {['title', 'subtitle', 'body'].map(field => {
-                                  const styleKey = `${field}_style`;
-                                  const style = section[styleKey] || {};
-                                  const updateStyle = (prop, val) => {
-                                    const sections = [...programForm.content_sections];
-                                    sections[sIdx] = {...sections[sIdx], [styleKey]: {...style, [prop]: val}};
-                                    setProgramForm({...programForm, content_sections: sections});
-                                  };
-                                  return (
-                                    <div key={field} className="border rounded p-2">
-                                      <p className="text-[9px] font-medium text-gray-500 mb-1 capitalize">{field}</p>
-                                      <div className="flex gap-1 flex-wrap">
-                                        <input type="color" value={style.font_color || '#000000'} onChange={e => updateStyle('font_color', e.target.value)} className="w-5 h-5 rounded cursor-pointer" title="Color" />
-                                        <select value={style.font_size || ''} onChange={e => updateStyle('font_size', e.target.value)} className="text-[8px] border rounded px-1 flex-1">
-                                          <option value="">Size</option>
-                                          {['12px','14px','16px','18px','20px','24px','28px','32px'].map(s => <option key={s} value={s}>{s}</option>)}
-                                        </select>
-                                        <button onClick={() => updateStyle('font_weight', style.font_weight === 'bold' ? '400' : 'bold')} className={`text-[8px] px-1 py-0.5 rounded border ${style.font_weight === 'bold' ? 'bg-gray-800 text-white' : ''}`}><b>B</b></button>
-                                        <button onClick={() => updateStyle('font_style', style.font_style === 'italic' ? 'normal' : 'italic')} className={`text-[8px] px-1 py-0.5 rounded border ${style.font_style === 'italic' ? 'bg-gray-800 text-white' : ''}`}><i>I</i></button>
+                                  <div className="mb-2">
+                                    <Label className="text-[10px]">Body Content {tplSec.section_type === 'who_for' && '(one item per line)'}</Label>
+                                    <Textarea value={content.body || ''} onChange={e => updateSectionContent(tplSec, 'body', e.target.value)} rows={3} placeholder={tplSec.section_type === 'who_for' ? 'One bullet point per line...' : 'Section content...'} className="text-xs" />
+                                  </div>
+                                  {/* Image ONLY for experience (dark BG) sections */}
+                                  {isDark && (
+                                    <div>
+                                      <Label className="text-[10px]">Image (shown on dark section)</Label>
+                                      <div className="flex gap-3 items-start">
+                                        <div className="flex-1">
+                                          <ImageUploader value={content.image_url || ''} onChange={url => updateSectionContent(tplSec, 'image_url', url)} />
+                                        </div>
+                                        {content.image_url && (
+                                          <div className="flex-shrink-0 space-y-1">
+                                            <img src={resolveImageUrl(content.image_url)} alt="" className="w-20 h-16 rounded border" style={{ objectFit: content.image_fit || 'cover', objectPosition: content.image_position || 'center' }} />
+                                            <select value={content.image_fit || 'contain'} onChange={e => updateSectionContent(tplSec, 'image_fit', e.target.value)} className="w-20 text-[8px] border rounded px-1 py-0.5">
+                                              <option value="cover">Cover</option><option value="contain">Contain</option><option value="fill">Fill</option>
+                                            </select>
+                                          </div>
+                                        )}
                                       </div>
                                     </div>
-                                  );
-                                })}
+                                  )}
+                                </div>
                               </div>
-                            </details>
-                          </div>
+                            );
+                          })}
                         </div>
-                        );
-                      })}
-                    </div>
+                      );
+                    })()}
                   </div>
                   <div className="mt-4 flex gap-2">
                     <Button data-testid="save-program-btn" onClick={saveProgram} className="bg-[#D4AF37] hover:bg-[#b8962e]"><Save size={14} className="mr-1" /> Save</Button>

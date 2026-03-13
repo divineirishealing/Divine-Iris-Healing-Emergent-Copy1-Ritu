@@ -88,11 +88,17 @@ const ProgramCard = ({ program }) => {
         )}
 
         {showContact ? (
-          <div className="mt-auto">
+          <div className="mt-auto space-y-2">
             <button onClick={() => navigate(`/contact?program=${program.id}&title=${encodeURIComponent(program.title)}&tier=Annual`)} data-testid={`contact-btn-${program.id}`}
               className="w-full bg-gray-900 hover:bg-gray-800 text-white text-xs py-2.5 rounded-full transition-colors tracking-wider">
               Contact for Pricing
             </button>
+            {program.is_flagship && (
+              <button onClick={() => navigate(`/program/${program.id}`)} data-testid={`know-more-btn-${program.id}`}
+                className="w-full border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-white text-[10px] py-2 rounded-full transition-all tracking-wider uppercase font-medium">
+                Know More
+              </button>
+            )}
           </div>
         ) : program.enrollment_open === false ? (
           <div className="mt-auto">
@@ -132,6 +138,12 @@ const ProgramCard = ({ program }) => {
                 Enroll Now
               </button>
             </div>
+            {program.is_flagship && (
+              <button onClick={() => navigate(`/program/${program.id}`)} data-testid={`know-more-btn-${program.id}`}
+                className="w-full mt-2 border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-white text-[10px] py-2 rounded-full transition-all tracking-wider uppercase font-medium">
+                Know More
+              </button>
+            )}
           </div>
         )}
       </div>

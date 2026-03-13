@@ -16,12 +16,23 @@ db = client[os.environ['DB_NAME']]
 
 DEFAULT_SETTINGS = SiteSettings().dict()
 
+DEFAULT_SECTION_TEMPLATE = [
+    {"id": "journey", "section_type": "journey", "default_title": "The Journey", "default_subtitle": "", "order": 0, "is_enabled": True},
+    {"id": "who_for", "section_type": "who_for", "default_title": "Who It Is For?", "default_subtitle": "A Sacred Invitation for those who resonate", "order": 1, "is_enabled": True},
+    {"id": "experience", "section_type": "experience", "default_title": "Your Experience", "default_subtitle": "", "order": 2, "is_enabled": True},
+    {"id": "why_now", "section_type": "why_now", "default_title": "Why You Need This Now?", "default_subtitle": "", "order": 3, "is_enabled": True},
+]
+
 @router.get("", response_model=SiteSettings)
 async def get_settings():
     settings = await db.site_settings.find_one({"id": "site_settings"})
     if not settings:
         await db.site_settings.insert_one(DEFAULT_SETTINGS)
         return SiteSettings(**DEFAULT_SETTINGS)
+    # Auto-seed section template if empty
+    if not settings.get("program_section_template"):
+        settings["program_section_template"] = DEFAULT_SECTION_TEMPLATE
+        await db.site_settings.update_one({"id": "site_settings"}, {"$set": {"program_section_template": DEFAULT_SECTION_TEMPLATE}})
     return SiteSettings(**settings)
 
 @router.put("")
@@ -35,6 +46,8 @@ async def update_settings(settings: SiteSettingsUpdate):
             update_data[field] = raw[field] if raw[field] is not None else ''
     if raw.get('sender_emails') is not None:
         update_data['sender_emails'] = raw['sender_emails']
+    if raw.get('program_section_template') is not None:
+        update_data['program_section_template'] = raw['program_section_template']
     existing = await db.site_settings.find_one({"id": "site_settings"})
     if not existing:
         full_settings = {**DEFAULT_SETTINGS, **update_data}

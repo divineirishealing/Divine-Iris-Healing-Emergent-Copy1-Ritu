@@ -79,9 +79,37 @@ function ProgramDetailPage() {
     </div>
   );
 
-  const sections = (program.content_sections?.length > 0)
-    ? program.content_sections.filter(s => s.is_enabled).sort((a, b) => (a.order || 0) - (b.order || 0))
-    : getDefaultSections(program);
+  // Build sections: use global template for structure, per-program data for content
+  const sectionTemplate = settings?.program_section_template || [];
+  const programSections = program.content_sections || [];
+
+  const sections = (() => {
+    if (sectionTemplate.length > 0) {
+      // Template-driven: merge template structure with per-program content
+      return sectionTemplate
+        .filter(t => t.is_enabled !== false)
+        .sort((a, b) => (a.order || 0) - (b.order || 0))
+        .map(tpl => {
+          const match = programSections.find(s => s.id === tpl.id || s.section_type === tpl.section_type) || {};
+          return {
+            id: tpl.id,
+            section_type: tpl.section_type,
+            title: match.title || tpl.default_title || '',
+            subtitle: match.subtitle || tpl.default_subtitle || '',
+            body: match.body || '',
+            image_url: match.image_url || '',
+            image_fit: match.image_fit || 'contain',
+            image_position: match.image_position || 'center top',
+            is_enabled: true,
+            order: tpl.order,
+          };
+        });
+    }
+    // Fallback: use program's own sections or defaults
+    return (programSections.length > 0)
+      ? programSections.filter(s => s.is_enabled).sort((a, b) => (a.order || 0) - (b.order || 0))
+      : getDefaultSections(program);
+  })();
 
   const SectionTitle = ({ children, style: extra }) => (
     <h2 className="text-center mb-4" style={applyStyle(extra || template.section_title_style, { ...HEADING, fontSize: '1.6rem' })}>{children}</h2>

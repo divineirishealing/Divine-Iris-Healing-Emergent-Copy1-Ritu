@@ -358,6 +358,8 @@ class SiteSettings(BaseModel):
     sender_emails: List[Dict] = []  # [{purpose: "receipt", email: "...", label: "Payment Receipts"}, ...]
     # Per-section styles
     sections: Optional[Dict] = {}
+    # Program section template — defines section structure for ALL program pages
+    program_section_template: List[Dict] = []
     # Discount & Loyalty Settings (global for all flagship programs)
     enable_referral: bool = True
     enable_group_discount: bool = False
@@ -462,6 +464,7 @@ class SiteSettingsUpdate(BaseModel):
     privacy_content: Optional[str] = None
     sender_emails: Optional[List[Dict]] = None
     sections: Optional[Dict] = None
+    program_section_template: Optional[List[Dict]] = None
     enable_referral: Optional[bool] = None
     enable_group_discount: Optional[bool] = None
     group_discount_rules: Optional[List[Dict]] = None
