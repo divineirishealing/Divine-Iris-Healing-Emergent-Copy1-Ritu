@@ -27,8 +27,8 @@ async def get_sessions(visible_only: Optional[bool] = None):
 
 @router.post("/upload-excel")
 async def upload_sessions_excel(file: UploadFile = File(...)):
-    if not file.filename.endswith(('.xlsx', '.xls')):
-        raise HTTPException(status_code=400, detail="Only .xlsx or .xls files are supported")
+    if not file.filename.endswith(('.xlsx', '.xls', '.xlss')):
+        raise HTTPException(status_code=400, detail="Only Excel files (.xlsx, .xls) are supported")
 
     from openpyxl import load_workbook
     content = await file.read()

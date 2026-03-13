@@ -548,27 +548,27 @@ const AdminPanel = () => {
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold text-gray-900">Sessions ({sessions.length})</h2>
                 <div className="flex gap-2">
-                  <label className="inline-flex items-center gap-1.5 px-3 py-2 rounded-md text-xs border border-gray-200 bg-white hover:bg-gray-50 cursor-pointer transition-colors" data-testid="upload-excel-btn">
-                    <Upload size={14} />
-                    Upload Excel
-                    <input type="file" accept=".xlsx,.xls" className="hidden" onChange={async (e) => {
-                      const f = e.target.files?.[0];
-                      if (!f) return;
-                      toast({ title: `Uploading ${f.name}...` });
-                      const formData = new FormData();
-                      formData.append('file', f);
-                      try {
-                        const res = await axios.post(`${BACKEND_URL}/api/sessions/upload-excel`, formData, { headers: { 'Content-Type': 'multipart/form-data' }, timeout: 30000 });
-                        toast({ title: res.data.message });
-                        const sess = await axios.get(`${BACKEND_URL}/api/sessions`);
-                        setSessions(sess.data);
-                      } catch (err) {
-                        console.error('Upload error:', err);
-                        toast({ title: err.response?.data?.detail || 'Upload failed. Check file format.', variant: 'destructive' });
-                      }
-                      e.target.value = '';
-                    }} />
-                  </label>
+                  <Button variant="outline" data-testid="upload-excel-btn" className="text-xs gap-1.5"
+                    onClick={() => { document.getElementById('excel-upload-input').click(); }}>
+                    <Upload size={14} /> Upload Excel
+                  </Button>
+                  <input id="excel-upload-input" type="file" accept=".xlsx,.xls,.xlss,.csv" className="hidden" onChange={async (e) => {
+                    const f = e.target.files?.[0];
+                    if (!f) return;
+                    toast({ title: `Uploading ${f.name}...` });
+                    const formData = new FormData();
+                    formData.append('file', f);
+                    try {
+                      const res = await axios.post(`${BACKEND_URL}/api/sessions/upload-excel`, formData, { headers: { 'Content-Type': 'multipart/form-data' }, timeout: 30000 });
+                      toast({ title: res.data.message });
+                      const sess = await axios.get(`${BACKEND_URL}/api/sessions`);
+                      setSessions(sess.data);
+                    } catch (err) {
+                      console.error('Upload error:', err);
+                      toast({ title: err.response?.data?.detail || 'Upload failed. Check file format.', variant: 'destructive' });
+                    }
+                    e.target.value = '';
+                  }} />
                   <Button data-testid="add-session-btn" onClick={() => { resetSessionForm(); setShowSessionForm(true); }} className="bg-[#D4AF37] hover:bg-[#b8962e]"><Plus size={16} className="mr-1" /> Add Session</Button>
                 </div>
               </div>
