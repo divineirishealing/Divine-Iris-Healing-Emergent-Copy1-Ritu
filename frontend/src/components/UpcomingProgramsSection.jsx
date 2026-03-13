@@ -309,7 +309,7 @@ const UpcomingProgramsSection = ({ sectionConfig, inline }) => {
           <p className="text-xs text-gray-400 mt-3" style={sectionConfig?.subtitle_style ? { ...(sectionConfig.subtitle_style.font_color && { color: sectionConfig.subtitle_style.font_color }), ...(sectionConfig.subtitle_style.font_size && { fontSize: sectionConfig.subtitle_style.font_size }), ...(sectionConfig.subtitle_style.font_family && { fontFamily: sectionConfig.subtitle_style.font_family }) } : {}}>{sectionConfig?.subtitle || 'All sessions are conducted online via Zoom or through remote distance healing — no in-person sessions at this time.'}</p>
         )}
       </div>
-      <div className={inline ? "grid grid-cols-1 gap-6" : "max-w-6xl mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-8"}>
+      <div className={inline ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" : "max-w-6xl mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-8"}>
         {programs.map(program => <UpcomingCard key={program.id} program={program} />)}
       </div>
     </>
