@@ -235,6 +235,15 @@ Build a pixel-perfect clone of https://divineirishealing.com/ with comprehensive
 - [x] Editable booking footer note text
 - [x] 18/18 frontend tests passing, 100% verification
 
+### Footer Navigation Admin Panel (Mar 13, 2026)
+- [x] New "Footer Navigation" sub-tab in Header & Footer admin
+- [x] Add/remove/reorder/toggle/edit menu items with label + target URL dropdown
+- [x] "Programs in Footer" visibility toggle
+- [x] Shared between footer AND header navigation (single source of truth)
+- [x] Items auto-sorted by label length, capitalized each word
+- [x] Backend models updated to persist footer_menu_items and footer_show_programs
+- [x] 17/17 tests passing (9 admin + 8 public), 100% verification
+
 ## Backlog
 ### P1
 - [ ] Global Site Search
