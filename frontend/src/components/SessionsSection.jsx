@@ -4,10 +4,17 @@ import axios from 'axios';
 import { ChevronRight, ChevronLeft, Clock, Wifi, MapPin, Quote, Calendar as CalendarIcon } from 'lucide-react';
 import { HEADING, BODY, GOLD, CONTAINER, applySectionStyle } from '../lib/designTokens';
 import { useCurrency } from '../context/CurrencyContext';
+import { useSiteSettings } from '../context/SiteSettingsContext';
 import { renderMarkdown } from '../lib/renderMarkdown';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
+
+const PURPLE_GRADIENTS = {
+  light: 'linear-gradient(160deg, #faf8ff 0%, #f8f4ff 30%, #fdf8f3 60%, #fffcf7 100%)',
+  medium: 'linear-gradient(160deg, #f3edff 0%, #ece4ff 30%, #f5eef8 60%, #faf5f0 100%)',
+  strong: 'linear-gradient(160deg, #ede5ff 0%, #e0d0ff 30%, #efe6f8 60%, #f5efea 100%)',
+};
 
 /* ---- Mini Calendar Component (Light Theme) ---- */
 const MiniCalendar = ({ availableDates = [], onSelectDate, selectedDate }) => {
@@ -89,9 +96,14 @@ const MiniCalendar = ({ availableDates = [], onSelectDate, selectedDate }) => {
 const SessionsSection = ({ sectionConfig }) => {
   const navigate = useNavigate();
   const { getPrice, formatPrice } = useCurrency();
+  const { settings } = useSiteSettings();
   const [sessions, setSessions] = useState([]);
   const [selectedSession, setSelectedSession] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
+
+  const sessionTpl = settings?.page_heroes?.session_template || {};
+  const purpleIntensity = sessionTpl.homepage_purple || 'medium';
+  const purpleGradient = PURPLE_GRADIENTS[purpleIntensity] || PURPLE_GRADIENTS.medium;
 
   useEffect(() => { loadSessions(); }, []);
 
@@ -115,7 +127,7 @@ const SessionsSection = ({ sectionConfig }) => {
 
   return (
     <section id="sessions" data-testid="sessions-section" className="py-12 relative overflow-hidden"
-      style={{ background: 'linear-gradient(160deg, #faf8ff 0%, #f5f0ff 30%, #fdf8f3 60%, #fffcf7 100%)' }}>
+      style={{ background: purpleGradient }}>
 
       {/* Iris flower petal shapes — soft purple */}
       <div className="absolute top-[-60px] right-[-40px] w-[320px] h-[320px] rounded-full opacity-[0.08]"
@@ -126,16 +138,6 @@ const SessionsSection = ({ sectionConfig }) => {
         style={{ background: 'radial-gradient(ellipse, #8b5cf6, transparent 70%)' }} />
       <div className="absolute top-[60%] left-[8%] w-[150px] h-[220px] rounded-[50%] opacity-[0.05] rotate-[-15deg]"
         style={{ background: 'radial-gradient(ellipse, #c084fc, transparent 70%)' }} />
-
-      {/* Gold dust particles */}
-      <div className="absolute top-[15%] left-[20%] w-2 h-2 rounded-full opacity-30" style={{ background: '#D4AF37' }} />
-      <div className="absolute top-[25%] right-[15%] w-1.5 h-1.5 rounded-full opacity-25" style={{ background: '#D4AF37' }} />
-      <div className="absolute top-[45%] left-[12%] w-1 h-1 rounded-full opacity-35" style={{ background: '#D4AF37' }} />
-      <div className="absolute bottom-[20%] right-[25%] w-2.5 h-2.5 rounded-full opacity-20" style={{ background: '#D4AF37' }} />
-      <div className="absolute bottom-[35%] left-[30%] w-1 h-1 rounded-full opacity-30" style={{ background: '#D4AF37' }} />
-      <div className="absolute top-[70%] right-[8%] w-1.5 h-1.5 rounded-full opacity-25" style={{ background: '#D4AF37' }} />
-      <div className="absolute top-[10%] right-[40%] w-1 h-1 rounded-full opacity-20" style={{ background: '#c9a227' }} />
-      <div className="absolute bottom-[15%] left-[50%] w-2 h-2 rounded-full opacity-15" style={{ background: '#e6c547' }} />
 
       {/* Subtle gold shimmer line */}
       <div className="absolute top-0 left-0 right-0 h-[1px] opacity-20" style={{ background: 'linear-gradient(90deg, transparent 10%, #D4AF37 50%, transparent 90%)' }} />
@@ -173,7 +175,7 @@ const SessionsSection = ({ sectionConfig }) => {
                     <span className={`block text-[13px] leading-snug mb-1 ${
                       selectedSession?.id === session.id ? 'text-purple-900 font-semibold' : 'text-gray-700'
                     }`}
-                      style={session.title_style ? applySectionStyle(session.title_style, {}) : { fontFamily: "'Lato', sans-serif" }}
+                      style={sessionTpl.title_style ? applySectionStyle(sessionTpl.title_style, { fontFamily: "'Lato', sans-serif" }) : { fontFamily: "'Lato', sans-serif" }}
                     >
                       {session.title}
                     </span>
@@ -221,7 +223,7 @@ const SessionsSection = ({ sectionConfig }) => {
                       </span>
                     )}
                   </div>
-                  <h3 className="text-gray-900 text-xl mb-4" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontWeight: 400, letterSpacing: '0.02em' }}
+                  <h3 className="text-gray-900 text-xl mb-4" style={sessionTpl.title_style ? applySectionStyle(sessionTpl.title_style, { fontFamily: "'Playfair Display', Georgia, serif", fontWeight: 400, letterSpacing: '0.02em' }) : { fontFamily: "'Playfair Display', Georgia, serif", fontWeight: 400, letterSpacing: '0.02em' }}
                     data-testid="selected-session-title">
                     {selectedSession.title}
                   </h3>

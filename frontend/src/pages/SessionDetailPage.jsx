@@ -14,6 +14,12 @@ import StarField from '../components/ui/StarField';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
+const DARK_PURPLE_GRADIENTS = {
+  light: 'linear-gradient(160deg, #1a0e2e 0%, #221445 20%, #2e165a 40%, #3b1a6e 60%, #4c1d95 80%, #3b1a6e 100%)',
+  medium: 'linear-gradient(160deg, #1a0e2e 0%, #2a1252 20%, #3b1a6e 40%, #4c1d95 60%, #5b21b6 80%, #4c1d95 100%)',
+  strong: 'linear-gradient(160deg, #1a0e2e 0%, #301660 20%, #4c1d95 40%, #5b21b6 55%, #7c3aed 75%, #5b21b6 100%)',
+};
+
 const applyStyle = (styleObj, defaults = {}) => {
   if (!styleObj || Object.keys(styleObj).length === 0) return defaults;
   return { ...defaults, ...(styleObj.font_family && { fontFamily: styleObj.font_family }), ...(styleObj.font_size && { fontSize: styleObj.font_size }), ...(styleObj.font_color && { color: styleObj.font_color }), ...(styleObj.font_weight && { fontWeight: styleObj.font_weight }), ...(styleObj.font_style && { fontStyle: styleObj.font_style }) };
@@ -97,7 +103,7 @@ const BookingCalendar = ({ calendar = {}, selectedDate, onSelectDate }) => {
 };
 
 /* ---- Question Form ---- */
-const QuestionForm = ({ sessionId, sessionTpl }) => {
+const QuestionForm = ({ sessionId, sessionTpl, whiteTheme }) => {
   const [form, setForm] = useState({ name: '', email: '', question: '' });
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
@@ -115,25 +121,29 @@ const QuestionForm = ({ sessionId, sessionTpl }) => {
 
   if (sent) return (
     <div className="text-center py-8 px-6">
-      <div className="w-12 h-12 rounded-full bg-[#D4AF37]/20 flex items-center justify-center mx-auto mb-3">
-        <MessageCircle size={20} className="text-[#D4AF37]" />
+      <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-3">
+        <MessageCircle size={20} className="text-purple-600" />
       </div>
-      <p className="text-white font-medium text-sm mb-1">Thank you for your question!</p>
-      <p className="text-white/50 text-xs">You will receive a response within 7 working days.</p>
+      <p className={`font-medium text-sm mb-1 ${whiteTheme ? 'text-gray-800' : 'text-white'}`}>Thank you for your question!</p>
+      <p className={`text-xs ${whiteTheme ? 'text-gray-500' : 'text-white/50'}`}>You will receive a response within 7 working days.</p>
     </div>
   );
 
+  const inputClass = whiteTheme
+    ? 'w-full bg-white border border-purple-200 rounded-lg px-3 py-2 text-xs text-gray-800 placeholder-gray-400 focus:outline-none focus:border-purple-400'
+    : 'w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:border-[#D4AF37]/50';
+
   return (
     <form onSubmit={submit} className="space-y-3" data-testid="session-question-form">
-      <p className="text-white/70 text-xs mb-2">Have a question? We'll respond within <span className="text-[#D4AF37] font-medium">7 working days</span>.</p>
+      <p className={`text-xs mb-2 ${whiteTheme ? 'text-gray-500' : 'text-white/70'}`}>Have a question? We'll respond within <span className="text-purple-600 font-medium">7 working days</span>.</p>
       <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Your name" required
-        className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:border-[#D4AF37]/50" style={applyStyle(sessionTpl?.question_label_style)} />
+        className={inputClass} style={applyStyle(sessionTpl?.question_label_style)} />
       <input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} type="email" placeholder="Your email" required
-        className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:border-[#D4AF37]/50" style={applyStyle(sessionTpl?.question_label_style)} />
+        className={inputClass} style={applyStyle(sessionTpl?.question_label_style)} />
       <textarea value={form.question} onChange={e => setForm({ ...form, question: e.target.value })} placeholder="Your question..." required rows={3}
-        className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:border-[#D4AF37]/50 resize-none" style={applyStyle(sessionTpl?.question_label_style)} />
+        className={`${inputClass} resize-none`} style={applyStyle(sessionTpl?.question_label_style)} />
       <button type="submit" disabled={sending}
-        className="w-full py-2.5 rounded-lg text-xs tracking-wider uppercase font-medium bg-[#D4AF37] hover:bg-[#b8962e] text-[#1a1a1a] transition-colors flex items-center justify-center gap-2"
+        className="w-full py-2.5 rounded-lg text-xs tracking-wider uppercase font-medium bg-purple-600 hover:bg-purple-700 text-white transition-colors flex items-center justify-center gap-2"
         data-testid="submit-question-btn">
         <Send size={12} /> {sending ? 'Sending...' : 'Send Question'}
       </button>
@@ -179,12 +189,12 @@ function SessionDetailPage() {
     return 'Online';
   };
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center" style={{ background: '#1e1033' }}><p className="text-white/40 text-xs">Loading...</p></div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-white"><p className="text-gray-400 text-xs">Loading...</p></div>;
   if (!session) return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: '#1e1033' }}>
+    <div className="min-h-screen flex items-center justify-center bg-white">
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-white mb-4">Session Not Found</h2>
-        <button onClick={() => navigate('/')} className="px-6 py-2 bg-[#D4AF37] text-[#1a1a1a] rounded-full text-sm">Back to Home</button>
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">Session Not Found</h2>
+        <button onClick={() => navigate('/')} className="px-6 py-2 bg-purple-600 text-white rounded-full text-sm">Back to Home</button>
       </div>
     </div>
   );
@@ -193,15 +203,19 @@ function SessionDetailPage() {
   const sessionTpl = settings?.page_heroes?.session_template || {};
   const timeSlots = calendar.time_slots || session.time_slots || [];
 
+  const purpleIntensity = sessionTpl.page_purple || 'medium';
+  const heroGradient = DARK_PURPLE_GRADIENTS[purpleIntensity] || DARK_PURPLE_GRADIENTS.medium;
+  const heroStarCount = purpleIntensity === 'strong' ? 100 : purpleIntensity === 'light' ? 50 : 80;
+
   return (
     <>
       <Header />
-      <div className="min-h-screen" style={{ background: '#0f0a1a' }}>
+      <div className="min-h-screen" style={{ background: '#ffffff' }}>
         {/* Hero — Iris Purple Glossy with Golden Sprinkles */}
         <div className="relative pt-20 pb-20 overflow-hidden" data-testid="session-hero"
-          style={{ background: 'linear-gradient(160deg, #1a0e2e 0%, #2a1252 20%, #3b1a6e 40%, #4c1d95 60%, #5b21b6 80%, #4c1d95 100%)' }}>
+          style={{ background: heroGradient }}>
           {/* Golden star particles */}
-          <StarField count={40} color="#D4AF37" />
+          <StarField count={heroStarCount} color="#D4AF37" />
           {/* Glossy iris overlay */}
           <div className="absolute inset-0 pointer-events-none" style={{
             background: 'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(139, 92, 246, 0.3), transparent 60%), radial-gradient(ellipse 60% 40% at 80% 80%, rgba(212, 175, 55, 0.08), transparent 50%)',
@@ -245,32 +259,33 @@ function SessionDetailPage() {
         </div>
 
         {/* Main Content */}
+        <div className="bg-white">
         <div className="container mx-auto px-6 md:px-8 lg:px-12 py-12">
           <div className="max-w-5xl mx-auto grid lg:grid-cols-5 gap-10">
             {/* Left — About + Testimonials */}
             <div className="lg:col-span-3 space-y-8">
               <div>
-                <h2 className="text-lg font-semibold mb-4" style={applyStyle(sessionTpl.title_style, { fontFamily: "'Cinzel', serif", color: '#D4AF37' })}>About This Session</h2>
-                <div className="text-sm leading-relaxed" style={applyStyle(sessionTpl.description_style, { color: '#b0a8c0', fontFamily: "'Lato', sans-serif" })}
+                <h2 className="text-lg font-semibold mb-4" style={applyStyle(sessionTpl.title_style, { fontFamily: "'Cinzel', serif", color: '#4c1d95' })}>About This Session</h2>
+                <div className="text-sm leading-relaxed" style={applyStyle(sessionTpl.description_style, { color: '#4a4a5a', fontFamily: "'Lato', sans-serif" })}
                   dangerouslySetInnerHTML={{ __html: renderMarkdown(session.description) }} />
               </div>
 
               {/* Session Testimonials */}
               {testimonials.length > 0 && (
                 <div data-testid="session-testimonials">
-                  <h2 className="text-lg font-semibold mb-6" style={applyStyle(sessionTpl.testimonial_style, { fontFamily: "'Cinzel', serif", color: '#D4AF37', fontStyle: 'italic' })}>
+                  <h2 className="text-lg font-semibold mb-6" style={applyStyle(sessionTpl.testimonial_style, { fontFamily: "'Cinzel', serif", color: '#4c1d95', fontStyle: 'italic' })}>
                     What Clients Say
                   </h2>
                   <div className="space-y-4">
                     {testimonials.slice(0, 6).map((t, idx) => (
                       <div key={t.id} data-testid={`session-testimonial-${idx}`}
-                        className="relative bg-white/5 border border-white/10 rounded-xl p-5 backdrop-blur-sm">
-                        <Quote size={20} className="text-[#D4AF37]/30 absolute top-3 left-3" />
-                        <p className="text-white/70 text-sm leading-relaxed italic pl-6 mb-3"
+                        className="relative bg-purple-50/50 border border-purple-100 rounded-xl p-5">
+                        <Quote size={20} className="text-purple-200 absolute top-3 left-3" />
+                        <p className="text-gray-600 text-sm leading-relaxed italic pl-6 mb-3"
                           style={applyStyle(sessionTpl.testimonial_style)}>{t.text}</p>
                         <div className="flex items-center gap-3 pl-6">
-                          {t.client_photo && <img src={resolveImageUrl(t.client_photo)} alt="" className="w-8 h-8 rounded-full object-cover border border-[#D4AF37]/30" />}
-                          <span className="text-xs text-[#D4AF37]/80 font-medium">{t.client_name || 'Anonymous'}</span>
+                          {t.client_photo && <img src={resolveImageUrl(t.client_photo)} alt="" className="w-8 h-8 rounded-full object-cover border border-purple-200" />}
+                          <span className="text-xs text-purple-700/80 font-medium">{t.client_name || 'Anonymous'}</span>
                         </div>
                       </div>
                     ))}
@@ -280,18 +295,18 @@ function SessionDetailPage() {
 
               {/* Info cards */}
               <div className="grid md:grid-cols-2 gap-5">
-                <div className="bg-white/5 border border-white/10 p-5 rounded-xl backdrop-blur-sm">
-                  <h3 className="text-sm font-semibold mb-3" style={{ color: '#D4AF37', fontFamily: "'Cinzel', serif" }}>What to Expect</h3>
-                  <ul className="space-y-2 text-white/60 text-xs">
+                <div className="bg-purple-50/40 border border-purple-100 p-5 rounded-xl">
+                  <h3 className="text-sm font-semibold mb-3" style={{ color: '#4c1d95', fontFamily: "'Cinzel', serif" }}>What to Expect</h3>
+                  <ul className="space-y-2 text-gray-600 text-xs">
                     <li className="flex items-start gap-2"><span className="text-[#D4AF37] mt-0.5">&#10038;</span> Personalized healing approach</li>
                     <li className="flex items-start gap-2"><span className="text-[#D4AF37] mt-0.5">&#10038;</span> Safe and supportive environment</li>
                     <li className="flex items-start gap-2"><span className="text-[#D4AF37] mt-0.5">&#10038;</span> Immediate energetic shifts</li>
                     <li className="flex items-start gap-2"><span className="text-[#D4AF37] mt-0.5">&#10038;</span> Practical guidance for integration</li>
                   </ul>
                 </div>
-                <div className="bg-white/5 border border-white/10 p-5 rounded-xl backdrop-blur-sm">
-                  <h3 className="text-sm font-semibold mb-3" style={{ color: '#D4AF37', fontFamily: "'Cinzel', serif" }}>Who Is This For</h3>
-                  <ul className="space-y-2 text-white/60 text-xs">
+                <div className="bg-purple-50/40 border border-purple-100 p-5 rounded-xl">
+                  <h3 className="text-sm font-semibold mb-3" style={{ color: '#4c1d95', fontFamily: "'Cinzel', serif" }}>Who Is This For</h3>
+                  <ul className="space-y-2 text-gray-600 text-xs">
                     <li className="flex items-start gap-2"><span className="text-[#D4AF37] mt-0.5">&#10038;</span> Anyone seeking deep healing</li>
                     <li className="flex items-start gap-2"><span className="text-[#D4AF37] mt-0.5">&#10038;</span> Those ready for transformation</li>
                     <li className="flex items-start gap-2"><span className="text-[#D4AF37] mt-0.5">&#10038;</span> Individuals committed to growth</li>
@@ -305,7 +320,7 @@ function SessionDetailPage() {
             <div className="lg:col-span-2 space-y-5">
               {/* Purple gradient booking section with golden waves */}
               <div className="rounded-2xl overflow-hidden relative" data-testid="booking-section"
-                style={{ background: 'linear-gradient(180deg, #2a1252 0%, #3b1a6e 40%, #4c1d95 70%, #3b1a6e 100%)' }}>
+                style={{ background: heroGradient }}>
                 {/* Golden wave overlay */}
                 <svg className="absolute bottom-0 left-0 w-full" viewBox="0 0 400 50" preserveAspectRatio="none" style={{ height: '40px', opacity: 0.12 }}>
                   <path d="M0,25 C100,50 200,0 300,25 C350,37 380,15 400,25 L400,50 L0,50 Z" fill="#D4AF37">
@@ -344,18 +359,19 @@ function SessionDetailPage() {
               </div>
 
               {/* Question Form */}
-              <div className="rounded-2xl overflow-hidden p-5 border border-white/10 bg-white/5 backdrop-blur-sm">
-                <p className="text-[10px] text-[#D4AF37] font-medium uppercase tracking-widest mb-3">
+              <div className="rounded-2xl overflow-hidden p-5 border border-purple-100 bg-purple-50/30">
+                <p className="text-[10px] text-purple-700 font-medium uppercase tracking-widest mb-3">
                   <MessageCircle size={12} className="inline mr-1" /> Ask a Question
                 </p>
-                <QuestionForm sessionId={id} sessionTpl={sessionTpl} />
+                <QuestionForm sessionId={id} sessionTpl={sessionTpl} whiteTheme />
               </div>
 
-              <p className="text-[10px] text-white/25 text-center leading-relaxed px-4">
+              <p className="text-[10px] text-gray-400 text-center leading-relaxed px-4">
                 Sessions conducted online via Zoom or in-person by appointment. Each session is customized to your unique healing needs.
               </p>
             </div>
           </div>
+        </div>
         </div>
       </div>
       <Footer />

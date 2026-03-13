@@ -327,6 +327,24 @@ const PageHeadersTab = ({ settings, programs = [], onChange }) => {
                   </div>
                 ))}
               </div>
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                <div className="bg-white rounded-lg border border-gray-100 p-2.5">
+                  <Label className="text-[9px] text-gray-500 font-semibold block mb-1">Homepage Section — Purple Intensity</Label>
+                  <select value={sessionTpl.homepage_purple || 'medium'} onChange={e => updateSessionTpl('homepage_purple', e.target.value)} className="text-[10px] border rounded px-2 py-1 w-full">
+                    <option value="light">Light</option>
+                    <option value="medium">Medium</option>
+                    <option value="strong">Strong</option>
+                  </select>
+                </div>
+                <div className="bg-white rounded-lg border border-gray-100 p-2.5">
+                  <Label className="text-[9px] text-gray-500 font-semibold block mb-1">Session Page — Purple Intensity</Label>
+                  <select value={sessionTpl.page_purple || 'medium'} onChange={e => updateSessionTpl('page_purple', e.target.value)} className="text-[10px] border rounded px-2 py-1 w-full">
+                    <option value="light">Light</option>
+                    <option value="medium">Medium</option>
+                    <option value="strong">Strong</option>
+                  </select>
+                </div>
+              </div>
             </div>
           );
         })()}
