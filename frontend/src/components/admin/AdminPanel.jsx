@@ -35,7 +35,8 @@ const AdminPanel = () => {
   const { toast } = useToast();
   const { refreshSettings } = useSiteSettings();
   const [activeTab, setActiveTab] = useState('hero');
-  const excelInputRef = useRef(null);
+  const [excelDragOver, setExcelDragOver] = useState(false);
+  const [excelUploading, setExcelUploading] = useState(false);
 
   const [programs, setPrograms] = useState([]);
   const [sessions, setSessions] = useState([]);
@@ -549,28 +550,37 @@ const AdminPanel = () => {
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold text-gray-900">Sessions ({sessions.length})</h2>
                 <div className="flex gap-2">
-                  <Button variant="outline" data-testid="upload-excel-btn" className="text-xs gap-1.5"
-                    type="button"
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); excelInputRef.current?.click(); }}>
-                    <Upload size={14} /> Upload Excel
-                  </Button>
-                  <input ref={excelInputRef} type="file" accept=".xlsx,.xls,.xlss,.csv" style={{display:'none'}} onChange={async (e) => {
-                    const f = e.target.files?.[0];
-                    if (!f) return;
-                    toast({ title: `Uploading ${f.name}...` });
-                    const formData = new FormData();
-                    formData.append('file', f);
-                    try {
-                      const res = await axios.post(`${BACKEND_URL}/api/sessions/upload-excel`, formData, { headers: { 'Content-Type': 'multipart/form-data' }, timeout: 30000 });
-                      toast({ title: res.data.message });
-                      const sess = await axios.get(`${BACKEND_URL}/api/sessions`);
-                      setSessions(sess.data);
-                    } catch (err) {
-                      console.error('Upload error:', err);
-                      toast({ title: err.response?.data?.detail || 'Upload failed. Check file format.', variant: 'destructive' });
-                    }
-                    e.target.value = '';
-                  }} />
+                  <div
+                    data-testid="upload-excel-btn"
+                    onDrop={async (e) => {
+                      e.preventDefault(); e.stopPropagation(); setExcelDragOver(false);
+                      const f = e.dataTransfer.files?.[0];
+                      if (!f) return;
+                      setExcelUploading(true);
+                      toast({ title: `Uploading ${f.name}...` });
+                      const formData = new FormData();
+                      formData.append('file', f);
+                      try {
+                        const res = await axios.post(`${BACKEND_URL}/api/sessions/upload-excel`, formData, { headers: { 'Content-Type': 'multipart/form-data' }, timeout: 30000 });
+                        toast({ title: res.data.message });
+                        const sess = await axios.get(`${BACKEND_URL}/api/sessions`);
+                        setSessions(sess.data);
+                      } catch (err) {
+                        console.error('Upload error:', err);
+                        toast({ title: err.response?.data?.detail || 'Upload failed. Check file format.', variant: 'destructive' });
+                      }
+                      setExcelUploading(false);
+                    }}
+                    onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setExcelDragOver(true); }}
+                    onDragLeave={(e) => { e.preventDefault(); e.stopPropagation(); setExcelDragOver(false); }}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-md text-xs border-2 border-dashed transition-colors ${
+                      excelUploading ? 'opacity-50 border-gray-300' :
+                      excelDragOver ? 'border-[#D4AF37] bg-[#D4AF37]/10 text-[#D4AF37]' : 'border-gray-300 hover:border-[#D4AF37] text-gray-600'
+                    }`}
+                  >
+                    <Upload size={14} />
+                    {excelUploading ? 'Uploading...' : excelDragOver ? 'Drop Excel here!' : 'Drag & Drop Excel file here'}
+                  </div>
                   <Button data-testid="add-session-btn" onClick={() => { resetSessionForm(); setShowSessionForm(true); }} className="bg-[#D4AF37] hover:bg-[#b8962e]"><Plus size={16} className="mr-1" /> Add Session</Button>
                 </div>
               </div>
