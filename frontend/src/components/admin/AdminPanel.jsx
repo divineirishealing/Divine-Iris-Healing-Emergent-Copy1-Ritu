@@ -54,7 +54,7 @@ const AdminPanel = () => {
   const [editingId, setEditingId] = useState(null);
 
   const [programForm, setProgramForm] = useState({ title: '', category: '', description: '', image: '', price_usd: 0, price_inr: 0, price_eur: 0, price_gbp: 0, price_aed: 0, visible: true, order: 0, program_type: 'online', session_mode: 'online', enable_online: true, enable_offline: true, enable_in_person: false, offer_price_aed: 0, offer_price_usd: 0, offer_price_inr: 0, offer_text: '', is_upcoming: false, is_flagship: false, start_date: '', end_date: '', deadline_date: '', enrollment_open: true, duration_tiers: [], whatsapp_group_link: '', zoom_link: '', custom_link: '', custom_link_label: '', show_whatsapp_link: true, show_zoom_link: true, show_custom_link: true, content_sections: [] });
-  const [sessionForm, setSessionForm] = useState({ title: '', description: '', price_usd: 0, price_inr: 0, price_eur: 0, price_gbp: 0, price_aed: 0, duration: '60-90 minutes', session_mode: 'online', available_dates: [], time_slots: [], testimonial_text: '', title_style: null, description_style: null, visible: true, order: 0 });
+  const [sessionForm, setSessionForm] = useState({ title: '', description: '', price_usd: 0, price_inr: 0, price_eur: 0, price_gbp: 0, price_aed: 0, offer_price_aed: 0, offer_price_usd: 0, offer_price_inr: 0, offer_text: '', offer_expiry: '', duration: '60-90 minutes', session_mode: 'online', available_dates: [], time_slots: [], testimonial_text: '', title_style: null, description_style: null, visible: true, order: 0 });
   const [testimonialForm, setTestimonialForm] = useState({ type: 'graphic', name: '', text: '', image: '', videoId: '', program_id: '', visible: true });
   const [statForm, setStatForm] = useState({ value: '', label: '', order: 0, icon: '', value_style: null, label_style: null });
 
@@ -108,13 +108,13 @@ const AdminPanel = () => {
   };
   const editSession = (s) => {
     setEditingId(s.id);
-    setSessionForm({ title: s.title, description: s.description, price_usd: s.price_usd || 0, price_inr: s.price_inr || 0, price_eur: s.price_eur || 0, price_gbp: s.price_gbp || 0, price_aed: s.price_aed || 0, duration: s.duration || '60-90 minutes', session_mode: s.session_mode || 'online', available_dates: s.available_dates || [], time_slots: s.time_slots || [], testimonial_text: s.testimonial_text || '', title_style: s.title_style || null, description_style: s.description_style || null, visible: s.visible !== false, order: s.order || 0 });
+    setSessionForm({ title: s.title, description: s.description, price_usd: s.price_usd || 0, price_inr: s.price_inr || 0, price_eur: s.price_eur || 0, price_gbp: s.price_gbp || 0, price_aed: s.price_aed || 0, offer_price_aed: s.offer_price_aed || 0, offer_price_usd: s.offer_price_usd || 0, offer_price_inr: s.offer_price_inr || 0, offer_text: s.offer_text || '', offer_expiry: s.offer_expiry || '', duration: s.duration || '60-90 minutes', session_mode: s.session_mode || 'online', available_dates: s.available_dates || [], time_slots: s.time_slots || [], testimonial_text: s.testimonial_text || '', title_style: s.title_style || null, description_style: s.description_style || null, visible: s.visible !== false, order: s.order || 0 });
     setShowSessionForm(true);
   };
   const deleteSession = async (id) => { if (!window.confirm('Delete this session?')) return; await axios.delete(`${API}/sessions/${id}`); toast({ title: 'Session deleted' }); loadAll(); };
   const toggleSessionVisibility = async (s) => { await axios.patch(`${API}/sessions/${s.id}/visibility`, { visible: !s.visible }); loadAll(); };
   const moveSessionOrder = async (idx, dir) => { const items = [...sessions]; const sw = idx + dir; if (sw < 0 || sw >= items.length) return; [items[idx], items[sw]] = [items[sw], items[idx]]; await axios.patch(`${API}/sessions/reorder`, { order: items.map(i => i.id) }); loadAll(); };
-  const resetSessionForm = () => { setShowSessionForm(false); setEditingId(null); setSessionForm({ title: '', description: '', price_usd: 0, price_inr: 0, price_eur: 0, price_gbp: 0, price_aed: 0, duration: '60-90 minutes', session_mode: 'online', available_dates: [], time_slots: [], testimonial_text: '', title_style: null, description_style: null, visible: true, order: 0 }); };
+  const resetSessionForm = () => { setShowSessionForm(false); setEditingId(null); setSessionForm({ title: '', description: '', price_usd: 0, price_inr: 0, price_eur: 0, price_gbp: 0, price_aed: 0, offer_price_aed: 0, offer_price_usd: 0, offer_price_inr: 0, offer_text: '', offer_expiry: '', duration: '60-90 minutes', session_mode: 'online', available_dates: [], time_slots: [], testimonial_text: '', title_style: null, description_style: null, visible: true, order: 0 }); };
 
   // ===== TESTIMONIALS =====
   const saveTestimonial = async () => {
@@ -667,6 +667,21 @@ const AdminPanel = () => {
                     <div><Label>Price AED</Label><Input type="number" value={sessionForm.price_aed||0} onChange={e => setSessionForm({...sessionForm, price_aed: parseFloat(e.target.value)||0})} /></div>
                     <div><Label>Price USD</Label><Input type="number" value={sessionForm.price_usd} onChange={e => setSessionForm({...sessionForm, price_usd: parseFloat(e.target.value)||0})} /></div>
                     <div><Label>Price INR</Label><Input type="number" value={sessionForm.price_inr} onChange={e => setSessionForm({...sessionForm, price_inr: parseFloat(e.target.value)||0})} /></div>
+
+                    {/* Offer Prices */}
+                    <div className="md:col-span-2 bg-green-50 rounded-lg p-3 border border-green-200">
+                      <p className="text-[10px] font-semibold text-green-700 mb-2">Special Offer (per session — leave 0 for no offer)</p>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        <div><Label className="text-[9px]">Offer AED</Label><Input type="number" value={sessionForm.offer_price_aed||0} onChange={e => setSessionForm({...sessionForm, offer_price_aed: parseFloat(e.target.value)||0})} className="bg-white" /></div>
+                        <div><Label className="text-[9px]">Offer USD</Label><Input type="number" value={sessionForm.offer_price_usd||0} onChange={e => setSessionForm({...sessionForm, offer_price_usd: parseFloat(e.target.value)||0})} className="bg-white" /></div>
+                        <div><Label className="text-[9px]">Offer INR</Label><Input type="number" value={sessionForm.offer_price_inr||0} onChange={e => setSessionForm({...sessionForm, offer_price_inr: parseFloat(e.target.value)||0})} className="bg-white" /></div>
+                        <div><Label className="text-[9px]">Offer Badge</Label><Input value={sessionForm.offer_text||''} onChange={e => setSessionForm({...sessionForm, offer_text: e.target.value})} placeholder="e.g., 20% OFF" className="bg-white" /></div>
+                      </div>
+                      <div className="mt-2">
+                        <Label className="text-[9px]">Offer Expiry Date (auto-removes badge after this date)</Label>
+                        <Input type="date" value={sessionForm.offer_expiry||''} onChange={e => setSessionForm({...sessionForm, offer_expiry: e.target.value})} className="bg-white w-48" />
+                      </div>
+                    </div>
 
                     {/* Time Slots */}
                     <div className="md:col-span-2">

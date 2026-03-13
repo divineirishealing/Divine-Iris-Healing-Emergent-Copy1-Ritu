@@ -118,19 +118,20 @@ const Header = () => {
           </div>
           <nav className="text-center space-y-5">
             {[
-              {label:'HOME',path:'/'},
-              {label:'ABOUT',path:'/about'},
-              {label:'SERVICES',path:'/services'},
-              ...(settings?.sessions_page_visible !== false ? [{label:'UPCOMING SESSIONS',path:'/sessions'}] : []),
-              {label:'MEDIA',path:'/media'},
-              {label:'TRANSFORMATIONS',path:'/transformations'},
-              ...(settings?.blog_page_visible ? [{label:'BLOG',path:'/blog'}] : []),
-            ].map(item => (
+              {label:'Home',path:'/'},
+              {label:'About',path:'/about'},
+              {label:'Media',path:'/media'},
+              {label:'Contact',path:'/#contact'},
+              {label:'Services',path:'/#sessions'},
+              ...(settings?.sessions_page_visible !== false ? [{label:'Upcoming Sessions',path:'/sessions'}] : []),
+              {label:'Transformations',path:'/transformations'},
+              ...(settings?.blog_page_visible ? [{label:'Blog',path:'/blog'}] : []),
+            ].sort((a, b) => a.label.length - b.label.length).map(item => (
               <button key={item.label} onClick={() => handleNavClick(item.path)} className="block w-full text-white text-xl md:text-2xl font-light tracking-[0.15em] hover:text-yellow-200 transition-colors">{item.label}</button>
             ))}
             <div>
               <button onClick={() => setIsProgramsOpen(!isProgramsOpen)} className="text-white text-xl md:text-2xl font-light tracking-[0.15em] hover:text-yellow-200 transition-colors inline-flex items-center gap-2">
-                PROGRAMS <ChevronDown size={18} className={`transition-transform ${isProgramsOpen ? 'rotate-180' : ''}`} />
+                Programs <ChevronDown size={18} className={`transition-transform ${isProgramsOpen ? 'rotate-180' : ''}`} />
               </button>
               {isProgramsOpen && (
                 <div className="mt-2 space-y-1.5">
@@ -140,7 +141,6 @@ const Header = () => {
                 </div>
               )}
             </div>
-            <button onClick={() => handleNavClick('/contact')} className="block w-full text-white text-xl md:text-2xl font-light tracking-[0.15em] hover:text-yellow-200 transition-colors">CONTACT</button>
           </nav>
         </div>
       )}

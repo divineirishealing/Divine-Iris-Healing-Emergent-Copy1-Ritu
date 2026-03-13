@@ -472,6 +472,40 @@ const PageHeadersTab = ({ settings, programs = [], onChange }) => {
                   </div>
                 </div>
 
+                {/* ── GLOBAL OFFER ── */}
+                <div className="md:col-span-2 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200 p-4 relative">
+                  <div className="absolute top-2 right-3 text-[8px] bg-green-100 text-green-600 px-2 py-0.5 rounded-full">Preview: Offer badge on ALL sessions</div>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-green-700 mb-3">Global Special Offer</p>
+                  <p className="text-[9px] text-green-600 mb-3">Applies an offer badge to all sessions. Per-session offers are set in each session's edit form.</p>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div>
+                      <Label className="text-[9px] text-gray-500">Offer Badge Text</Label>
+                      <Input value={sessionTpl.global_offer_text || ''} onChange={e => updateSessionTpl('global_offer_text', e.target.value)} className="text-[10px] h-7 bg-white" placeholder="e.g., Limited Time Offer" />
+                    </div>
+                    <div>
+                      <Label className="text-[9px] text-gray-500">Badge Color</Label>
+                      <div className="flex gap-2 items-center mt-1">
+                        <input type="color" value={sessionTpl.offer_badge_bg || '#ef4444'} onChange={e => updateSessionTpl('offer_badge_bg', e.target.value)} className="w-6 h-5 rounded cursor-pointer border" />
+                        <input type="color" value={sessionTpl.offer_badge_text || '#ffffff'} onChange={e => updateSessionTpl('offer_badge_text', e.target.value)} className="w-6 h-5 rounded cursor-pointer border" />
+                        <span className="text-[8px] text-gray-400">BG / Text</span>
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="text-[9px] text-gray-500">Offer Expiry Date</Label>
+                      <Input type="date" value={sessionTpl.global_offer_expiry || ''} onChange={e => updateSessionTpl('global_offer_expiry', e.target.value)} className="text-[10px] h-7 bg-white" />
+                    </div>
+                    <div>
+                      <Label className="text-[9px] text-gray-500">Quick Badge Presets</Label>
+                      <div className="flex gap-1 mt-1 flex-wrap">
+                        {['Limited Time Offer', 'Early Bird Special', 'Festive Discount', '50% OFF'].map(t => (
+                          <button key={t} type="button" onClick={() => updateSessionTpl('global_offer_text', t)}
+                            className="text-[7px] px-1.5 py-0.5 rounded-full bg-white border border-green-200 hover:border-green-400 text-green-700">{t}</button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="bg-gray-50 rounded-xl border border-gray-200 p-4 relative">
                   <div className="absolute top-2 right-3 text-[8px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Preview: Booking calendar on session pages</div>
                   <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-3">Calendar & Booking</p>

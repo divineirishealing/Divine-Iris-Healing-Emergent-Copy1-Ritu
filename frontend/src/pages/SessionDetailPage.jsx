@@ -233,7 +233,19 @@ function SessionDetailPage() {
     return items.filter(i => i.visible !== false).sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map(i => i.key);
   };
 
-  // Admin-controlled colors
+  // Offer helpers
+  const isOfferActive = () => {
+    const now = new Date().toISOString().split('T')[0];
+    if (session.offer_text && (!session.offer_expiry || session.offer_expiry >= now)) return session.offer_text;
+    if (sessionTpl.global_offer_text && (!sessionTpl.global_offer_expiry || sessionTpl.global_offer_expiry >= now)) return sessionTpl.global_offer_text;
+    return null;
+  };
+  const sessionOfferPrice = (session.offer_price_aed > 0 || session.offer_price_usd > 0 || session.offer_price_inr > 0)
+    ? getPrice({ ...session, price_aed: session.offer_price_aed, price_usd: session.offer_price_usd, price_inr: session.offer_price_inr })
+    : 0;
+  const offerBadgeBg = sessionTpl.offer_badge_bg || '#ef4444';
+  const offerBadgeText = sessionTpl.offer_badge_text || '#ffffff';
+  const activeOffer = isOfferActive();
   const accentColor = sessionTpl.accent_color || '#D4AF37';
   const starColor = sessionTpl.star_color || '#D4AF37';
   const buttonBg = sessionTpl.button_bg || '#D4AF37';
@@ -271,7 +283,22 @@ function SessionDetailPage() {
     ),
     gold_line: <div key="line" className="w-16 h-0.5 mb-4" style={{ background: `linear-gradient(90deg, ${accentColor}, transparent)` }} />,
     price: formatPrice(getPrice(session)) ? (
-      <span key="price" className="text-xl font-bold" style={applyStyle(sessionTpl.hero_price_style, { color: accentColor })}>{formatPrice(getPrice(session))}</span>
+      <div key="price" className="flex items-center gap-3 flex-wrap">
+        {activeOffer && (
+          <span className="text-[9px] px-2.5 py-1 rounded-full font-bold animate-pulse"
+            style={{ background: offerBadgeBg, color: offerBadgeText }} data-testid="hero-offer-badge">
+            {activeOffer}
+          </span>
+        )}
+        {sessionOfferPrice > 0 ? (
+          <>
+            <span className="text-xl font-bold" style={applyStyle(sessionTpl.hero_price_style, { color: accentColor })}>{formatPrice(sessionOfferPrice)}</span>
+            <span className="text-base text-white/40 line-through">{formatPrice(getPrice(session))}</span>
+          </>
+        ) : (
+          <span className="text-xl font-bold" style={applyStyle(sessionTpl.hero_price_style, { color: accentColor })}>{formatPrice(getPrice(session))}</span>
+        )}
+      </div>
     ) : null,
   };
 

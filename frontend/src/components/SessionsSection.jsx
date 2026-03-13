@@ -112,6 +112,24 @@ const SessionsSection = ({ sectionConfig }) => {
   const buttonBg = sessionTpl.button_bg || '#D4AF37';
   const buttonText = sessionTpl.button_text || '#1a1a1a';
 
+  // Offer helpers
+  const isOfferActive = (session) => {
+    const now = new Date().toISOString().split('T')[0];
+    // Per-session offer
+    if (session.offer_text && (!session.offer_expiry || session.offer_expiry >= now)) return session.offer_text;
+    // Global offer
+    if (sessionTpl.global_offer_text && (!sessionTpl.global_offer_expiry || sessionTpl.global_offer_expiry >= now)) return sessionTpl.global_offer_text;
+    return null;
+  };
+  const getOfferPrice = (session) => {
+    if (session.offer_price_aed > 0 || session.offer_price_usd > 0 || session.offer_price_inr > 0) {
+      return getPrice({ ...session, price_aed: session.offer_price_aed, price_usd: session.offer_price_usd, price_inr: session.offer_price_inr });
+    }
+    return 0;
+  };
+  const offerBadgeBg = sessionTpl.offer_badge_bg || '#ef4444';
+  const offerBadgeText = sessionTpl.offer_badge_text || '#ffffff';
+
   // Visibility helpers — defaults match admin panel
   const HOMEPAGE_LIST_DEFAULTS = { session_name: true, session_type: false, duration: false };
   const vis = sessionTpl.visibility || {};
@@ -198,13 +216,21 @@ const SessionsSection = ({ sectionConfig }) => {
                     }`}
                   >
                     {getVisible('homepage_list', 'session_name') && (
-                      <span className={`block text-[13px] leading-snug ${(getVisible('homepage_list', 'session_type') || getVisible('homepage_list', 'duration')) ? 'mb-1' : ''} ${
-                        selectedSession?.id === session.id ? 'text-purple-900 font-semibold' : 'text-gray-700'
-                      }`}
-                        style={sessionTpl.title_style ? applySectionStyle(sessionTpl.title_style, { fontFamily: "'Lato', sans-serif" }) : { fontFamily: "'Lato', sans-serif" }}
-                      >
-                        {session.title}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className={`block text-[13px] leading-snug ${
+                          selectedSession?.id === session.id ? 'text-purple-900 font-semibold' : 'text-gray-700'
+                        }`}
+                          style={sessionTpl.title_style ? applySectionStyle(sessionTpl.title_style, { fontFamily: "'Lato', sans-serif" }) : { fontFamily: "'Lato', sans-serif" }}
+                        >
+                          {session.title}
+                        </span>
+                        {isOfferActive(session) && (
+                          <span className="text-[7px] px-1.5 py-0.5 rounded-full font-bold whitespace-nowrap animate-pulse"
+                            style={{ background: offerBadgeBg, color: offerBadgeText }}>
+                            {isOfferActive(session)}
+                          </span>
+                        )}
+                      </div>
                     )}
                     {(getVisible('homepage_list', 'session_type') || getVisible('homepage_list', 'duration')) && (
                       <div className="flex items-center gap-2 text-gray-400 text-[10px]">
@@ -285,18 +311,36 @@ const SessionsSection = ({ sectionConfig }) => {
                         dangerouslySetInnerHTML={{ __html: renderMarkdown(selectedSession.testimonial_text) }} />
                     </div>
                   );
-                  if (key === 'price') return (
-                    <div key="price">
-                      {formatPrice(getPrice(selectedSession)) ? (
-                        <div className="flex items-baseline gap-2">
-                          <span className="text-2xl font-bold text-purple-700">{formatPrice(getPrice(selectedSession))}</span>
-                          <span className="text-gray-400 text-xs">per session</span>
-                        </div>
-                      ) : (
-                        <span className="text-sm text-gray-400 italic">Contact for pricing</span>
-                      )}
-                    </div>
-                  );
+                  if (key === 'price') {
+                    const offerPrc = getOfferPrice(selectedSession);
+                    const originalPrc = getPrice(selectedSession);
+                    const offerBadge = isOfferActive(selectedSession);
+                    return (
+                      <div key="price">
+                        {offerBadge && (
+                          <span className="inline-block text-[9px] px-2.5 py-1 rounded-full font-bold mb-2 animate-pulse"
+                            style={{ background: offerBadgeBg, color: offerBadgeText }} data-testid="offer-badge">
+                            {offerBadge}
+                          </span>
+                        )}
+                        {formatPrice(originalPrc) ? (
+                          <div className="flex items-baseline gap-2 flex-wrap">
+                            {offerPrc > 0 ? (
+                              <>
+                                <span className="text-2xl font-bold text-purple-700">{formatPrice(offerPrc)}</span>
+                                <span className="text-base text-gray-400 line-through">{formatPrice(originalPrc)}</span>
+                              </>
+                            ) : (
+                              <span className="text-2xl font-bold text-purple-700">{formatPrice(originalPrc)}</span>
+                            )}
+                            <span className="text-gray-400 text-xs">per session</span>
+                          </div>
+                        ) : (
+                          <span className="text-sm text-gray-400 italic">Contact for pricing</span>
+                        )}
+                      </div>
+                    );
+                  }
                   if (key === 'calendar') return (
                     <MiniCalendar key="cal" availableDates={selectedSession.available_dates || []} selectedDate={selectedDate} onSelectDate={setSelectedDate} />
                   );
