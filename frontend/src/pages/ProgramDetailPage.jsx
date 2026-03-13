@@ -245,6 +245,13 @@ function ProgramDetailPage() {
   const heroAccent = template.accent_color || GOLD;
   const heroBg = template.hero_bg || '#1a1a1a';
 
+  // Global pricing style
+  const globalPricingStyle = {
+    fontFamily: settings?.pricing_font || 'Cinzel, Georgia, serif',
+    color: settings?.pricing_color || heroAccent,
+    fontWeight: parseInt(settings?.pricing_weight || '700'),
+  };
+
   return (
     <div className="min-h-screen">
       <Header />
@@ -293,7 +300,7 @@ function ProgramDetailPage() {
                             <span className="inline-block text-white text-[10px] py-2 px-6 tracking-[0.15em] uppercase" style={{ background: heroAccent }}>Contact Us</span></div>
                         ) : (
                           <div><div className="mb-3">
-                            {tierOffer > 0 ? (<><p className="text-base font-semibold" style={applyStyle(template.pricing_style, { ...HEADING, color: heroAccent, fontSize: '1rem' })}>{symbol} {tierOffer.toLocaleString()}</p><p className="text-[10px] text-gray-400 line-through">{symbol} {tierPrice.toLocaleString()}</p></>) : tierPrice > 0 ? (<p className="text-base font-semibold" style={applyStyle(template.pricing_style, { ...HEADING, fontSize: '1rem' })}>{symbol} {tierPrice.toLocaleString()}</p>) : (<p className="text-xs text-gray-400 italic">Contact for pricing</p>)}
+                            {tierOffer > 0 ? (<><p className="text-base font-semibold" style={{ ...globalPricingStyle, fontSize: '1rem' }}>{symbol} {tierOffer.toLocaleString()}</p><p className="text-[10px] text-gray-400 line-through">{symbol} {tierPrice.toLocaleString()}</p></>) : tierPrice > 0 ? (<p className="text-base font-semibold" style={{ ...globalPricingStyle, fontSize: '1rem' }}>{symbol} {tierPrice.toLocaleString()}</p>) : (<p className="text-xs text-gray-400 italic">Contact for pricing</p>)}
                           </div><span className="inline-block bg-gray-900 text-white text-[10px] py-2 px-6 tracking-[0.15em] uppercase transition-colors" style={{ ':hover': { background: heroAccent } }}>Select</span></div>
                         )}
                       </div>
@@ -310,7 +317,7 @@ function ProgramDetailPage() {
                   {(() => {
                     const basePrice = getPrice(program);
                     const offerP = getOfferPrice(program);
-                    const pricingStyle = applyStyle(template.pricing_style, { ...HEADING, color: heroAccent });
+                    const pricingStyle = { ...globalPricingStyle, color: heroAccent };
                     return offerP > 0 ? (
                       <div className="mb-4">
                         <p className="text-2xl font-semibold" style={pricingStyle}>{symbol} {offerP.toLocaleString()}</p>

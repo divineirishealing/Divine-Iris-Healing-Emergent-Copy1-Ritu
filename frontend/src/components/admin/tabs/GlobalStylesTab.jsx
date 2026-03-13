@@ -82,6 +82,38 @@ const GlobalStylesTab = ({ settings, onChange }) => {
         </div>
       </div>
 
+      {/* Pricing Font (Global) */}
+      <div className="bg-white rounded-lg p-5 shadow-sm border mb-5">
+        <p className="text-sm font-semibold text-gray-800 mb-1">Pricing Display</p>
+        <p className="text-xs text-gray-400 mb-4">Font and color for prices shown across all programs.</p>
+        <div className="grid md:grid-cols-3 gap-4">
+          <div>
+            <Label className="text-xs text-gray-500">Pricing Font</Label>
+            <select value={s.pricing_font || s.heading_font || 'Cinzel'} onChange={e => set('pricing_font', e.target.value)} className="w-full border rounded-md px-3 py-2 text-sm" style={{fontFamily: s.pricing_font || s.heading_font}}>
+              {FONT_OPTIONS.map(f => <option key={f} value={f} style={{fontFamily:f}}>{f}</option>)}
+            </select>
+            <p className="text-lg text-gray-700 mt-2" style={{fontFamily: s.pricing_font || s.heading_font, color: s.pricing_color || s.accent_color || '#D4AF37', fontWeight: s.pricing_weight || 700}}>AED 4,500</p>
+          </div>
+          <div>
+            <Label className="text-xs text-gray-500">Pricing Color</Label>
+            <div className="flex gap-2 items-center">
+              <input type="color" value={s.pricing_color || s.accent_color || '#D4AF37'} onChange={e => set('pricing_color', e.target.value)} className="w-10 h-10 rounded cursor-pointer border" />
+              <Input value={s.pricing_color || s.accent_color || '#D4AF37'} onChange={e => set('pricing_color', e.target.value)} className="flex-1 text-xs" />
+            </div>
+          </div>
+          <div>
+            <Label className="text-xs text-gray-500">Pricing Weight</Label>
+            <select value={s.pricing_weight || '700'} onChange={e => set('pricing_weight', e.target.value)} className="w-full border rounded-md px-3 py-2 text-sm">
+              <option value="400">Regular (400)</option>
+              <option value="500">Medium (500)</option>
+              <option value="600">Semi-Bold (600)</option>
+              <option value="700">Bold (700)</option>
+              <option value="800">Extra Bold (800)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
       {/* Global Sizes */}
       <div className="bg-white rounded-lg p-5 shadow-sm border mb-5">
         <p className="text-sm font-semibold text-gray-800 mb-1">Text Sizes</p>
