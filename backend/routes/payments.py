@@ -28,6 +28,16 @@ STRIPE_API_KEY = os.environ.get('STRIPE_API_KEY')
 
 logger = logging.getLogger(__name__)
 
+
+async def _get_stripe_key():
+    """Get Stripe key from key_manager (MongoDB) with .env fallback."""
+    try:
+        from key_manager import get_key
+        key = await get_key("stripe_api_key")
+        return key or STRIPE_API_KEY
+    except Exception:
+        return STRIPE_API_KEY
+
 CURRENCY_SYMBOLS = {
     'aed': 'AED ', 'usd': '$', 'inr': '₹', 'eur': '€', 'gbp': '£'
 }
@@ -169,7 +179,7 @@ async def create_sponsor_checkout(req: CreateSponsorCheckoutRequest, http_reques
 
     host_url = str(http_request.base_url).rstrip('/')
     webhook_url = f"{host_url}/api/webhook/stripe"
-    stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
+    stripe_checkout = StripeCheckout(api_key=await _get_stripe_key(), webhook_url=webhook_url)
 
     checkout_request = CheckoutSessionRequest(
         amount=float(req.amount),
@@ -253,7 +263,7 @@ async def create_checkout(req: CreateCheckoutRequest, http_request: Request):
     # Initialize Stripe checkout
     host_url = str(http_request.base_url).rstrip('/')
     webhook_url = f"{host_url}/api/webhook/stripe"
-    stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
+    stripe_checkout = StripeCheckout(api_key=await _get_stripe_key(), webhook_url=webhook_url)
 
     # Create checkout session
     checkout_request = CheckoutSessionRequest(
@@ -340,7 +350,7 @@ async def check_payment_status(session_id: str, http_request: Request, backgroun
     # Poll Stripe for status
     host_url = str(http_request.base_url).rstrip('/')
     webhook_url = f"{host_url}/api/webhook/stripe"
-    stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
+    stripe_checkout = StripeCheckout(api_key=await _get_stripe_key(), webhook_url=webhook_url)
 
     try:
         status: CheckoutStatusResponse = await stripe_checkout.get_checkout_status(session_id)

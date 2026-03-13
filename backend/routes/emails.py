@@ -11,16 +11,23 @@ load_dotenv(ROOT_DIR / '.env')
 
 logger = logging.getLogger(__name__)
 
-SMTP_HOST = os.environ.get('SMTP_HOST')
-SMTP_PORT = int(os.environ.get('SMTP_PORT', 587))
-SMTP_USER = os.environ.get('SMTP_USER')
-SMTP_PASS = os.environ.get('SMTP_PASS')
-SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'noreply@divineirishealing.com')
-RECEIPT_EMAIL = os.environ.get('RECEIPT_EMAIL', 'receipt@divineirishealing.com')
+
+async def _get_smtp_config():
+    """Get SMTP config from key_manager (MongoDB) with .env fallback."""
+    from key_manager import get_key
+    return {
+        "host": await get_key("smtp_host") or os.environ.get('SMTP_HOST', 'smtp.gmail.com'),
+        "port": int(await get_key("smtp_port") or os.environ.get('SMTP_PORT', 587)),
+        "user": await get_key("smtp_user") or os.environ.get('SMTP_USER', ''),
+        "password": await get_key("smtp_pass") or os.environ.get('SMTP_PASS', ''),
+        "sender": await get_key("sender_email") or os.environ.get('SENDER_EMAIL', 'noreply@divineirishealing.com'),
+        "receipt": await get_key("receipt_email") or os.environ.get('RECEIPT_EMAIL', 'receipt@divineirishealing.com'),
+    }
 
 
 async def send_email(to: str, subject: str, html: str, from_email: str = None):
-    sender = from_email or SENDER_EMAIL
+    cfg = await _get_smtp_config()
+    sender = from_email or cfg["sender"]
     msg = MIMEMultipart("alternative")
     msg["From"] = sender
     msg["To"] = to
@@ -30,11 +37,11 @@ async def send_email(to: str, subject: str, html: str, from_email: str = None):
     try:
         await aiosmtplib.send(
             msg,
-            hostname=SMTP_HOST,
-            port=SMTP_PORT,
+            hostname=cfg["host"],
+            port=cfg["port"],
             start_tls=True,
-            username=SMTP_USER,
-            password=SMTP_PASS,
+            username=cfg["user"],
+            password=cfg["password"],
         )
         logger.info(f"Email sent to {to} via SMTP")
         return {"id": "smtp_ok"}
@@ -70,7 +77,8 @@ async def send_otp_email(to: str, otp: str, name: str = ""):
     </body>
     </html>
     """
-    return await send_email(to, "Your Verification Code - Divine Iris Healing", html, from_email=SENDER_EMAIL)
+    cfg = await _get_smtp_config()
+    return await send_email(to, "Your Verification Code - Divine Iris Healing", html, from_email=cfg["sender"])
 
 
 def enrollment_confirmation_email(booker_name, item_title, participants, total, currency_symbol, attendance_modes, booker_email, phone, program_links=None):

@@ -451,7 +451,7 @@ async def enrollment_checkout(enrollment_id: str, data: EnrollmentSubmit, reques
         )
 
     # Create Stripe checkout via existing payments system
-    from routes.payments import STRIPE_API_KEY
+    from routes.payments import _get_stripe_key
     from emergentintegrations.payments.stripe.checkout import (
         StripeCheckout, CheckoutSessionRequest
     )
@@ -486,7 +486,7 @@ async def enrollment_checkout(enrollment_id: str, data: EnrollmentSubmit, reques
     cancel_url = f"{origin}/payment/cancel?item_type={data.item_type}&item_id={data.item_id}"
 
     stripe_checkout = StripeCheckout(
-        api_key=STRIPE_API_KEY,
+        api_key=await _get_stripe_key(),
         webhook_url=f"{host_url}/api/webhook/stripe"
     )
 
