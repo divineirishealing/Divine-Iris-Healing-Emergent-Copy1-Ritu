@@ -20,6 +20,12 @@ const DARK_PURPLE_GRADIENTS = {
   strong: 'linear-gradient(160deg, #1a0e2e 0%, #301660 20%, #4c1d95 40%, #5b21b6 55%, #7c3aed 75%, #5b21b6 100%)',
 };
 
+const LIGHT_PURPLE_GRADIENTS = {
+  light: 'linear-gradient(160deg, #faf8ff 0%, #f8f4ff 30%, #fdf8f3 60%, #fffcf7 100%)',
+  medium: 'linear-gradient(160deg, #f3edff 0%, #ece4ff 30%, #f5eef8 60%, #faf5f0 100%)',
+  strong: 'linear-gradient(160deg, #ede5ff 0%, #e0d0ff 30%, #efe6f8 60%, #f5efea 100%)',
+};
+
 const applyStyle = (styleObj, defaults = {}) => {
   if (!styleObj || Object.keys(styleObj).length === 0) return defaults;
   return { ...defaults, ...(styleObj.font_family && { fontFamily: styleObj.font_family }), ...(styleObj.font_size && { fontSize: styleObj.font_size }), ...(styleObj.font_color && { color: styleObj.font_color }), ...(styleObj.font_weight && { fontWeight: styleObj.font_weight }), ...(styleObj.font_style && { fontStyle: styleObj.font_style }) };
@@ -205,12 +211,13 @@ function SessionDetailPage() {
 
   const purpleIntensity = sessionTpl.page_purple || 'medium';
   const heroGradient = DARK_PURPLE_GRADIENTS[purpleIntensity] || DARK_PURPLE_GRADIENTS.medium;
+  const bodyGradient = LIGHT_PURPLE_GRADIENTS[purpleIntensity] || LIGHT_PURPLE_GRADIENTS.medium;
   const heroStarCount = purpleIntensity === 'strong' ? 100 : purpleIntensity === 'light' ? 50 : 80;
 
   return (
     <>
       <Header />
-      <div className="min-h-screen" style={{ background: '#ffffff' }}>
+      <div className="min-h-screen" style={{ background: bodyGradient }}>
         {/* Hero — Iris Purple Glossy with Golden Sprinkles */}
         <div className="relative pt-20 pb-20 overflow-hidden" data-testid="session-hero"
           style={{ background: heroGradient }}>
@@ -259,7 +266,6 @@ function SessionDetailPage() {
         </div>
 
         {/* Main Content */}
-        <div className="bg-white">
         <div className="container mx-auto px-6 md:px-8 lg:px-12 py-12">
           <div className="max-w-5xl mx-auto grid lg:grid-cols-5 gap-10">
             {/* Left — About + Testimonials */}
@@ -371,7 +377,6 @@ function SessionDetailPage() {
               </p>
             </div>
           </div>
-        </div>
         </div>
       </div>
       <Footer />

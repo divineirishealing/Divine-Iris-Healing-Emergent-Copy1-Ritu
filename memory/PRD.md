@@ -174,7 +174,8 @@ Build a pixel-perfect clone of https://divineirishealing.com/ with comprehensive
 - [x] Homepage sessions section: session titles use shared `session_template.title_style`
 - [x] Session detail page hero: gradient driven by `session_template.page_purple` setting
 - [x] Session detail page hero: star count dynamic (50/80/100 for light/medium/strong)
-- [x] Session detail page body: changed from dark theme to white background with dark text
+- [x] Session detail page body: changed from dark theme to soft purple gradient (matching homepage sessions section)
+- [x] Session detail page body: gradient intensity synced with admin `page_purple` setting
 - [x] Session detail page: info cards, testimonials, question form all use light purple theme
 - [x] Session detail page: booking sidebar retains dark purple gradient
 - [x] 15/15 frontend tests passing, 100% verification
