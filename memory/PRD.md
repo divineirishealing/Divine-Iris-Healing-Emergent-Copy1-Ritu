@@ -144,6 +144,17 @@ Build a pixel-perfect clone of https://divineirishealing.com/ with comprehensive
 - [x] Old per-program hero keys deprecated (no longer consumed by frontend)
 - [x] 9/9 backend tests passing, 100% frontend verification
 
+### Program Admin Restructure & Section Template (Feb 2026)
+- [x] Global Section Template: defines section structure (types, order) for ALL program pages — managed in Page Headers tab
+- [x] Default 4 sections auto-seeded: The Journey, Who It Is For?, Your Experience (Dark BG), Why You Need This Now?
+- [x] Admin Programs tab split into Part 1 (Homepage Card & General) and Part 2 (Page Content)
+- [x] Part 2: Template-driven section editor — only title/subtitle/body text fields per program
+- [x] Image upload shown ONLY for "experience" (dark BG) sections — hidden for all other section types
+- [x] Per-section font controls removed — all font styling handled by global program_template
+- [x] ProgramDetailPage: uses global section template for structure, per-program data for content
+- [x] Homepage: "Know More" button added to all flagship program cards (gold outline, below Enroll/Cart)
+- [x] 9/9 backend tests passing, 100% frontend verification
+
 ## Backlog
 ### P1
 - [ ] Global Site Search
