@@ -370,7 +370,7 @@ function SessionDetailPage() {
         </svg>
         <StarField count={15} color={calendarAccent} />
         <div className="relative z-10 p-5">
-          <p className="text-[10px] font-medium uppercase tracking-widest mb-4" style={{ color: calendarAccent }}>Book Your Session</p>
+          <p className="text-[10px] font-medium uppercase tracking-widest mb-4" style={applyStyle(sessionTpl.calendar_heading_style, { color: calendarAccent })}>Book Your Session</p>
           <BookingCalendar calendar={calendar} selectedDate={selectedDate} onSelectDate={setSelectedDate} />
           {timeSlots.length > 0 && (
             <div className="mt-4">
@@ -396,7 +396,8 @@ function SessionDetailPage() {
     ),
     question_form: (
       <div key="qform" className="rounded-2xl overflow-hidden p-5 border border-purple-100 bg-purple-50/30">
-        <p className="text-[10px] text-purple-700 font-medium uppercase tracking-widest mb-3">
+        <p className="text-[10px] text-purple-700 font-medium uppercase tracking-widest mb-3"
+          style={applyStyle(sessionTpl.question_heading_style, { color: '#6d28d9' })}>
           <MessageCircle size={12} className="inline mr-1" /> Ask a Question
         </p>
         <QuestionForm sessionId={id} sessionTpl={sessionTpl} whiteTheme />

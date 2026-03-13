@@ -390,6 +390,14 @@ const PageHeadersTab = ({ settings, programs = [], onChange }) => {
                     <Label className="text-[9px] text-gray-500 font-semibold block mb-1">Info Card Bullet Text</Label>
                     <StyleCell style={sessionTpl.info_card_text_style || {}} onStyleChange={v => updateSessionTpl('info_card_text_style', v)} />
                   </div>
+                  <div className="bg-gray-50 rounded-lg border border-gray-100 p-2.5">
+                    <Label className="text-[9px] text-gray-500 font-semibold block mb-1">"Ask a Question" Heading</Label>
+                    <StyleCell style={sessionTpl.question_heading_style || {}} onStyleChange={v => updateSessionTpl('question_heading_style', v)} />
+                  </div>
+                  <div className="bg-gray-50 rounded-lg border border-gray-100 p-2.5">
+                    <Label className="text-[9px] text-gray-500 font-semibold block mb-1">Question Form Labels</Label>
+                    <StyleCell style={sessionTpl.question_label_style || {}} onStyleChange={v => updateSessionTpl('question_label_style', v)} />
+                  </div>
                 </div>
 
                 {/* Editable Info Cards */}
@@ -458,6 +466,10 @@ const PageHeadersTab = ({ settings, programs = [], onChange }) => {
                   <div className="absolute top-2 right-3 text-[8px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Preview: Booking calendar on session pages</div>
                   <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-3">Calendar & Booking</p>
                   <div className="space-y-2">
+                    <div>
+                      <Label className="text-[9px] text-gray-500">"Book Your Session" Heading</Label>
+                      <StyleCell style={sessionTpl.calendar_heading_style || {}} onStyleChange={v => updateSessionTpl('calendar_heading_style', v)} />
+                    </div>
                     <div>
                       <Label className="text-[9px] text-gray-500">Calendar Accent Color</Label>
                       <div className="flex gap-2 items-center mt-1">
