@@ -30,7 +30,15 @@ Build a pixel-perfect clone of https://divineirishealing.com/ with comprehensive
 - [x] Verified end-to-end: enrollment start → send OTP → receive email → verify OTP
 - [x] All backend and frontend tests passing (14/14 backend, 100% frontend)
 
-### API Keys Admin Tab (Mar 13, 2026) - COMPLETED
+### Payment Settings & Anti-Fraud (Mar 13, 2026) - COMPLETED
+- [x] Phone cross-validation for Indian pricing (IP + country + phone must all match India)
+- [x] Foreigners in India with non-+91 phone get AED/USD, not INR
+- [x] Regional currency mapping: UAE/Gulf→AED, US/UK/EU/AU→USD, India→INR
+- [x] Auto country code population in enrollment form when country changes
+- [x] Payment disclaimer text on enrollment pages (configurable from admin)
+- [x] India-specific payment options (Exly, GPay, Bank Transfer) as admin-configurable redirect links
+- [x] New "Payments" admin tab for managing disclaimer and India payment links
+- [x] All tests passing (17/17 backend, 100% frontend - iteration 42)
 - [x] New "API Keys" tab in admin panel sidebar
 - [x] **Fully editable** — paste/edit keys directly in the admin panel
 - [x] Keys stored in MongoDB (api_keys collection), falls back to .env
