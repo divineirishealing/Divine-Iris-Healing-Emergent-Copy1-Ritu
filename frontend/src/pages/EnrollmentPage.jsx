@@ -181,10 +181,27 @@ function EnrollmentPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { getPrice, getOfferPrice, symbol, currency, country: detectedCountry } = useCurrency();
+  const { getPrice, getOfferPrice, symbol: detectedSymbol, currency: detectedCurrency, country: detectedCountry } = useCurrency();
 
   const tierParam = searchParams.get('tier');
   const selectedTier = tierParam !== null ? parseInt(tierParam) : null;
+
+  // Country → currency mapping for real-time pricing updates
+  const CURRENCY_MAP = {
+    AE: { currency: 'aed', symbol: 'AED' }, SA: { currency: 'aed', symbol: 'AED' },
+    QA: { currency: 'aed', symbol: 'AED' }, KW: { currency: 'aed', symbol: 'AED' },
+    OM: { currency: 'aed', symbol: 'AED' }, BH: { currency: 'aed', symbol: 'AED' },
+    IN: { currency: 'inr', symbol: 'INR' },
+    US: { currency: 'usd', symbol: 'USD' }, GB: { currency: 'usd', symbol: 'USD' },
+    AU: { currency: 'usd', symbol: 'USD' }, NZ: { currency: 'usd', symbol: 'USD' },
+    CA: { currency: 'usd', symbol: 'USD' }, SG: { currency: 'usd', symbol: 'USD' },
+    DE: { currency: 'usd', symbol: 'USD' }, FR: { currency: 'usd', symbol: 'USD' },
+  };
+
+  // Use bookerCountry to determine displayed currency (overrides IP detection)
+  const activeCurrencyInfo = CURRENCY_MAP[bookerCountry] || { currency: detectedCurrency, symbol: detectedSymbol };
+  const currency = activeCurrencyInfo.currency;
+  const symbol = activeCurrencyInfo.symbol;
 
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -225,11 +242,33 @@ function EnrollmentPage() {
   }, [detectedCountry]);
   useEffect(() => { const c = COUNTRIES.find(c => c.code === bookerCountry); if (c) setCountryCode(c.phone); }, [bookerCountry]);
 
+  // Local price getters that respect bookerCountry selection
+  const getLocalPrice = (item, tierIndex = null) => {
+    if (!item) return 0;
+    const tiers = item.duration_tiers || [];
+    const hasTiers = item.is_flagship && tiers.length > 0;
+    const tier = hasTiers && tierIndex !== null ? tiers[tierIndex] : null;
+    const key = `price_${currency}`;
+    if (tier) return tier[key] || 0;
+    return item[key] || 0;
+  };
+  const getLocalOfferPrice = (item, tierIndex = null) => {
+    if (!item) return 0;
+    const tiers = item.duration_tiers || [];
+    const hasTiers = item.is_flagship && tiers.length > 0;
+    const tier = hasTiers && tierIndex !== null ? tiers[tierIndex] : null;
+    if (tier) return tier[`offer_${currency}`] || 0;
+    if (currency === 'aed') return item.offer_price_aed || 0;
+    if (currency === 'inr') return item.offer_price_inr || 0;
+    if (currency === 'usd') return item.offer_price_usd || 0;
+    return 0;
+  };
+
   const tiers = item?.duration_tiers || [];
   const hasTiers = item?.is_flagship && tiers.length > 0 && selectedTier !== null;
   const tierObj = hasTiers ? tiers[selectedTier] : null;
-  const unitPrice = item ? getPrice(item, hasTiers ? selectedTier : null) : 0;
-  const offerUnitPrice = item ? getOfferPrice(item, hasTiers ? selectedTier : null) : 0;
+  const unitPrice = item ? getLocalPrice(item, hasTiers ? selectedTier : null) : 0;
+  const offerUnitPrice = item ? getLocalOfferPrice(item, hasTiers ? selectedTier : null) : 0;
   const effectiveUnitPrice = offerUnitPrice > 0 ? offerUnitPrice : unitPrice;
   const pCount = participants.length;
   const subtotalRaw = effectiveUnitPrice * pCount;
