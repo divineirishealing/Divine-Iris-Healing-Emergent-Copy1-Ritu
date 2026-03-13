@@ -322,11 +322,11 @@ async def get_enrollment_pricing(enrollment_id: str, item_type: str, item_id: st
     participant_count = enrollment.get("participant_count", 1)
 
     # ─── STRICT INDIA VALIDATION ───
+    # Phone check removed since we switched to email OTP verification
     checks = {
         "ip_is_india": ip_country == "IN",
         "claimed_india": claimed_country == "IN",
         "no_vpn": not vpn_blocked,
-        "phone_is_indian": phone.startswith("+91") if phone else False,
     }
     all_india_checks_pass = all(checks.values())
 
@@ -344,6 +344,8 @@ async def get_enrollment_pricing(enrollment_id: str, item_type: str, item_id: st
             reasons.append("VPN/Proxy detected")
         if not checks["ip_is_india"]:
             reasons.append(f"IP location is {ip_country}, not India")
+        if not checks["claimed_india"]:
+            reasons.append("Country not set to India")
         fraud_warning = f"Using {allowed_currency.upper()} pricing." if reasons else None
 
     # ─── GET PRICE FROM TIER OR ITEM ───
@@ -362,7 +364,7 @@ async def get_enrollment_pricing(enrollment_id: str, item_type: str, item_id: st
         price_aed = float(item.get("price_aed", 0))
         price_inr = float(item.get("price_inr", 0))
         price_usd = float(item.get("price_usd", 0))
-        offer_aed = 0.0
+        offer_aed = float(item.get("offer_price_aed", 0))
         offer_inr = float(item.get("offer_price_inr", 0))
         offer_usd = float(item.get("offer_price_usd", 0))
 
