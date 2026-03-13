@@ -303,6 +303,29 @@ function ProgramDetailPage() {
               </div>
             )}
 
+            {/* Regular pricing when no tiers */}
+            {(!program.duration_tiers || program.duration_tiers.length === 0) && program.enrollment_open !== false && (
+              <div className="mb-10" data-testid="regular-pricing">
+                <div className="max-w-xs mx-auto text-center">
+                  {(() => {
+                    const basePrice = getPrice(program);
+                    const offerP = getOfferPrice(program);
+                    return offerP > 0 ? (
+                      <div className="mb-4">
+                        <p className="text-2xl font-semibold" style={{ ...HEADING, color: heroAccent }}>{symbol} {offerP.toLocaleString()}</p>
+                        <p className="text-sm text-gray-400 line-through mt-1">{symbol} {basePrice.toLocaleString()}</p>
+                        {program.offer_text && <p className="text-xs mt-2 px-3 py-1 rounded-full inline-block" style={{ background: heroAccent + '15', color: heroAccent }}>{program.offer_text}</p>}
+                      </div>
+                    ) : basePrice > 0 ? (
+                      <div className="mb-4">
+                        <p className="text-2xl font-semibold" style={{ ...HEADING, color: heroAccent }}>{symbol} {basePrice.toLocaleString()}</p>
+                      </div>
+                    ) : null;
+                  })()}
+                </div>
+              </div>
+            )}
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               {program.enrollment_open !== false ? (
                 <button data-testid="enroll-btn" onClick={() => navigate(`/enroll/program/${program.id}`)}
