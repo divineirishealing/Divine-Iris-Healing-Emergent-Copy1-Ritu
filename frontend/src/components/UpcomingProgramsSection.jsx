@@ -211,9 +211,14 @@ const UpcomingCard = ({ program }) => {
                 <CountdownTimer deadline={deadline} />
               )}
             </div>
-            {/* Date & Local Time right — 3 rows: start date, end date, time */}
-            {(program.start_date || program.timing) && (
+            {/* Duration + Date & Local Time right */}
+            {(program.start_date || program.timing || autoDuration) && (
               <div data-testid={`card-image-datetime-${program.id}`} className="flex flex-col items-end gap-1">
+                {autoDuration && (
+                  <span className="bg-[#D4AF37]/90 backdrop-blur-sm text-white text-[11px] font-bold px-2.5 py-1 rounded flex items-center gap-1.5">
+                    {autoDuration}
+                  </span>
+                )}
                 {program.start_date && (
                   <span className="bg-black/50 backdrop-blur-sm text-white text-[11px] font-bold px-2.5 py-1 rounded flex items-center gap-1.5">
                     <Calendar size={11} className="flex-shrink-0" />
