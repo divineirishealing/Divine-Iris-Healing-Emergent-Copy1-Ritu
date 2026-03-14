@@ -223,9 +223,15 @@ async def create_sponsor_checkout(req: CreateSponsorCheckoutRequest, http_reques
     webhook_url = f"{host_url}/api/webhook/stripe"
     stripe_checkout = StripeCheckout(api_key=await _get_stripe_key(), webhook_url=webhook_url)
 
+    # Always charge in AED on Stripe (Dubai-based account)
+    # For donations, convert to AED using approximate rates
+    AED_RATES = {"aed": 1, "usd": 3.67, "inr": 0.044, "eur": 4.0, "gbp": 4.65}
+    stripe_amount = float(req.amount) * AED_RATES.get(currency, 1)
+    stripe_amount = round(stripe_amount, 2)
+
     checkout_request = CheckoutSessionRequest(
-        amount=float(req.amount),
-        currency=currency,
+        amount=stripe_amount,
+        currency="aed",
         success_url=success_url,
         cancel_url=cancel_url,
         metadata={
@@ -235,6 +241,7 @@ async def create_sponsor_checkout(req: CreateSponsorCheckoutRequest, http_reques
             "message": req.message,
             "anonymous": str(req.anonymous),
             "currency": currency,
+            "display_amount": str(req.amount),
         }
     )
 
@@ -307,10 +314,22 @@ async def create_checkout(req: CreateCheckoutRequest, http_request: Request):
     webhook_url = f"{host_url}/api/webhook/stripe"
     stripe_checkout = StripeCheckout(api_key=await _get_stripe_key(), webhook_url=webhook_url)
 
+    # Always charge in AED on Stripe (Dubai-based account)
+    if currency == "aed":
+        stripe_amount = float(amount)
+    else:
+        # Get AED price from the item
+        aed_amount = float(item.get("price_aed", 0))
+        if req.item_type == "program":
+            aed_offer = float(item.get("offer_price_aed", 0))
+            if aed_offer > 0:
+                aed_amount = aed_offer
+        stripe_amount = aed_amount if aed_amount > 0 else float(amount)
+
     # Create checkout session
     checkout_request = CheckoutSessionRequest(
-        amount=float(amount),
-        currency=currency,
+        amount=stripe_amount,
+        currency="aed",
         success_url=success_url,
         cancel_url=cancel_url,
         metadata={
@@ -318,6 +337,7 @@ async def create_checkout(req: CreateCheckoutRequest, http_request: Request):
             "item_id": req.item_id,
             "item_title": item.get("title", ""),
             "currency": currency,
+            "display_amount": str(amount),
         }
     )
 
@@ -332,6 +352,8 @@ async def create_checkout(req: CreateCheckoutRequest, http_request: Request):
         "item_title": item.get("title", ""),
         "amount": float(amount),
         "currency": currency,
+        "stripe_amount": stripe_amount,
+        "stripe_currency": "aed",
         "payment_status": "pending",
         "created_at": datetime.now(timezone.utc),
         "updated_at": datetime.now(timezone.utc),
@@ -422,8 +444,8 @@ async def check_payment_status(session_id: str, http_request: Request, backgroun
         return {
             "status": status.status,
             "payment_status": new_status,
-            "amount": status.amount_total / 100,  # Convert from cents
-            "currency": status.currency,
+            "amount": tx.get("amount", status.amount_total / 100),
+            "currency": tx.get("currency", status.currency),
             "item_title": tx.get("item_title", ""),
             "program_links": program_links,
             "participants": participants,

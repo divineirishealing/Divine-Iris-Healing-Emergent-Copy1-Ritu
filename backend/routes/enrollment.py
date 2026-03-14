@@ -606,9 +606,27 @@ async def enrollment_checkout(enrollment_id: str, data: EnrollmentSubmit, reques
         webhook_url=f"{host_url}/api/webhook/stripe"
     )
 
+    # Always charge in AED on Stripe (Dubai-based account) to avoid currency conversion popup
+    if currency == "aed":
+        stripe_amount = final_total
+    else:
+        # Get AED pricing for the same item to find the AED equivalent
+        aed_pricing = await get_enrollment_pricing(
+            enrollment_id, data.item_type, data.item_id,
+            tier_index=data.tier_index, client_currency="aed"
+        )
+        aed_total = aed_pricing["pricing"]["total"]
+        # Apply the same discount ratio as the display currency
+        if total > 0 and final_total < total:
+            discount_ratio = final_total / total
+            stripe_amount = round(aed_total * discount_ratio, 2)
+        else:
+            stripe_amount = aed_total
+    stripe_amount = max(stripe_amount, 0)
+
     checkout_request = CheckoutSessionRequest(
-        amount=float(final_total),
-        currency=currency,
+        amount=float(stripe_amount),
+        currency="aed",
         success_url=success_url,
         cancel_url=cancel_url,
         metadata={
@@ -621,6 +639,7 @@ async def enrollment_checkout(enrollment_id: str, data: EnrollmentSubmit, reques
             "name": enrollment.get("booker_name", "") or "",
             "participant_count": str(enrollment.get("participant_count", 1)),
             "currency": currency,
+            "display_amount": str(final_total),
             "booker_country": enrollment.get("booker_country", "") or "",
         }
     )
@@ -637,6 +656,8 @@ async def enrollment_checkout(enrollment_id: str, data: EnrollmentSubmit, reques
         "item_title": item.get("title", ""),
         "amount": float(final_total),
         "currency": currency,
+        "stripe_amount": float(stripe_amount),
+        "stripe_currency": "aed",
         "payment_status": "pending",
         "booker_name": enrollment.get("booker_name"),
         "booker_email": enrollment.get("booker_email"),
