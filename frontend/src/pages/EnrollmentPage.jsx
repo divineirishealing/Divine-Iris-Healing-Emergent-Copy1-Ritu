@@ -213,7 +213,7 @@ function EnrollmentPage() {
   const [emailVerified, setEmailVerified] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [discountSettings, setDiscountSettings] = useState({ enable_referral: true });
-  const [paymentSettings, setPaymentSettings] = useState({ disclaimer: '', india_links: [] });
+  const [paymentSettings, setPaymentSettings] = useState({ disclaimer: '', india_links: [], india_exly_link: '', india_bank_details: {} });
 
   // Country → currency mapping for real-time pricing updates
   const CURRENCY_MAP = {
@@ -240,6 +240,8 @@ function EnrollmentPage() {
         disclaimer: s.payment_disclaimer || '',
         india_links: (s.india_payment_links || []).filter(l => l.enabled),
         india_alt_discount: s.india_alt_discount_percent || 9,
+        india_exly_link: s.india_exly_link || '',
+        india_bank_details: s.india_bank_details || {},
       });
     }).catch(() => {});
   }, [id, type, navigate]);
@@ -611,8 +613,8 @@ function EnrollmentPage() {
                       {phone && <p><strong>Phone:</strong> {countryCode}{phone}</p>}
                     </div>
 
-                    {/* India payment options */}
-                    {bookerCountry === 'IN' && (
+                    {/* India payment options — only show if Exly or Bank is configured */}
+                    {bookerCountry === 'IN' && (paymentSettings.india_exly_link || paymentSettings.india_bank_details?.account_number) && (
                       <div className="mb-4" data-testid="india-payment-options">
                         {/* Stripe card option first with guidance */}
                         <div className="border-2 border-[#D4AF37] rounded-lg p-4 mb-3 bg-[#D4AF37]/5">
