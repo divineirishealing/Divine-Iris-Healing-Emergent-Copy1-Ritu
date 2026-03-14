@@ -22,6 +22,18 @@ Build a pixel-perfect clone of https://divineirishealing.com/ with comprehensive
 
 ## Implemented Features
 
+### Programs Hub Restructure + 3-State Enrollment + Flagship Cards (Mar 14, 2026) - COMPLETED
+- [x] Programs Hub restructured into 3 sections: Upcoming Programs, Flagship Programs, Group Programs
+- [x] 3-state enrollment: Open / Closed / Coming Soon (replaces boolean enrollment_open)
+- [x] "Coming Soon" state shows badge + "Notify Me" email form on both Upcoming and Flagship cards
+- [x] Flagship cards: Always show Online/Offline badges + Know More; tier selector (1M/3M/Annual) + pricing + Enroll Now when enrollment is open
+- [x] Flagship expandable tier rows in admin hub with per-tier start/end date inputs
+- [x] "Show"/"Upcoming" toggles on each flagship program in admin hub
+- [x] Backend: enrollment_status field, is_group_program field, /api/notify-me endpoint
+- [x] Pricing Hub: Group Programs section added, empty sessions filtered from Personal Sessions
+- [x] Programs section filters out both is_upcoming and is_group_program
+- [x] All tests passing: 100% backend (15/15), 100% frontend (iteration 52)
+
 ### P0 Enrollment Toggle Verification & Bug Fix (Mar 14, 2026) - COMPLETED
 - [x] Verified: Upcoming card enrollment ON shows all details (dates, countdown, pricing, tier selector, badges)
 - [x] Verified: Upcoming card enrollment OFF shows only closure badge + title + Know More + disabled button
