@@ -448,3 +448,4 @@ const UpcomingProgramsSection = ({ sectionConfig, inline }) => {
 };
 
 export default UpcomingProgramsSection;
+export { UpcomingCard };
