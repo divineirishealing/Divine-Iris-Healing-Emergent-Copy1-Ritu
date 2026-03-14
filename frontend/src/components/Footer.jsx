@@ -43,22 +43,9 @@ const socialIcons = {
 const FONT_LATO = { fontFamily: "'Lato', sans-serif" };
 
 const ContactFormDialog = ({ open, onClose, programs, sessions }) => {
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '', inquiry_type: '', inquiry_detail: '', message: '' });
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', program_interest: '', session_interest: '', message: '' });
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-
-  const inquiryOptions = [
-    { value: '', label: 'Select inquiry type' },
-    { value: 'program', label: 'About a Program' },
-    { value: 'session', label: 'About a Personal Session' },
-    { value: 'other', label: 'Other' },
-  ];
-
-  const detailOptions = formData.inquiry_type === 'program'
-    ? programs.map(p => ({ value: p.title, label: p.title }))
-    : formData.inquiry_type === 'session'
-      ? sessions.map(s => ({ value: s.title, label: s.title }))
-      : [];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -67,8 +54,8 @@ const ContactFormDialog = ({ open, onClose, programs, sessions }) => {
     try {
       await axios.post(`${API}/enrollment/quote-request`, {
         name: formData.name, email: formData.email, phone: formData.phone,
-        program_title: formData.inquiry_detail || formData.inquiry_type,
-        message: `[${formData.inquiry_type || 'General'}${formData.inquiry_detail ? ` - ${formData.inquiry_detail}` : ''}] ${formData.message}`,
+        program_title: formData.program_interest,
+        message: `${formData.program_interest ? `[Program: ${formData.program_interest}] ` : ''}${formData.session_interest ? `[Session: ${formData.session_interest}] ` : ''}${formData.message}`,
       });
       setSubmitted(true);
     } catch {
@@ -76,79 +63,63 @@ const ContactFormDialog = ({ open, onClose, programs, sessions }) => {
     } finally { setSubmitting(false); }
   };
 
-  const handleClose = () => { setSubmitted(false); setFormData({ name: '', email: '', phone: '', inquiry_type: '', inquiry_detail: '', message: '' }); onClose(); };
+  const handleClose = () => { setSubmitted(false); setFormData({ name: '', email: '', phone: '', program_interest: '', session_interest: '', message: '' }); onClose(); };
+
+  const INPUT_CLS = "w-full border border-gray-300 bg-white px-4 py-2.5 text-sm placeholder:text-gray-400 placeholder:uppercase placeholder:tracking-wider placeholder:text-[10px] focus:outline-none focus:border-[#D4AF37] transition-colors";
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-lg p-0 overflow-hidden bg-white" data-testid="footer-contact-dialog">
         <div className="p-8">
-          <DialogTitle className="text-center mb-1" style={{ fontFamily: "'Cinzel', serif", fontWeight: 700, fontSize: '1.4rem', color: '#1a1a1a' }}>Express Your Interest</DialogTitle>
-          <p className="text-center text-gray-500 text-sm mb-6" style={FONT_LATO}>Ready to begin your healing journey? Let us know how we can help.</p>
+          <DialogTitle className="text-center mb-1" style={{ fontFamily: "'Cinzel', serif", fontWeight: 700, fontSize: '1.3rem', color: '#1a1a1a', fontVariant: 'small-caps' }}>Send us a Message</DialogTitle>
+          <div className="w-8 h-0.5 mx-auto mt-2 mb-6" style={{ background: GOLD }} />
 
           {submitted ? (
             <div className="text-center py-8" data-testid="contact-form-success">
-              <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
-                <Send size={20} className="text-green-600" />
+              <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style={{ border: `2px solid ${GOLD}` }}>
+                <Send size={18} style={{ color: GOLD }} />
               </div>
-              <p className="text-lg font-medium text-gray-900 mb-2" style={FONT_LATO}>Thank you!</p>
-              <p className="text-sm text-gray-500" style={FONT_LATO}>We'll get back to you within 24 hours.</p>
+              <p className="text-base font-medium text-gray-900 mb-2" style={FONT_LATO}>Thank You</p>
+              <p className="text-sm text-gray-500" style={FONT_LATO}>Your message has been received. We will respond within 7-10 days.</p>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1.5 tracking-wide" style={FONT_LATO}>Full Name *</label>
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
                 <input data-testid="footer-contact-name" type="text" required value={formData.name}
                   onChange={e => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Enter your full name"
-                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors" style={FONT_LATO} />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1.5 tracking-wide" style={FONT_LATO}>Email Address *</label>
+                  placeholder="YOUR NAME *" className={INPUT_CLS} style={FONT_LATO} />
                 <input data-testid="footer-contact-email" type="email" required value={formData.email}
                   onChange={e => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="Enter your email"
-                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors" style={FONT_LATO} />
+                  placeholder="EMAIL ADDRESS *" className={INPUT_CLS} style={FONT_LATO} />
               </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1.5 tracking-wide" style={FONT_LATO}>Phone Number</label>
-                <input data-testid="footer-contact-phone" type="tel" value={formData.phone}
-                  onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="Enter your phone number"
-                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors" style={FONT_LATO} />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1.5 tracking-wide" style={FONT_LATO}>Inquiry About</label>
-                <select data-testid="footer-contact-inquiry-type" value={formData.inquiry_type}
-                  onChange={e => setFormData({ ...formData, inquiry_type: e.target.value, inquiry_detail: '' })}
-                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors bg-white" style={FONT_LATO}>
-                  {inquiryOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+              <input data-testid="footer-contact-phone" type="tel" value={formData.phone}
+                onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                placeholder="PHONE NUMBER (OPTIONAL)" className={INPUT_CLS} style={FONT_LATO} />
+              <div className="grid grid-cols-2 gap-3">
+                <select data-testid="footer-contact-program" value={formData.program_interest}
+                  onChange={e => setFormData({ ...formData, program_interest: e.target.value })}
+                  className={`${INPUT_CLS} bg-white`} style={FONT_LATO}>
+                  <option value="">PROGRAM? (OPTIONAL)</option>
+                  {programs.map(p => <option key={p.id} value={p.title}>{p.title}</option>)}
+                </select>
+                <select data-testid="footer-contact-session" value={formData.session_interest}
+                  onChange={e => setFormData({ ...formData, session_interest: e.target.value })}
+                  className={`${INPUT_CLS} bg-white`} style={FONT_LATO}>
+                  <option value="">SESSION? (OPTIONAL)</option>
+                  {sessions.map(s => <option key={s.id} value={s.title}>{s.title}</option>)}
                 </select>
               </div>
-              {(formData.inquiry_type === 'program' || formData.inquiry_type === 'session') && detailOptions.length > 0 && (
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1.5 tracking-wide" style={FONT_LATO}>
-                    {formData.inquiry_type === 'program' ? 'Select Program' : 'Select Session'}
-                  </label>
-                  <select data-testid="footer-contact-inquiry-detail" value={formData.inquiry_detail}
-                    onChange={e => setFormData({ ...formData, inquiry_detail: e.target.value })}
-                    className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors bg-white" style={FONT_LATO}>
-                    <option value="">Select...</option>
-                    {detailOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                  </select>
-                </div>
-              )}
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1.5 tracking-wide" style={FONT_LATO}>Message *</label>
-                <textarea data-testid="footer-contact-message" required value={formData.message}
-                  onChange={e => setFormData({ ...formData, message: e.target.value })}
-                  placeholder="Tell us about what you're looking for..."
-                  rows={4} className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors resize-y" style={FONT_LATO} />
+              <textarea data-testid="footer-contact-message" required value={formData.message}
+                onChange={e => setFormData({ ...formData, message: e.target.value })}
+                placeholder="HOW CAN WE ASSIST YOU?" rows={3}
+                className={`${INPUT_CLS} resize-y`} style={FONT_LATO} />
+              <div className="text-center pt-1">
+                <button data-testid="footer-contact-submit" type="submit" disabled={submitting}
+                  className="px-10 py-3 text-xs font-semibold tracking-[0.15em] uppercase text-white transition-all duration-300 disabled:opacity-50"
+                  style={{ background: '#1a1a1a', ...FONT_LATO }}>
+                  {submitting ? <Loader2 className="animate-spin mx-auto" size={18} /> : 'Send Message'}
+                </button>
               </div>
-              <button data-testid="footer-contact-submit" type="submit" disabled={submitting}
-                className="w-full py-3 text-xs font-semibold tracking-[0.15em] uppercase text-white transition-all duration-300 rounded-lg disabled:opacity-50"
-                style={{ background: submitting ? '#999' : GOLD, ...FONT_LATO }}>
-                {submitting ? <Loader2 className="animate-spin mx-auto" size={18} /> : 'Submit Inquiry'}
-              </button>
             </form>
           )}
         </div>

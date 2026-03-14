@@ -1,41 +1,74 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Textarea } from '../components/ui/textarea';
 import { useToast } from '../hooks/use-toast';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import FloatingButtons from '../components/FloatingButtons';
-import { Loader2, Send } from 'lucide-react';
-import { HEADING, SUBTITLE, BODY, GOLD, LABEL, CONTAINER } from '../lib/designTokens';
+import { Mail, Phone, Share2, Loader2 } from 'lucide-react';
+import { useCurrency } from '../context/CurrencyContext';
+import { HEADING, LABEL, GOLD, CONTAINER } from '../lib/designTokens';
+import { Facebook, Instagram, Youtube, Linkedin } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
+
+const COUNTRIES = [
+  { code: "IN", name: "India", phone: "+91" }, { code: "AE", name: "UAE", phone: "+971" },
+  { code: "US", name: "United States", phone: "+1" }, { code: "GB", name: "United Kingdom", phone: "+44" },
+  { code: "CA", name: "Canada", phone: "+1" }, { code: "AU", name: "Australia", phone: "+61" },
+  { code: "SG", name: "Singapore", phone: "+65" }, { code: "DE", name: "Germany", phone: "+49" },
+  { code: "FR", name: "France", phone: "+33" }, { code: "SA", name: "Saudi Arabia", phone: "+966" },
+  { code: "QA", name: "Qatar", phone: "+974" }, { code: "PK", name: "Pakistan", phone: "+92" },
+  { code: "BD", name: "Bangladesh", phone: "+880" }, { code: "LK", name: "Sri Lanka", phone: "+94" },
+  { code: "MY", name: "Malaysia", phone: "+60" }, { code: "JP", name: "Japan", phone: "+81" },
+  { code: "ZA", name: "South Africa", phone: "+27" }, { code: "NP", name: "Nepal", phone: "+977" },
+  { code: "KW", name: "Kuwait", phone: "+965" }, { code: "OM", name: "Oman", phone: "+968" },
+  { code: "BH", name: "Bahrain", phone: "+973" }, { code: "PH", name: "Philippines", phone: "+63" },
+  { code: "ID", name: "Indonesia", phone: "+62" }, { code: "TH", name: "Thailand", phone: "+66" },
+  { code: "KE", name: "Kenya", phone: "+254" }, { code: "NG", name: "Nigeria", phone: "+234" },
+  { code: "EG", name: "Egypt", phone: "+20" }, { code: "TR", name: "Turkey", phone: "+90" },
+  { code: "IT", name: "Italy", phone: "+39" }, { code: "ES", name: "Spain", phone: "+34" },
+  { code: "NL", name: "Netherlands", phone: "+31" }, { code: "NZ", name: "New Zealand", phone: "+64" },
+].sort((a, b) => a.name.localeCompare(b.name));
 
 const applyStyle = (styleObj, defaults = {}) => {
   if (!styleObj || Object.keys(styleObj).length === 0) return defaults;
   return { ...defaults, ...(styleObj.font_family && { fontFamily: styleObj.font_family }), ...(styleObj.font_size && { fontSize: styleObj.font_size }), ...(styleObj.font_color && { color: styleObj.font_color }), ...(styleObj.font_weight && { fontWeight: styleObj.font_weight }), ...(styleObj.font_style && { fontStyle: styleObj.font_style }) };
 };
 
+const FONT_LATO = { fontFamily: "'Lato', sans-serif" };
+const INPUT_CLASS = "w-full border border-gray-300 bg-white px-4 py-3 text-sm placeholder:text-gray-400 placeholder:uppercase placeholder:tracking-wider placeholder:text-xs focus:outline-none focus:border-[#D4AF37] transition-colors";
+
+const InfoCard = ({ icon: Icon, title, children }) => (
+  <div data-testid={`contact-card-${title.toLowerCase().replace(/\s/g, '-')}`}
+    className="bg-white flex flex-col items-center justify-center py-10 px-6 border-t-2"
+    style={{ borderTopColor: GOLD }}>
+    <Icon size={28} strokeWidth={1.5} style={{ color: GOLD }} className="mb-4" />
+    <h3 className="text-sm font-bold tracking-[0.15em] uppercase mb-3" style={{ ...FONT_LATO, color: '#1a1a1a' }}>{title}</h3>
+    {children}
+  </div>
+);
+
 function ContactPage() {
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
+  const { country: detectedCountry } = useCurrency();
   const [settings, setSettings] = useState(null);
   const [programs, setPrograms] = useState([]);
   const [sessions, setSessions] = useState([]);
 
-  const programId = searchParams.get('program') || '';
   const programTitle = searchParams.get('title') || '';
   const tierLabel = searchParams.get('tier') || '';
-  const isQuote = !!programId;
 
+  const [phoneCode, setPhoneCode] = useState('+971');
+  const [waCode, setWaCode] = useState('+971');
   const [formData, setFormData] = useState({
-    name: '', email: '', phone: '', inquiry_type: '', inquiry_detail: '', message: ''
+    name: '', email: '', phone: '', whatsapp: '',
+    program_interest: '', session_interest: '', message: ''
   });
   const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
     axios.get(`${API}/settings`).then(r => setSettings(r.data)).catch(() => {});
@@ -44,141 +77,197 @@ function ContactPage() {
   }, []);
 
   useEffect(() => {
-    if (isQuote && programTitle) {
+    if (detectedCountry) {
+      const c = COUNTRIES.find(c => c.code === detectedCountry);
+      if (c) { setPhoneCode(c.phone); setWaCode(c.phone); }
+    }
+  }, [detectedCountry]);
+
+  useEffect(() => {
+    if (programTitle) {
       setFormData(prev => ({
-        ...prev,
-        inquiry_type: 'program',
-        inquiry_detail: programTitle,
+        ...prev, program_interest: programTitle,
         message: `I am interested in the ${tierLabel || 'Annual'} plan for ${programTitle}. Please share the pricing details.`
       }));
     }
-  }, [isQuote, programTitle, tierLabel]);
+  }, [programTitle, tierLabel]);
 
-  const inquiryOptions = [
-    { value: '', label: 'Select inquiry type' },
-    { value: 'program', label: 'About a Program' },
-    { value: 'session', label: 'About a Personal Session' },
-    { value: 'other', label: 'Other' },
-  ];
+  const s = settings || {};
+  const hero = s.page_heroes?.contact || {};
 
-  const detailOptions = formData.inquiry_type === 'program'
-    ? programs.map(p => ({ value: p.title, label: p.title }))
-    : formData.inquiry_type === 'session'
-      ? sessions.map(s => ({ value: s.title, label: s.title }))
-      : [];
+  const socialLinks = [
+    { key: 'facebook', url: s.social_facebook, show: s.show_facebook !== false, Icon: Facebook },
+    { key: 'instagram', url: s.social_instagram, show: s.show_instagram !== false, Icon: Instagram },
+    { key: 'youtube', url: s.social_youtube, show: s.show_youtube !== false, Icon: Youtube },
+    { key: 'linkedin', url: s.social_linkedin, show: s.show_linkedin !== false, Icon: Linkedin },
+  ].filter(l => l.show && l.url);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name.trim() || !formData.email.trim()) {
       return toast({ title: 'Please fill required fields', variant: 'destructive' });
     }
+    if (!formData.phone.trim()) {
+      return toast({ title: 'Phone number is required', variant: 'destructive' });
+    }
     setSubmitting(true);
     try {
       await axios.post(`${API}/enrollment/quote-request`, {
-        name: formData.name, email: formData.email, phone: formData.phone,
-        program_id: programId, program_title: formData.inquiry_detail || programTitle,
+        name: formData.name, email: formData.email,
+        phone: `${phoneCode}${formData.phone}`,
+        program_title: formData.program_interest || programTitle,
         tier_label: tierLabel,
-        message: `[${formData.inquiry_type || 'General'}${formData.inquiry_detail ? ` - ${formData.inquiry_detail}` : ''}] ${formData.message}`,
+        message: `${formData.program_interest ? `[Program: ${formData.program_interest}] ` : ''}${formData.session_interest ? `[Session: ${formData.session_interest}] ` : ''}${formData.whatsapp ? `[WhatsApp: ${waCode}${formData.whatsapp}] ` : ''}${formData.message}`,
       });
-      toast({ title: "Request submitted!", description: "We'll get back to you within 24 hours." });
-      setFormData({ name: '', email: '', phone: '', inquiry_type: '', inquiry_detail: '', message: '' });
+      setSubmitted(true);
     } catch {
-      toast({ title: "Submitted!", description: "We'll get back to you soon." });
-      setFormData({ name: '', email: '', phone: '', inquiry_type: '', inquiry_detail: '', message: '' });
+      setSubmitted(true);
     } finally { setSubmitting(false); }
   };
-
-  const hero = settings?.page_heroes?.contact || {};
 
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-white">
-        {/* Hero - matching program page style */}
-        <section className="min-h-[50vh] flex flex-col items-center justify-center text-center px-6 pt-20"
+      <div className="min-h-screen" style={{ background: '#f8f5f0' }}>
+        {/* Hero */}
+        <section data-testid="contact-hero" className="min-h-[50vh] flex flex-col items-center justify-center text-center px-6 pt-20"
           style={{ background: 'linear-gradient(180deg, #1a1a1a 0%, #1a1a1add 50%, #1a1a1a 100%)' }}>
-          <h1 data-testid="contact-hero-title" className="mb-4 max-w-4xl" style={applyStyle(hero.title_style, { ...HEADING, color: GOLD, fontSize: 'clamp(1.8rem, 4vw, 3rem)', fontVariant: 'small-caps', letterSpacing: '0.05em', lineHeight: 1.3 })}>
-            {hero.title_text || (isQuote ? 'Request a Quote' : 'Express Your Interest')}
+          <h1 data-testid="contact-hero-title" className="text-white mb-4 max-w-4xl" style={applyStyle(hero.title_style, { ...HEADING, color: '#fff', fontSize: 'clamp(1.8rem, 4vw, 3rem)', fontVariant: 'small-caps', letterSpacing: '0.05em', lineHeight: 1.3 })}>
+            {hero.title_text || 'Get in Touch'}
           </h1>
-          <p className="mb-6" style={applyStyle(hero.subtitle_style, { ...LABEL, color: '#fff' })}>
-            {hero.subtitle_text || (isQuote
-              ? `Get custom pricing for ${programTitle || 'this program'}`
-              : 'Ready to begin your healing journey? Let us know how we can help.')}
+          <p className="mb-6" style={applyStyle(hero.subtitle_style, { ...LABEL, color: GOLD })}>
+            {hero.subtitle_text || "Ready to begin your healing journey? Let us know how we can help."}
           </p>
           <div className="w-14 h-0.5" style={{ background: GOLD }} />
         </section>
 
-        <div className={`${CONTAINER} py-12`}>
-          <div className="max-w-3xl mx-auto">
-            {isQuote && programTitle && (
-              <div className="bg-[#D4AF37]/5 border border-[#D4AF37]/20 rounded-xl p-4 mb-6 text-center">
-                <p className="text-sm text-gray-700"><strong>Program:</strong> {programTitle}</p>
-                {tierLabel && <p className="text-xs text-[#D4AF37] mt-1">Duration: {tierLabel}</p>}
+        {/* Three Info Blocks */}
+        <div className={`${CONTAINER} -mt-8 relative z-10 mb-16`}>
+          <div className="grid md:grid-cols-3 gap-0 max-w-3xl mx-auto shadow-lg" data-testid="contact-info-blocks">
+            <InfoCard icon={Mail} title="Email Us">
+              <a href={`mailto:${s.footer_email || 'support@divineirishealing.com'}`}
+                className="text-sm text-gray-600 hover:text-[#D4AF37] transition-colors" style={FONT_LATO}>
+                {s.footer_email || 'support@divineirishealing.com'}
+              </a>
+            </InfoCard>
+            <InfoCard icon={Phone} title="WhatsApp">
+              <a href={`https://wa.me/${(s.footer_phone || '+971553325778').replace(/[^0-9]/g, '')}`}
+                target="_blank" rel="noopener noreferrer"
+                className="text-sm text-gray-600 hover:text-[#D4AF37] transition-colors" style={FONT_LATO}>
+                {s.footer_phone || '+971553325778'}
+              </a>
+            </InfoCard>
+            <InfoCard icon={Share2} title="Follow Us">
+              <div className="flex gap-3">
+                {socialLinks.map(({ key, url, Icon }) => (
+                  <a key={key} href={url} target="_blank" rel="noopener noreferrer"
+                    data-testid={`contact-social-${key}`}
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-white transition-opacity hover:opacity-80"
+                    style={{ background: GOLD }}>
+                    <Icon size={14} />
+                  </a>
+                ))}
               </div>
-            )}
+            </InfoCard>
+          </div>
+        </div>
 
-            <div className="bg-white rounded-lg shadow-xl p-8 md:p-12">
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
-                  <Input data-testid="contact-name" type="text" required value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder="Enter your full name" className="w-full" />
+        {/* Form Section */}
+        <div className={`${CONTAINER} pb-16`}>
+          <div className="max-w-3xl mx-auto bg-white rounded-sm shadow-lg p-10 md:p-14" data-testid="contact-form-card">
+            {submitted ? (
+              <div className="text-center py-12" data-testid="contact-form-success">
+                <div className="w-14 h-14 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-5" style={{ border: `2px solid ${GOLD}` }}>
+                  <Mail size={22} style={{ color: GOLD }} />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Email Address *</label>
-                  <Input data-testid="contact-email" type="email" required value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })} placeholder="Enter your email" className="w-full" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-                  <Input data-testid="contact-phone" type="tel" value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })} placeholder="Enter your phone number" className="w-full" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Inquiry About</label>
-                  <select data-testid="contact-inquiry-type" value={formData.inquiry_type}
-                    onChange={e => setFormData({ ...formData, inquiry_type: e.target.value, inquiry_detail: '' })}
-                    className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors bg-white">
-                    {inquiryOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                  </select>
-                </div>
-                {(formData.inquiry_type === 'program' || formData.inquiry_type === 'session') && detailOptions.length > 0 && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {formData.inquiry_type === 'program' ? 'Select Program' : 'Select Session'}
-                    </label>
-                    <select data-testid="contact-inquiry-detail" value={formData.inquiry_detail}
-                      onChange={e => setFormData({ ...formData, inquiry_detail: e.target.value })}
-                      className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors bg-white">
-                      <option value="">Select...</option>
-                      {detailOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                <h2 className="mb-3" style={{ ...HEADING, fontSize: '1.6rem', fontVariant: 'small-caps', color: '#1a1a1a' }}>Thank You</h2>
+                <div className="w-10 h-0.5 mx-auto mb-5" style={{ background: GOLD }} />
+                <p className="text-sm text-gray-600 leading-relaxed" style={FONT_LATO}>
+                  Your message has been received. We will respond within 7–10 days.
+                </p>
+                <button data-testid="contact-send-another" onClick={() => { setSubmitted(false); setFormData({ name: '', email: '', phone: '', whatsapp: '', program_interest: '', session_interest: '', message: '' }); }}
+                  className="mt-8 px-8 py-3 text-xs font-semibold tracking-[0.15em] uppercase text-white transition-all duration-300"
+                  style={{ background: '#1a1a1a', ...FONT_LATO }}>
+                  Send Another Message
+                </button>
+              </div>
+            ) : (
+              <>
+                <h2 className="text-center mb-2" style={{ ...HEADING, fontSize: '1.6rem', fontVariant: 'small-caps', color: '#1a1a1a' }}>
+                  Send us a Message
+                </h2>
+                <div className="w-10 h-0.5 mx-auto mb-10" style={{ background: GOLD }} />
+
+                <form onSubmit={handleSubmit} className="space-y-5" data-testid="contact-form">
+                  {/* Row 1: Name + Email */}
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <input data-testid="contact-name" type="text" required value={formData.name}
+                      onChange={e => setFormData({ ...formData, name: e.target.value })}
+                      placeholder="YOUR NAME *" className={INPUT_CLASS} style={FONT_LATO} />
+                    <input data-testid="contact-email" type="email" required value={formData.email}
+                      onChange={e => setFormData({ ...formData, email: e.target.value })}
+                      placeholder="EMAIL ADDRESS *" className={INPUT_CLASS} style={FONT_LATO} />
+                  </div>
+
+                  {/* Row 2: Phone (mandatory) + WhatsApp (optional) */}
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="flex">
+                      <select data-testid="contact-phone-code" value={phoneCode}
+                        onChange={e => setPhoneCode(e.target.value)}
+                        className="border border-gray-300 border-r-0 bg-gray-50 px-2 py-3 text-xs focus:outline-none focus:border-[#D4AF37] transition-colors min-w-[80px]"
+                        style={FONT_LATO}>
+                        {COUNTRIES.map(c => <option key={c.code} value={c.phone}>{c.phone} {c.code}</option>)}
+                      </select>
+                      <input data-testid="contact-phone" type="tel" required value={formData.phone}
+                        onChange={e => setFormData({ ...formData, phone: e.target.value.replace(/[^0-9]/g, '') })}
+                        placeholder="PHONE NUMBER *" className={`${INPUT_CLASS} flex-1`} style={FONT_LATO} />
+                    </div>
+                    <div className="flex">
+                      <select data-testid="contact-wa-code" value={waCode}
+                        onChange={e => setWaCode(e.target.value)}
+                        className="border border-gray-300 border-r-0 bg-gray-50 px-2 py-3 text-xs focus:outline-none focus:border-[#D4AF37] transition-colors min-w-[80px]"
+                        style={FONT_LATO}>
+                        {COUNTRIES.map(c => <option key={c.code} value={c.phone}>{c.phone} {c.code}</option>)}
+                      </select>
+                      <input data-testid="contact-whatsapp" type="tel" value={formData.whatsapp}
+                        onChange={e => setFormData({ ...formData, whatsapp: e.target.value.replace(/[^0-9]/g, '') })}
+                        placeholder="WHATSAPP (OPTIONAL)" className={`${INPUT_CLASS} flex-1`} style={FONT_LATO} />
+                    </div>
+                  </div>
+
+                  {/* Row 3: Program + Session dropdowns */}
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <select data-testid="contact-program-interest" value={formData.program_interest}
+                      onChange={e => setFormData({ ...formData, program_interest: e.target.value })}
+                      className={`${INPUT_CLASS} bg-white`} style={FONT_LATO}>
+                      <option value="">INTERESTED IN PROGRAM? (OPTIONAL)</option>
+                      {programs.map(p => <option key={p.id} value={p.title}>{p.title}</option>)}
+                    </select>
+                    <select data-testid="contact-session-interest" value={formData.session_interest}
+                      onChange={e => setFormData({ ...formData, session_interest: e.target.value })}
+                      className={`${INPUT_CLASS} bg-white`} style={FONT_LATO}>
+                      <option value="">INTERESTED IN SESSION? (OPTIONAL)</option>
+                      {sessions.map(s => <option key={s.id} value={s.title}>{s.title}</option>)}
                     </select>
                   </div>
-                )}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Message *</label>
-                  <Textarea data-testid="contact-message" required value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    placeholder="Tell us about what you're looking for..." rows={5} className="w-full" />
-                </div>
-                <div className="flex gap-4">
-                  <Button data-testid="contact-submit" type="submit" disabled={submitting}
-                    className="flex-1 bg-[#D4AF37] hover:bg-[#b8962e] text-white py-6">
-                    {submitting ? <Loader2 className="animate-spin" size={18} /> : <><Send size={16} className="mr-2" /> {isQuote ? 'Request Quote' : 'Submit Inquiry'}</>}
-                  </Button>
-                  <Button type="button" variant="outline" onClick={() => navigate(-1)} className="px-8">Back</Button>
-                </div>
-              </form>
 
-              <div className="mt-8 pt-8 border-t border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Other Ways to Reach Us</h3>
-                <div className="space-y-3 text-gray-600">
-                  <p><strong>Email:</strong> <a href="mailto:support@divineirishealing.com" className="text-[#D4AF37] hover:underline">support@divineirishealing.com</a></p>
-                  <p><strong>Phone:</strong> <a href="tel:+971553325778" className="text-[#D4AF37] hover:underline">+971 55 332 5778</a></p>
-                  <p><strong>WhatsApp:</strong> <a href="https://wa.me/971553325778" target="_blank" rel="noopener noreferrer" className="text-[#D4AF37] hover:underline">Chat with us</a></p>
-                </div>
-              </div>
-            </div>
+                  {/* Message */}
+                  <textarea data-testid="contact-message" value={formData.message}
+                    onChange={e => setFormData({ ...formData, message: e.target.value })}
+                    placeholder="HOW CAN WE ASSIST YOU?" rows={5}
+                    className={`${INPUT_CLASS} resize-y`} style={FONT_LATO} />
+
+                  {/* Submit */}
+                  <div className="text-center pt-2">
+                    <button data-testid="contact-submit" type="submit" disabled={submitting}
+                      className="px-14 py-3.5 text-xs font-semibold tracking-[0.15em] uppercase text-white transition-all duration-300 hover:opacity-90 disabled:opacity-50"
+                      style={{ background: '#1a1a1a', ...FONT_LATO }}>
+                      {submitting ? <Loader2 className="animate-spin mx-auto" size={18} /> : 'Send Message'}
+                    </button>
+                  </div>
+                </form>
+              </>
+            )}
           </div>
         </div>
       </div>
