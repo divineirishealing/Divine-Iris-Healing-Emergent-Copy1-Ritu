@@ -313,7 +313,7 @@ function ProgramDetailPage() {
               </div>
             )}
 
-            {program.duration_tiers?.length > 0 && (
+            {program.show_tiers_on_card !== false && program.duration_tiers?.length > 0 && (
               <div data-testid="duration-tiers" className="max-w-3xl mx-auto mb-10">
                 <div className={`grid gap-4 ${program.duration_tiers.length === 3 ? 'sm:grid-cols-3' : program.duration_tiers.length === 2 ? 'sm:grid-cols-2' : 'max-w-xs mx-auto'}`}>
                   {program.duration_tiers.map((tier, tIdx) => {
@@ -327,13 +327,17 @@ function ProgramDetailPage() {
                         style={{ '--hover-accent': heroAccent }}
                         onClick={() => showContact ? navigate(`/contact?program=${program.id}&title=${encodeURIComponent(program.title)}&tier=${tier.label}`) : navigate(`/enroll/program/${program.id}?tier=${tIdx}`)}>
                         <p className="text-sm font-medium text-gray-900 transition-colors mb-2" style={{ fontFamily: "'Lato', sans-serif" }}>{tier.label}</p>
-                        {showContact ? (
-                          <div><p className="text-gray-400 text-[10px] mb-3">Custom pricing</p>
-                            <span className="inline-block text-white text-[10px] py-2 px-6 tracking-[0.15em] uppercase" style={{ background: heroAccent }}>Contact Us</span></div>
+                        {program.show_pricing_on_card !== false ? (
+                          showContact ? (
+                            <div><p className="text-gray-400 text-[10px] mb-3">Custom pricing</p>
+                              <span className="inline-block text-white text-[10px] py-2 px-6 tracking-[0.15em] uppercase" style={{ background: heroAccent }}>Contact Us</span></div>
+                          ) : (
+                            <div><div className="mb-3">
+                              {tierOffer > 0 ? (<><p className="text-base font-semibold" style={{ ...globalPricingStyle, fontSize: '1rem' }}>{symbol} {tierOffer.toLocaleString()}</p><p className="text-[10px] text-gray-400 line-through">{symbol} {tierPrice.toLocaleString()}</p></>) : tierPrice > 0 ? (<p className="text-base font-semibold" style={{ ...globalPricingStyle, fontSize: '1rem' }}>{symbol} {tierPrice.toLocaleString()}</p>) : (<p className="text-xs text-gray-400 italic">Contact for pricing</p>)}
+                            </div><span className="inline-block bg-gray-900 text-white text-[10px] py-2 px-6 tracking-[0.15em] uppercase transition-colors">Enroll</span></div>
+                          )
                         ) : (
-                          <div><div className="mb-3">
-                            {tierOffer > 0 ? (<><p className="text-base font-semibold" style={{ ...globalPricingStyle, fontSize: '1rem' }}>{symbol} {tierOffer.toLocaleString()}</p><p className="text-[10px] text-gray-400 line-through">{symbol} {tierPrice.toLocaleString()}</p></>) : tierPrice > 0 ? (<p className="text-base font-semibold" style={{ ...globalPricingStyle, fontSize: '1rem' }}>{symbol} {tierPrice.toLocaleString()}</p>) : (<p className="text-xs text-gray-400 italic">Contact for pricing</p>)}
-                          </div><span className="inline-block bg-gray-900 text-white text-[10px] py-2 px-6 tracking-[0.15em] uppercase transition-colors" style={{ ':hover': { background: heroAccent } }}>Select</span></div>
+                          <span className="inline-block text-white text-[10px] py-2 px-6 tracking-[0.15em] uppercase" style={{ background: heroAccent }}>Express Your Interest</span>
                         )}
                       </div>
                     );
@@ -343,7 +347,7 @@ function ProgramDetailPage() {
             )}
 
             {/* Regular pricing when no tiers */}
-            {(!program.duration_tiers || program.duration_tiers.length === 0) && program.enrollment_open !== false && (
+            {program.show_pricing_on_card !== false && (!program.duration_tiers || program.duration_tiers.length === 0) && program.enrollment_open !== false && (
               <div className="mb-10" data-testid="regular-pricing">
                 <div className="max-w-xs mx-auto text-center">
                   {(() => {
@@ -367,7 +371,7 @@ function ProgramDetailPage() {
             )}
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              {program.enrollment_open !== false ? (
+              {program.show_pricing_on_card !== false && program.enrollment_open !== false ? (
                 <button data-testid="enroll-btn" onClick={() => navigate(`/enroll/program/${program.id}`)}
                   className="text-white px-10 py-3 text-xs tracking-[0.2em] uppercase transition-colors hover:opacity-90" style={{ background: heroAccent }}>Enroll Now</button>
               ) : (

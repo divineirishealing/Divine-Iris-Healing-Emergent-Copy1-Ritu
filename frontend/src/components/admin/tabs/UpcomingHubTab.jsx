@@ -15,7 +15,6 @@ const STATUS_OPTIONS = [
 ];
 
 const CLOSURE_OPTIONS = ['Registration Closed', 'Seats Full', 'Enrollment Closed', 'Sold Out'];
-
 const TZ_OPTIONS = ['', 'IST', 'GST Dubai', 'EST', 'PST', 'CST', 'MST', 'GMT', 'UTC', 'BST', 'CET', 'AEST', 'SGT', 'JST'];
 
 const ProgramRow = ({ p, update, updateTier }) => {
@@ -51,11 +50,6 @@ const ProgramRow = ({ p, update, updateTier }) => {
           <Switch checked={p.is_flagship || false} onCheckedChange={v => update('is_flagship', v)} data-testid={`hub-flagship-toggle-${p.id}`} />
         </td>
 
-        {/* Group toggle */}
-        <td className="px-2 py-2 text-center">
-          <Switch checked={p.is_group_program || false} onCheckedChange={v => update('is_group_program', v)} data-testid={`hub-group-toggle-${p.id}`} />
-        </td>
-
         {/* Status */}
         <td className="px-1 py-2">
           <select value={status}
@@ -66,7 +60,7 @@ const ProgramRow = ({ p, update, updateTier }) => {
           </select>
         </td>
 
-        {/* Closure text — only when closed */}
+        {/* Closure text */}
         <td className="px-1 py-2">
           {status === 'closed' ? (
             <select value={p.closure_text || 'Registration Closed'} onChange={e => update('closure_text', e.target.value)}
@@ -74,6 +68,16 @@ const ProgramRow = ({ p, update, updateTier }) => {
               {CLOSURE_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
             </select>
           ) : <span className="text-xs text-gray-300 px-2">—</span>}
+        </td>
+
+        {/* Show Pricing */}
+        <td className="px-2 py-2 text-center">
+          <Switch checked={p.show_pricing_on_card !== false} onCheckedChange={v => update('show_pricing_on_card', v)} />
+        </td>
+
+        {/* Show Tiers */}
+        <td className="px-2 py-2 text-center">
+          <Switch checked={p.show_tiers_on_card !== false} onCheckedChange={v => update('show_tiers_on_card', v)} />
         </td>
 
         {/* Start Date */}
@@ -123,7 +127,7 @@ const ProgramRow = ({ p, update, updateTier }) => {
           <td className="px-3 py-1.5 sticky left-0 bg-amber-50/40 z-10 border-r">
             <div className="ml-8 text-[11px] font-semibold text-[#D4AF37]">{t.label || `Tier ${ti + 1}`}</div>
           </td>
-          <td colSpan={5}></td>
+          <td colSpan={6}></td>
           <td className="px-1 py-1"><Input type="date" value={t.start_date || ''} onChange={e => updateTier(ti, 'start_date', e.target.value)} className="h-7 text-[10px] px-1" /></td>
           <td className="px-1 py-1"><Input type="date" value={t.end_date || ''} onChange={e => updateTier(ti, 'end_date', e.target.value)} className="h-7 text-[10px] px-1" /></td>
           <td colSpan={7}></td>
@@ -168,6 +172,15 @@ const UpcomingHubTab = () => {
     setSaving(false);
   };
 
+  // Sort: non-tiered first, then tiered
+  const sorted = [...programs].sort((a, b) => {
+    const aTiers = (a.duration_tiers || []).length;
+    const bTiers = (b.duration_tiers || []).length;
+    if (aTiers === 0 && bTiers > 0) return -1;
+    if (aTiers > 0 && bTiers === 0) return 1;
+    return 0;
+  });
+
   return (
     <div data-testid="upcoming-hub-tab">
       <div className="flex items-center justify-between mb-6">
@@ -176,7 +189,7 @@ const UpcomingHubTab = () => {
             <Calendar size={18} className="text-[#D4AF37]" /> Programs Hub
           </h2>
           <p className="text-xs text-gray-500 mt-1">
-            Toggle where each program appears. Set enrollment status, schedule, and card settings.
+            Toggle where each program appears. Pricing & Tiers toggles control visibility on homepage AND program page.
           </p>
         </div>
         <Button onClick={saveAll} disabled={saving} className="bg-[#D4AF37] hover:bg-[#b8962e]" data-testid="hub-save-btn">
@@ -191,9 +204,10 @@ const UpcomingHubTab = () => {
               <th className="text-left px-3 py-3 font-bold text-gray-700 min-w-[200px] sticky left-0 bg-gray-100 z-10 border-r">Program</th>
               <th className="px-2 py-3 font-bold text-blue-600 w-16">Upcoming</th>
               <th className="px-2 py-3 font-bold text-[#D4AF37] w-16">Flagship</th>
-              <th className="px-2 py-3 font-bold text-emerald-600 w-16">Group</th>
               <th className="px-1 py-3 font-bold text-gray-600 min-w-[100px]">Status</th>
               <th className="px-1 py-3 font-bold text-red-500 min-w-[110px]">Closure</th>
+              <th className="px-2 py-3 font-bold text-purple-600 w-16">Pricing</th>
+              <th className="px-2 py-3 font-bold text-purple-600 w-14">Tiers</th>
               <th className="px-1 py-3 font-bold text-gray-600 min-w-[120px]">Start</th>
               <th className="px-1 py-3 font-bold text-gray-600 min-w-[120px]">End</th>
               <th className="px-1 py-3 font-bold text-gray-600 min-w-[120px]">Deadline</th>
@@ -207,12 +221,15 @@ const UpcomingHubTab = () => {
             </tr>
           </thead>
           <tbody>
-            {programs.map((p, i) => (
-              <ProgramRow key={p.id} p={p}
-                update={(field, val) => updateField(i, field, val)}
-                updateTier={(tierIdx, field, val) => updateTierField(i, tierIdx, field, val)}
-              />
-            ))}
+            {sorted.map(p => {
+              const origIdx = programs.findIndex(x => x.id === p.id);
+              return (
+                <ProgramRow key={p.id} p={p}
+                  update={(field, val) => updateField(origIdx, field, val)}
+                  updateTier={(tierIdx, field, val) => updateTierField(origIdx, tierIdx, field, val)}
+                />
+              );
+            })}
           </tbody>
         </table>
       </div>

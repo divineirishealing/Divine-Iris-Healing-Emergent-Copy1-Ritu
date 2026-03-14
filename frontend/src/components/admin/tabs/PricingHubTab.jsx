@@ -102,7 +102,7 @@ const PricingHubTab = () => {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2"><DollarSign size={18} className="text-[#D4AF37]" /> Pricing Hub</h2>
-          <p className="text-xs text-gray-500 mt-1">Edit all prices, offers, and durations. Create programs in the Programs tab.</p>
+          <p className="text-xs text-gray-500 mt-1">Edit all prices, offers, and durations. Prices shown here apply to both homepage cards and program detail pages.</p>
         </div>
         <Button onClick={saveAll} disabled={saving} className="bg-[#D4AF37] hover:bg-[#b8962e]" data-testid="pricing-hub-save">
           <Save size={14} className="mr-1" />{saving ? 'Saving...' : 'Save All'}
