@@ -185,6 +185,11 @@ const UpcomingCard = ({ program }) => {
   // Convert timing to viewer's local time
   const timingConverted = convertTimingToLocal(program.timing, program.time_zone);
 
+  // Use tier-specific dates if available, otherwise fall back to program dates
+  const activeTier = hasTiers ? tiers[selectedTier] : null;
+  const displayStartDate = (activeTier?.start_date) || program.start_date;
+  const displayEndDate = (activeTier?.end_date) || program.end_date;
+
   return (
     <div data-testid={`upcoming-card-${program.id}`}
       className={`group bg-white rounded-xl overflow-hidden shadow-lg transition-all duration-300 border border-gray-100 flex flex-col ${program.enrollment_open === false ? 'opacity-75' : 'hover:shadow-2xl'}`}>
@@ -198,19 +203,19 @@ const UpcomingCard = ({ program }) => {
           {program.enable_offline !== false && <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-sm bg-teal-600 text-white w-fit">Offline (Remote, Not In-Person)</span>}
           {program.enable_in_person && <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-sm bg-teal-600 text-white w-fit">Offline (Remote, Not In-Person)</span>}
         </div>
-        {/* Top-right: Dates, Times, then Duration in gold */}
-        {(program.start_date || program.timing || autoDuration) && (
+        {/* Top-right: Dates (tier-aware), Times, then Duration in gold */}
+        {(displayStartDate || program.timing || autoDuration) && (
           <div data-testid={`card-image-datetime-${program.id}`} className="absolute top-3 right-3 flex flex-col items-end gap-1">
-            {program.start_date && (
+            {displayStartDate && (
               <span className="bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1">
                 <Calendar size={10} className="flex-shrink-0" />
-                Starts: {fmtDate(program.start_date)}
+                Starts: {fmtDate(displayStartDate)}
               </span>
             )}
-            {program.end_date && (
+            {displayEndDate && (
               <span className="bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1">
                 <Calendar size={10} className="flex-shrink-0" />
-                Ends: {fmtDate(program.end_date)}
+                Ends: {fmtDate(displayEndDate)}
               </span>
             )}
             {program.timing && (

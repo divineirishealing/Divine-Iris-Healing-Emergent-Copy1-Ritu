@@ -37,6 +37,8 @@ class DurationTier(BaseModel):
     offer_price_inr: float = 0.0
     offer_price_usd: float = 0.0
     offer_text: str = ""
+    start_date: str = ""
+    end_date: str = ""
 
 
 class Program(BaseModel):

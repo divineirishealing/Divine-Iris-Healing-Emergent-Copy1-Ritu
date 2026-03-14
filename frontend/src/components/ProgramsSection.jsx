@@ -168,6 +168,9 @@ const ProgramCard = ({ program }) => {
 
   const timingConverted = convertTimingToLocal(program.timing, program.time_zone);
 
+  // For non-upcoming programs: clean card, no dates/times/countdown
+  const isUpcoming = program.is_upcoming;
+
   return (
     <div data-testid={`program-card-${program.id}`}
       className={`group bg-white rounded-xl overflow-hidden shadow-lg transition-all duration-300 border border-gray-100 flex flex-col ${program.enrollment_open === false ? 'opacity-60' : 'hover:shadow-2xl'}`}>
@@ -187,40 +190,6 @@ const ProgramCard = ({ program }) => {
             <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-sm bg-teal-600 text-white w-fit">Offline (Remote, Not In-Person)</span>
           )}
         </div>
-        {/* Top-right: Dates, Times, then Duration in gold */}
-        {(program.start_date || program.timing || autoDuration) && (
-          <div data-testid={`card-image-datetime-${program.id}`} className="absolute top-3 right-3 flex flex-col items-end gap-1">
-            {program.start_date && (
-              <span className="bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1">
-                <Calendar size={10} className="flex-shrink-0" />
-                Starts: {fmtDate(program.start_date)}
-              </span>
-            )}
-            {program.end_date && (
-              <span className="bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1">
-                <Calendar size={10} className="flex-shrink-0" />
-                Ends: {fmtDate(program.end_date)}
-              </span>
-            )}
-            {program.timing && (
-              <span className="bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1">
-                <Clock size={10} className="flex-shrink-0" />
-                {program.timing} {timingConverted.srcTz}
-              </span>
-            )}
-            {timingConverted.local && (
-              <span className="bg-blue-600/80 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1">
-                <Clock size={10} className="flex-shrink-0" />
-                {timingConverted.local} {timingConverted.localTz}
-              </span>
-            )}
-            {autoDuration && (
-              <span className="bg-[#D4AF37] backdrop-blur-sm text-white text-[11px] font-bold px-2.5 py-1 rounded shadow-sm">
-                {autoDuration}
-              </span>
-            )}
-          </div>
-        )}
         {/* Big closure badge when enrollment is OFF */}
         {program.enrollment_open === false && (
           <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
@@ -229,21 +198,6 @@ const ProgramCard = ({ program }) => {
             </span>
           </div>
         )}
-        {/* Bottom overlay: countdown left, exclusive offer right */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent p-2.5 pt-6">
-          <div className="flex items-end justify-between gap-2">
-            <div className="flex-shrink-0">
-              {program.enrollment_open !== false && deadline && (
-                <CountdownTimer deadline={deadline} />
-              )}
-            </div>
-            {program.exclusive_offer_enabled && program.exclusive_offer_text && program.enrollment_open !== false && (
-              <span data-testid={`exclusive-offer-${program.id}`} className="bg-red-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-lg tracking-wide uppercase animate-pulse">
-                {program.exclusive_offer_text}
-              </span>
-            )}
-          </div>
-        </div>
       </div>
 
       <div className="p-4 flex-1 flex flex-col">
@@ -252,110 +206,13 @@ const ProgramCard = ({ program }) => {
           onClick={() => navigate(`/program/${program.id}`)}>{program.title}</h3>
         <p className="text-gray-500 text-xs leading-relaxed mb-3 line-clamp-2 flex-1" style={{ ...BODY, fontSize: '0.8rem' }}>{program.description}</p>
 
-        {hasTiers && program.show_tiers_on_card !== false && (
-          <div data-testid={`tier-selector-${program.id}`} className="flex gap-1 mb-3">
-            {tiers.map((t, i) => (
-              <button key={i} data-testid={`tier-btn-${program.id}-${i}`}
-                onClick={() => setSelectedTier(i)}
-                className={`flex-1 text-[10px] py-1.5 rounded-full border transition-all ${
-                  selectedTier === i ? 'bg-[#D4AF37] text-white border-[#D4AF37]' : 'bg-white text-gray-500 border-gray-200 hover:border-[#D4AF37]'
-                }`}>
-                {t.label}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Early Bird Countdown */}
-        {program.enrollment_open !== false && offerPrice > 0 && deadline && (() => {
-          const now = new Date();
-          const dl = new Date(deadline);
-          if (dl <= now) return null;
-          const diff = dl - now;
-          const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-          const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-          const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-          return (
-            <div data-testid={`early-bird-countdown-${program.id}`}
-              className="flex items-center gap-2 bg-red-50 border border-red-100 rounded-lg px-3 py-2 mb-3 animate-pulse">
-              <Bell size={14} className="text-red-500 flex-shrink-0" />
-              <div className="text-xs">
-                <span className="font-bold text-red-600">{program.offer_text || 'Early Bird'}</span>
-                <span className="text-red-500 ml-1.5">ends in {days}d {hours}h {mins}m</span>
-              </div>
-            </div>
-          );
-        })()}
-
-        {/* Pricing */}
-        {program.show_pricing_on_card !== false && (
-        <div className="border-t pt-3 mt-auto">
-          {showContact ? (
-            <div className="text-center mb-2">
-              <p className="text-gray-500 text-[10px] mb-1.5">Custom pricing</p>
-              <button onClick={() => navigate(`/contact?program=${program.id}&title=${encodeURIComponent(program.title)}&tier=Annual`)} data-testid={`contact-btn-${program.id}`}
-                className="w-full bg-gray-900 hover:bg-gray-800 text-white py-2 rounded-full text-[10px] tracking-wider transition-colors uppercase font-medium">
-                Contact for Pricing
-              </button>
-            </div>
-          ) : (
-            <>
-              <div className="flex items-baseline gap-2 mb-2">
-                {offerPrice > 0 ? (
-                  <>
-                    <span className="text-xl font-bold text-[#D4AF37]">{symbol} {offerPrice.toLocaleString()}</span>
-                    <span className="text-xs text-gray-400 line-through">{symbol} {price.toLocaleString()}</span>
-                  </>
-                ) : price > 0 ? (
-                  <span className="text-xl font-bold text-gray-900">{symbol} {price.toLocaleString()}</span>
-                ) : (
-                  <span className="text-xl font-bold text-green-600">FREE</span>
-                )}
-              </div>
-              <div className="flex gap-1.5">
-                <button onClick={() => navigate(`/program/${program.id}`)}
-                  data-testid={`know-more-btn-${program.id}`}
-                  className="flex-1 bg-[#1a1a1a] hover:bg-[#333] text-white py-2 rounded-full text-[10px] tracking-wider transition-all duration-300 uppercase font-medium">
-                  Know More
-                </button>
-                {program.enrollment_open !== false ? (
-                  <>
-                    {price > 0 && (
-                      <button onClick={handleAddToCart} data-testid={`add-to-cart-${program.id}`}
-                        disabled={inCart || justAdded}
-                        className={`flex items-center justify-center px-2.5 py-2 rounded-full text-[10px] transition-all font-medium border ${
-                          inCart || justAdded ? 'bg-green-50 text-green-600 border-green-200' : 'bg-white text-gray-700 border-gray-200 hover:border-[#D4AF37] hover:text-[#D4AF37]'
-                        }`}>
-                        {inCart || justAdded ? <Check size={11} /> : <ShoppingCart size={11} />}
-                      </button>
-                    )}
-                    <button onClick={() => navigate(`/enroll/program/${program.id}?tier=${selectedTier}`)}
-                      data-testid={`enroll-btn-${program.id}`}
-                      className="flex-1 bg-[#D4AF37] hover:bg-[#b8962e] text-white py-2 rounded-full text-[10px] tracking-wider transition-all duration-300 uppercase font-medium">
-                      {price > 0 ? 'Enroll Now' : 'Register Free'}
-                    </button>
-                  </>
-                ) : null}
-              </div>
-            </>
-          )}
+        <div className="border-t pt-3 mt-auto flex gap-1.5">
+          <button onClick={() => navigate(`/program/${program.id}`)}
+            data-testid={`know-more-btn-${program.id}`}
+            className="flex-1 bg-[#1a1a1a] hover:bg-[#333] text-white py-2.5 rounded-full text-[10px] tracking-wider transition-all duration-300 uppercase font-medium">
+            Know More
+          </button>
         </div>
-        )}
-        {/* If pricing hidden, still show action buttons */}
-        {program.show_pricing_on_card === false && (
-          <div className="border-t pt-3 mt-auto flex gap-1.5">
-            <button onClick={() => navigate(`/program/${program.id}`)} data-testid={`know-more-btn-${program.id}`}
-              className="flex-1 bg-[#1a1a1a] hover:bg-[#333] text-white py-2 rounded-full text-[10px] tracking-wider transition-all duration-300 uppercase font-medium">
-              Know More
-            </button>
-            {program.enrollment_open !== false && (
-              <button onClick={() => navigate(`/enroll/program/${program.id}?tier=${selectedTier}`)} data-testid={`enroll-btn-${program.id}`}
-                className="flex-1 bg-[#D4AF37] hover:bg-[#b8962e] text-white py-2 rounded-full text-[10px] tracking-wider transition-all duration-300 uppercase font-medium">
-                Enroll Now
-              </button>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );

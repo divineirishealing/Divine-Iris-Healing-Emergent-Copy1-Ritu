@@ -8,7 +8,6 @@ import { Save, DollarSign, Tag, Plus, Trash2, ChevronDown, ChevronUp } from 'luc
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
-// Full duration presets: 1-30 days, 1-4 weeks, 1-12 months, annual
 const DURATION_PRESETS = [
   ...Array.from({ length: 30 }, (_, i) => `${i + 1} Day${i > 0 ? 's' : ''}`),
   '1 Week', '2 Weeks', '3 Weeks', '4 Weeks',
@@ -23,10 +22,6 @@ const PricingHubTab = () => {
   const [sessions, setSessions] = useState([]);
   const [saving, setSaving] = useState(false);
   const [expandedPrograms, setExpandedPrograms] = useState({});
-  const [newProgramName, setNewProgramName] = useState('');
-  const [newSessionName, setNewSessionName] = useState('');
-  const [showAddProgram, setShowAddProgram] = useState(false);
-  const [showAddSession, setShowAddSession] = useState(false);
 
   const fetchData = useCallback(async () => {
     const [pRes, sRes] = await Promise.all([
@@ -60,7 +55,7 @@ const PricingHubTab = () => {
     setPrograms(prev => {
       const c = [...prev];
       const tiers = [...(c[pIdx].duration_tiers || [])];
-      tiers.push({ label: '1 Month', duration_value: 1, duration_unit: 'month', price_aed: 0, price_inr: 0, price_usd: 0, offer_price_aed: 0, offer_price_inr: 0, offer_price_usd: 0, offer_text: '' });
+      tiers.push({ label: '1 Month', duration_value: 1, duration_unit: 'month', price_aed: 0, price_inr: 0, price_usd: 0, offer_price_aed: 0, offer_price_inr: 0, offer_price_usd: 0, offer_text: '', start_date: '', end_date: '' });
       c[pIdx] = { ...c[pIdx], duration_tiers: tiers };
       setExpandedPrograms(e => ({ ...e, [c[pIdx].id]: true }));
       return c;
@@ -79,28 +74,6 @@ const PricingHubTab = () => {
 
   const updateSession = (idx, field, value) => {
     setSessions(prev => { const c = [...prev]; c[idx] = { ...c[idx], [field]: value }; return c; });
-  };
-
-  const addProgram = async () => {
-    if (!newProgramName.trim()) { toast({ title: 'Enter a program name', variant: 'destructive' }); return; }
-    try {
-      const res = await axios.post(`${API}/programs`, { title: newProgramName.trim(), category: 'General', description: '', image: '', visible: false });
-      setPrograms(prev => [...prev, res.data]);
-      setNewProgramName('');
-      setShowAddProgram(false);
-      toast({ title: `"${newProgramName.trim()}" created!` });
-    } catch (e) { toast({ title: 'Error', description: e.message, variant: 'destructive' }); }
-  };
-
-  const addSession = async () => {
-    if (!newSessionName.trim()) { toast({ title: 'Enter a session name', variant: 'destructive' }); return; }
-    try {
-      const res = await axios.post(`${API}/sessions`, { title: newSessionName.trim(), description: '', visible: false });
-      setSessions(prev => [...prev, res.data]);
-      setNewSessionName('');
-      setShowAddSession(false);
-      toast({ title: `"${newSessionName.trim()}" created!` });
-    } catch (e) { toast({ title: 'Error', description: e.message, variant: 'destructive' }); }
   };
 
   const saveAll = async () => {
@@ -127,30 +100,16 @@ const PricingHubTab = () => {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2"><DollarSign size={18} className="text-[#D4AF37]" /> Pricing Hub</h2>
-          <p className="text-xs text-gray-500 mt-1">Edit all prices, offers, and durations in one place.</p>
+          <p className="text-xs text-gray-500 mt-1">Edit all prices, offers, and durations. Create programs in the Programs tab.</p>
         </div>
         <Button onClick={saveAll} disabled={saving} className="bg-[#D4AF37] hover:bg-[#b8962e]" data-testid="pricing-hub-save">
           <Save size={14} className="mr-1" />{saving ? 'Saving...' : 'Save All'}
         </Button>
       </div>
 
-      {/* ===== PROGRAMS ===== */}
+      {/* ===== ALL PROGRAMS ===== */}
       <div className="mb-8">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-1.5"><Tag size={14} /> Programs</h3>
-          <div className="flex items-center gap-2">
-            {showAddProgram ? (
-              <div className="flex items-center gap-1">
-                <Input value={newProgramName} onChange={e => setNewProgramName(e.target.value)} placeholder="Program name..." className="h-7 text-xs w-48"
-                  onKeyDown={e => e.key === 'Enter' && addProgram()} data-testid="new-program-name-input" autoFocus />
-                <Button size="sm" onClick={addProgram} className="h-7 text-xs bg-[#D4AF37] hover:bg-[#b8962e]" data-testid="confirm-add-program">Add</Button>
-                <Button size="sm" variant="ghost" onClick={() => { setShowAddProgram(false); setNewProgramName(''); }} className="h-7 text-xs">Cancel</Button>
-              </div>
-            ) : (
-              <Button size="sm" variant="outline" onClick={() => setShowAddProgram(true)} className="text-xs h-7" data-testid="add-program-btn"><Plus size={12} className="mr-1" /> Add Program</Button>
-            )}
-          </div>
-        </div>
+        <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-1.5"><Tag size={14} /> Programs</h3>
         <div className="overflow-x-auto border rounded-lg">
           <table className="w-full text-[11px]" data-testid="pricing-programs-table">
             <thead>
@@ -183,8 +142,7 @@ const PricingHubTab = () => {
                               {isExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
                             </button>
                           )}
-                          <Input value={p.title || ''} onChange={e => updateProgram(i, 'title', e.target.value)}
-                            className="h-7 text-[11px] font-medium border-transparent hover:border-gray-200 focus:border-[#D4AF37] px-1" data-testid={`program-name-${p.id}`} />
+                          <div className="truncate max-w-[160px] font-medium" title={p.title}>{p.title}</div>
                         </div>
                       </td>
                       <td className="px-1 py-1 text-center"><Switch checked={p.visible !== false} onCheckedChange={v => updateProgram(i, 'visible', v)} /></td>
@@ -214,9 +172,11 @@ const PricingHubTab = () => {
                         <td className="px-2 py-1 sticky left-0 bg-amber-50/40 z-10">
                           <div className="flex items-center gap-1 ml-5">
                             <select value={t.label || ''} onChange={e => updateTier(i, ti, 'label', e.target.value)}
-                              className="border rounded px-1 py-1 text-[10px] bg-white w-[110px]">
+                              className="border rounded px-1 py-1 text-[10px] bg-white w-[90px]">
                               {DURATION_PRESETS.map(d => <option key={d} value={d}>{d}</option>)}
                             </select>
+                            <Input value={t.start_date || ''} onChange={e => updateTier(i, ti, 'start_date', e.target.value)} placeholder="Start" className="h-6 text-[9px] px-1 w-[75px]" title="Tier start date" />
+                            <Input value={t.end_date || ''} onChange={e => updateTier(i, ti, 'end_date', e.target.value)} placeholder="End" className="h-6 text-[9px] px-1 w-[75px]" title="Tier end date" />
                           </div>
                         </td>
                         <td colSpan={3}></td>
@@ -226,7 +186,7 @@ const PricingHubTab = () => {
                         <td className="px-1 py-1"><Cell value={t.offer_price_aed || 0} onChange={v => updateTier(i, ti, 'offer_price_aed', v)} /></td>
                         <td className="px-1 py-1"><Cell value={t.offer_price_inr || 0} onChange={v => updateTier(i, ti, 'offer_price_inr', v)} /></td>
                         <td className="px-1 py-1"><Cell value={t.offer_price_usd || 0} onChange={v => updateTier(i, ti, 'offer_price_usd', v)} /></td>
-                        <td className="px-1 py-1"><Input value={t.offer_text || ''} onChange={e => updateTier(i, ti, 'offer_text', e.target.value)} placeholder="e.g., Early Bird" className="h-7 text-[10px]" /></td>
+                        <td className="px-1 py-1"><Input value={t.offer_text || ''} onChange={e => updateTier(i, ti, 'offer_text', e.target.value)} placeholder="Early Bird" className="h-7 text-[10px]" /></td>
                         <td className="px-1 py-1">
                           <button onClick={() => removeTier(i, ti)} className="text-red-400 hover:text-red-600"><Trash2 size={12} /></button>
                         </td>
@@ -242,21 +202,7 @@ const PricingHubTab = () => {
 
       {/* ===== PERSONAL SESSIONS ===== */}
       <div>
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-1.5"><Tag size={14} /> Personal Sessions</h3>
-          <div className="flex items-center gap-2">
-            {showAddSession ? (
-              <div className="flex items-center gap-1">
-                <Input value={newSessionName} onChange={e => setNewSessionName(e.target.value)} placeholder="Session name..." className="h-7 text-xs w-48"
-                  onKeyDown={e => e.key === 'Enter' && addSession()} data-testid="new-session-name-input" autoFocus />
-                <Button size="sm" onClick={addSession} className="h-7 text-xs bg-[#D4AF37] hover:bg-[#b8962e]" data-testid="confirm-add-session">Add</Button>
-                <Button size="sm" variant="ghost" onClick={() => { setShowAddSession(false); setNewSessionName(''); }} className="h-7 text-xs">Cancel</Button>
-              </div>
-            ) : (
-              <Button size="sm" variant="outline" onClick={() => setShowAddSession(true)} className="text-xs h-7" data-testid="add-session-btn"><Plus size={12} className="mr-1" /> Add Session</Button>
-            )}
-          </div>
-        </div>
+        <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-1.5"><Tag size={14} /> Personal Sessions</h3>
         <div className="overflow-x-auto border rounded-lg">
           <table className="w-full text-[11px]" data-testid="pricing-sessions-table">
             <thead>
@@ -275,9 +221,8 @@ const PricingHubTab = () => {
             <tbody>
               {sessions.map((s, i) => (
                 <tr key={s.id} className={`border-b ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'} hover:bg-yellow-50/30`} data-testid={`pricing-session-${s.id}`}>
-                  <td className="px-2 py-1.5 sticky left-0 bg-inherit z-10">
-                    <Input value={s.title || ''} onChange={e => updateSession(i, 'title', e.target.value)}
-                      className="h-7 text-[11px] font-medium border-transparent hover:border-gray-200 focus:border-[#D4AF37] px-1" data-testid={`session-name-${s.id}`} />
+                  <td className="px-2 py-1.5 font-medium text-gray-900 sticky left-0 bg-inherit z-10">
+                    <div className="truncate max-w-[180px]" title={s.title}>{s.title}</div>
                   </td>
                   <td className="px-1 py-1 text-center"><Switch checked={s.visible !== false} onCheckedChange={v => updateSession(i, 'visible', v)} /></td>
                   <td className="px-1 py-1"><Cell value={s.price_aed} onChange={v => updateSession(i, 'price_aed', v)} /></td>

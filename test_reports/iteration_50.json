@@ -1,0 +1,125 @@
+{
+  "summary": "Iteration 50 testing complete. Verified Pricing Hub changes (no add buttons, flat list, tier start/end dates). Programs section shows clean cards. Upcoming section shows full overlay. Found 1 bug: Programs section includes is_upcoming=true programs.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "ProgramsSection.jsx",
+        "issue": "Programs section displays programs with is_upcoming=true (like Quad Layer Healing). Should filter out upcoming programs since they're shown in UpcomingProgramsSection.",
+        "selector": "[data-testid='programs-section']",
+        "priority": "MEDIUM",
+        "fix_suggestion": "Line 227-228: Add filter after fetch: setPrograms(r.data.filter(p => !p.is_upcoming))"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iteration50.py",
+    "/app/test_reports/pytest/pytest_iteration50.xml"
+  ],
+  "action_items": [
+    "Fix ProgramsSection.jsx to filter out is_upcoming=true programs from the Programs section"
+  ],
+  "critical_code_review_comments": [
+    "ProgramsSection.jsx fetches all visible programs but should exclude is_upcoming=true programs to avoid duplication with UpcomingProgramsSection"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iteration50.py"
+  ],
+  "success_rate": {
+    "backend": "100% (12/12 tests passed)",
+    "frontend": "95% - All features verified except Programs section filter bug"
+  },
+  "test_credentials": {
+    "admin_url": "/admin",
+    "admin_username": "admin",
+    "admin_password": "divineadmin2024"
+  },
+  "seed_data_creation": "Tested tier date save: Atomic Musculoskeletal Regen Program tier 0 now has start='March 1, 2026', end='March 31, 2026'",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Iteration 50 tested new Pricing Hub layout and Programs section changes. Key findings: (1) Pricing Hub has no Add Program/Session buttons, single flat list, tier rows have start/end date inputs, subtitle mentions 'Create programs in Programs tab'. (2) Programs section title is 'Programs', cards are clean (no dates/countdown/pricing), only 'Know More' button. (3) Upcoming section shows full overlay with tier-aware dates, countdown, timing, pricing, and enroll button. (4) BUG: Programs section includes is_upcoming=true programs (Quad Layer Healing). (5) Tier-aware dates cannot be fully tested because only upcoming program (Quad Layer Healing) has is_flagship=false and no tiers. To test tier-aware dates, need a program with is_upcoming=true AND is_flagship=true AND duration_tiers.",
+  "features_tested": {
+    "programs_section_clean_cards": {
+      "status": "PASS",
+      "verified": [
+        "Section title is 'Programs' (not 'Flagship Programs')",
+        "Cards show: image, mode badges, title, description, 'Know More' button",
+        "Cards do NOT show: dates, countdown, pricing, tier selector"
+      ]
+    },
+    "upcoming_section_full_overlay": {
+      "status": "PASS",
+      "verified": [
+        "Cards show dates (Start/End), timing with timezone conversion",
+        "Countdown timer visible and functional",
+        "Duration badge (e.g., '21 Days')",
+        "Exclusive offer badge ('LIMITED TIME OFFER')",
+        "Pricing with strikethrough for offers",
+        "'Know More' and 'Enroll Now' buttons"
+      ]
+    },
+    "pricing_hub_no_add_buttons": {
+      "status": "PASS",
+      "verified": [
+        "No 'Add Program' button visible",
+        "No 'Add Session' button visible"
+      ]
+    },
+    "pricing_hub_flat_list": {
+      "status": "PASS",
+      "verified": [
+        "Programs table shows all programs in single list (no Upcoming/Flagship segregation)",
+        "Sessions table shows all sessions in single list"
+      ]
+    },
+    "pricing_hub_tier_dates": {
+      "status": "PASS",
+      "verified": [
+        "Each tier row has 'Start' and 'End' date input fields",
+        "15 tier rows found with date inputs",
+        "Tier dates can be saved and persist to database"
+      ]
+    },
+    "pricing_hub_subtitle": {
+      "status": "PASS",
+      "verified": [
+        "Subtitle says 'Edit all prices, offers, and durations. Create programs in the Programs tab.'"
+      ]
+    },
+    "pricing_hub_save_all": {
+      "status": "PASS",
+      "verified": [
+        "Save All button at top and bottom",
+        "Toast message 'All pricing saved!' appears on save",
+        "Tier dates persist correctly after save"
+      ]
+    },
+    "backend_duration_tier_model": {
+      "status": "PASS",
+      "verified": [
+        "DurationTier model has start_date: str = '' field",
+        "DurationTier model has end_date: str = '' field"
+      ]
+    },
+    "tier_aware_dates": {
+      "status": "PARTIAL",
+      "verified": [
+        "Code implemented in UpcomingProgramsSection.jsx (lines 189-191)",
+        "Cannot fully test because Quad Layer Healing (only upcoming) has no tiers"
+      ],
+      "note": "Feature code exists and is correct. Full testing requires program with is_upcoming=true AND duration_tiers.length > 0"
+    }
+  },
+  "bug_to_fix": {
+    "location": "/app/frontend/src/components/ProgramsSection.jsx",
+    "line": "227-228",
+    "current_code": "axios.get(`${API}/programs?visible_only=true`).then(r => { if (r.data?.length > 0) setPrograms(r.data); })",
+    "fix": "axios.get(`${API}/programs?visible_only=true`).then(r => { if (r.data?.length > 0) setPrograms(r.data.filter(p => !p.is_upcoming)); })",
+    "reason": "Programs section should only show non-upcoming programs since upcoming programs are displayed in UpcomingProgramsSection"
+  }
+}
