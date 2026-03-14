@@ -78,6 +78,7 @@ class Program(BaseModel):
     show_duration_on_page: bool = False
     show_start_date_on_page: bool = False
     show_timing_on_page: bool = False
+    show_duration_on_card: bool = True
     content_sections: List[Dict] = []  # List of ContentSection dicts
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
@@ -123,6 +124,7 @@ class ProgramCreate(BaseModel):
     show_duration_on_page: Optional[bool] = False
     show_start_date_on_page: Optional[bool] = False
     show_timing_on_page: Optional[bool] = False
+    show_duration_on_card: Optional[bool] = True
     content_sections: Optional[List[Dict]] = []
 
 

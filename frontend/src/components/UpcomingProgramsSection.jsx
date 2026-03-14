@@ -97,12 +97,12 @@ const UpcomingCard = ({ program }) => {
     return isNaN(dt.getTime()) ? null : dt;
   };
 
-  // Auto-calculate duration from start_date and end_date
+  // Auto-calculate duration from start_date and end_date (inclusive: both start and end days count)
   const autoDuration = (() => {
     const s = parseDate(program.start_date);
     const e = parseDate(program.end_date);
     if (!s || !e) return program.duration && program.duration !== '90 days' ? program.duration : '';
-    const diffDays = Math.round((e - s) / (1000 * 60 * 60 * 24));
+    const diffDays = Math.round((e - s) / (1000 * 60 * 60 * 24)) + 1; // inclusive
     if (diffDays <= 0) return '';
     return `${diffDays} Days`;
   })();
@@ -128,10 +128,11 @@ const UpcomingCard = ({ program }) => {
         <img src={resolveImageUrl(program.image)} alt={program.title}
           className={`w-full h-full object-cover transition-transform duration-500 ${!(expired || program.enrollment_open === false) ? 'group-hover:scale-105' : 'grayscale-[30%]'}`}
           onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1545389336-cf090694435e?w=600&h=400&fit=crop'; }} />
-        <div className="absolute top-3 left-3 flex gap-1">
-          {program.enable_online !== false && <span className="px-2 py-0.5 rounded-full text-[9px] font-medium shadow-sm bg-blue-500 text-white">Online</span>}
-          {program.enable_offline !== false && <span className="px-2 py-0.5 rounded-full text-[9px] font-medium shadow-sm bg-teal-600 text-white">Remote</span>}
-          {program.enable_in_person && <span className="px-2 py-0.5 rounded-full text-[9px] font-medium shadow-sm bg-emerald-500 text-white">In Person</span>}
+        <div className="absolute top-3 left-3 flex gap-1.5 flex-wrap">
+          {program.enable_online !== false && <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-sm bg-blue-500 text-white">Online</span>}
+          {program.enable_offline !== false && <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-sm bg-teal-600 text-white">Remote</span>}
+          {program.enable_in_person && <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-sm bg-emerald-500 text-white">In Person</span>}
+          {program.show_duration_on_card !== false && autoDuration && <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-sm bg-purple-600 text-white">{autoDuration}</span>}
         </div>
         {(expired || program.enrollment_open === false) && (
           <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
@@ -155,7 +156,7 @@ const UpcomingCard = ({ program }) => {
           {(program.start_date || program.end_date) && (
             <div className="flex items-center gap-1">
               <Calendar size={10} className="flex-shrink-0" />
-              <span>{fmtDate(program.start_date)}{program.end_date ? ` — ${fmtDate(program.end_date)}` : ''}{autoDuration ? ` · ${autoDuration}` : ''}</span>
+              <span>{fmtDate(program.start_date)}{program.end_date ? ` — ${fmtDate(program.end_date)}` : ''}</span>
             </div>
           )}
           {fmtTiming && (
