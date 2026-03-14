@@ -163,8 +163,8 @@ const SessionsSection = ({ sectionConfig }) => {
     return <Wifi size={12} />;
   };
   const modeLabel = (mode) => {
-    if (mode === 'offline') return 'In-Person';
-    if (mode === 'both') return 'Online & In-Person';
+    if (mode === 'offline') return 'Remote';
+    if (mode === 'both') return 'Online & Remote';
     return 'Online';
   };
 

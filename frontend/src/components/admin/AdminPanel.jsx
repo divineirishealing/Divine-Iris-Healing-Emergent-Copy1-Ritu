@@ -681,7 +681,7 @@ const AdminPanel = () => {
                         {['online', 'offline', 'both'].map(mode => (
                           <label key={mode} className={`flex items-center gap-2 rounded-lg px-4 py-2.5 cursor-pointer border transition-all ${sessionForm.session_mode === mode ? 'bg-purple-50 border-purple-400 ring-1 ring-purple-300' : 'bg-gray-50 border-gray-200 hover:border-gray-300'}`}>
                             <input type="radio" name="session_mode" checked={sessionForm.session_mode === mode} onChange={() => setSessionForm({...sessionForm, session_mode: mode})} className="w-3.5 h-3.5 text-purple-600" />
-                            <span className="text-xs font-medium capitalize">{mode === 'both' ? 'Online & Offline' : mode}</span>
+                            <span className="text-xs font-medium capitalize">{mode === 'both' ? 'Online & Remote' : mode === 'offline' ? 'Remote' : mode}</span>
                           </label>
                         ))}
                       </div>
@@ -856,7 +856,7 @@ const AdminPanel = () => {
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm text-gray-900 truncate">{s.title}</p>
                       <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${s.session_mode === 'offline' ? 'bg-teal-50 text-teal-600' : s.session_mode === 'both' ? 'bg-purple-50 text-purple-600' : 'bg-blue-50 text-blue-600'}`}>{s.session_mode === 'both' ? 'Online & Offline' : (s.session_mode || 'online')}</span>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${s.session_mode === 'offline' ? 'bg-teal-50 text-teal-600' : s.session_mode === 'both' ? 'bg-purple-50 text-purple-600' : 'bg-blue-50 text-blue-600'}`}>{s.session_mode === 'both' ? 'Online & Remote' : s.session_mode === 'offline' ? 'Remote' : (s.session_mode || 'online')}</span>
                         {s.duration && <span className="text-[10px] text-gray-400">{s.duration}</span>}
                         {s.testimonial_text && <span className="text-[10px] text-amber-500">Has testimonial</span>}
                         {(s.available_dates||[]).length > 0 && <span className="text-[10px] text-purple-500">{s.available_dates.length} dates</span>}
