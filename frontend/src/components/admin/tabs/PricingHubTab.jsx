@@ -4,12 +4,18 @@ import { useToast } from '../../../hooks/use-toast';
 import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
 import { Switch } from '../../ui/switch';
-import { Label } from '../../ui/label';
 import { Save, DollarSign, Tag, Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
-const DURATION_PRESETS = ['2 Days', '3 Days', '5 Days', '7 Days', '10 Days', '14 Days', '21 Days', '1 Month', '3 Months', '6 Months', 'Annual'];
+// Full duration presets: 1-30 days, 1-4 weeks, 1-12 months, annual
+const DURATION_PRESETS = [
+  ...Array.from({ length: 30 }, (_, i) => `${i + 1} Day${i > 0 ? 's' : ''}`),
+  '1 Week', '2 Weeks', '3 Weeks', '4 Weeks',
+  '1 Month', '2 Months', '3 Months', '4 Months', '5 Months', '6 Months',
+  '7 Months', '8 Months', '9 Months', '10 Months', '11 Months', '12 Months',
+  'Annual'
+];
 
 const PricingHubTab = () => {
   const { toast } = useToast();
@@ -17,6 +23,10 @@ const PricingHubTab = () => {
   const [sessions, setSessions] = useState([]);
   const [saving, setSaving] = useState(false);
   const [expandedPrograms, setExpandedPrograms] = useState({});
+  const [newProgramName, setNewProgramName] = useState('');
+  const [newSessionName, setNewSessionName] = useState('');
+  const [showAddProgram, setShowAddProgram] = useState(false);
+  const [showAddSession, setShowAddSession] = useState(false);
 
   const fetchData = useCallback(async () => {
     const [pRes, sRes] = await Promise.all([
@@ -25,7 +35,6 @@ const PricingHubTab = () => {
     ]);
     setPrograms(pRes.data || []);
     setSessions(sRes.data || []);
-    // Auto-expand all programs with tiers
     const expanded = {};
     (pRes.data || []).forEach(p => { if (p.duration_tiers?.length > 0) expanded[p.id] = true; });
     setExpandedPrograms(expanded);
@@ -73,18 +82,24 @@ const PricingHubTab = () => {
   };
 
   const addProgram = async () => {
+    if (!newProgramName.trim()) { toast({ title: 'Enter a program name', variant: 'destructive' }); return; }
     try {
-      const res = await axios.post(`${API}/programs`, { title: 'New Program', category: 'General', description: 'Description here', image: '', visible: false });
+      const res = await axios.post(`${API}/programs`, { title: newProgramName.trim(), category: 'General', description: '', image: '', visible: false });
       setPrograms(prev => [...prev, res.data]);
-      toast({ title: 'Program created! Edit details in Programs tab.' });
+      setNewProgramName('');
+      setShowAddProgram(false);
+      toast({ title: `"${newProgramName.trim()}" created!` });
     } catch (e) { toast({ title: 'Error', description: e.message, variant: 'destructive' }); }
   };
 
   const addSession = async () => {
+    if (!newSessionName.trim()) { toast({ title: 'Enter a session name', variant: 'destructive' }); return; }
     try {
-      const res = await axios.post(`${API}/sessions`, { title: 'New Session', description: 'Description here', visible: false });
+      const res = await axios.post(`${API}/sessions`, { title: newSessionName.trim(), description: '', visible: false });
       setSessions(prev => [...prev, res.data]);
-      toast({ title: 'Session created! Edit details in Sessions tab.' });
+      setNewSessionName('');
+      setShowAddSession(false);
+      toast({ title: `"${newSessionName.trim()}" created!` });
     } catch (e) { toast({ title: 'Error', description: e.message, variant: 'destructive' }); }
   };
 
@@ -123,13 +138,24 @@ const PricingHubTab = () => {
       <div className="mb-8">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-1.5"><Tag size={14} /> Programs</h3>
-          <Button size="sm" variant="outline" onClick={addProgram} className="text-xs h-7" data-testid="add-program-btn"><Plus size={12} className="mr-1" /> Add Program</Button>
+          <div className="flex items-center gap-2">
+            {showAddProgram ? (
+              <div className="flex items-center gap-1">
+                <Input value={newProgramName} onChange={e => setNewProgramName(e.target.value)} placeholder="Program name..." className="h-7 text-xs w-48"
+                  onKeyDown={e => e.key === 'Enter' && addProgram()} data-testid="new-program-name-input" autoFocus />
+                <Button size="sm" onClick={addProgram} className="h-7 text-xs bg-[#D4AF37] hover:bg-[#b8962e]" data-testid="confirm-add-program">Add</Button>
+                <Button size="sm" variant="ghost" onClick={() => { setShowAddProgram(false); setNewProgramName(''); }} className="h-7 text-xs">Cancel</Button>
+              </div>
+            ) : (
+              <Button size="sm" variant="outline" onClick={() => setShowAddProgram(true)} className="text-xs h-7" data-testid="add-program-btn"><Plus size={12} className="mr-1" /> Add Program</Button>
+            )}
+          </div>
         </div>
         <div className="overflow-x-auto border rounded-lg">
           <table className="w-full text-[11px]" data-testid="pricing-programs-table">
             <thead>
               <tr className="bg-gray-100 border-b">
-                <th className="text-left px-2 py-2 font-semibold text-gray-700 min-w-[150px] sticky left-0 bg-gray-100 z-10">Name / Duration</th>
+                <th className="text-left px-2 py-2 font-semibold text-gray-700 min-w-[180px] sticky left-0 bg-gray-100 z-10">Name</th>
                 <th className="px-1 py-2 font-semibold text-gray-600 w-12">Show</th>
                 <th className="px-1 py-2 font-semibold text-gray-600 w-12">Price</th>
                 <th className="px-1 py-2 font-semibold text-gray-600 w-12">Tiers</th>
@@ -149,22 +175,21 @@ const PricingHubTab = () => {
                 const isExpanded = expandedPrograms[p.id];
                 return (
                   <React.Fragment key={p.id}>
-                    {/* Program header row */}
                     <tr className={`border-b ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'} hover:bg-yellow-50/30`} data-testid={`pricing-row-${p.id}`}>
-                      <td className="px-2 py-1.5 font-medium text-gray-900 sticky left-0 bg-inherit z-10">
+                      <td className="px-2 py-1.5 sticky left-0 bg-inherit z-10">
                         <div className="flex items-center gap-1">
                           {hasTiers && (
-                            <button onClick={() => toggleExpand(p.id)} className="text-gray-400 hover:text-gray-600">
+                            <button onClick={() => toggleExpand(p.id)} className="text-gray-400 hover:text-gray-600 flex-shrink-0">
                               {isExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
                             </button>
                           )}
-                          <div className="truncate max-w-[160px]" title={p.title}>{p.title}</div>
+                          <Input value={p.title || ''} onChange={e => updateProgram(i, 'title', e.target.value)}
+                            className="h-7 text-[11px] font-medium border-transparent hover:border-gray-200 focus:border-[#D4AF37] px-1" data-testid={`program-name-${p.id}`} />
                         </div>
                       </td>
                       <td className="px-1 py-1 text-center"><Switch checked={p.visible !== false} onCheckedChange={v => updateProgram(i, 'visible', v)} /></td>
                       <td className="px-1 py-1 text-center"><Switch checked={p.show_pricing_on_card !== false} onCheckedChange={v => updateProgram(i, 'show_pricing_on_card', v)} /></td>
                       <td className="px-1 py-1 text-center"><Switch checked={p.show_tiers_on_card !== false} onCheckedChange={v => updateProgram(i, 'show_tiers_on_card', v)} /></td>
-                      {/* Base pricing — only show if no tiers */}
                       {!hasTiers ? (
                         <>
                           <td className="px-1 py-1"><Cell value={p.price_aed} onChange={v => updateProgram(i, 'price_aed', v)} /></td>
@@ -176,26 +201,25 @@ const PricingHubTab = () => {
                           <td className="px-1 py-1"><Input value={p.offer_text || ''} onChange={e => updateProgram(i, 'offer_text', e.target.value)} placeholder="e.g., 20% OFF" className="h-7 text-[11px]" /></td>
                         </>
                       ) : (
-                        <td colSpan={7} className="px-2 py-1 text-[10px] text-gray-400 italic">
-                          {isExpanded ? `${(p.duration_tiers || []).length} tiers — edit below` : `${(p.duration_tiers || []).length} tiers — click to expand`}
+                        <td colSpan={7} className="px-2 py-1 text-[10px] text-gray-400 italic cursor-pointer" onClick={() => toggleExpand(p.id)}>
+                          {isExpanded ? `${(p.duration_tiers || []).length} tiers` : `${(p.duration_tiers || []).length} tiers — click to expand`}
                         </td>
                       )}
                       <td className="px-1 py-1">
                         <button onClick={() => addTier(i)} title="Add tier" className="text-[#D4AF37] hover:text-[#b8962e]"><Plus size={14} /></button>
                       </td>
                     </tr>
-                    {/* Tier rows */}
                     {hasTiers && isExpanded && (p.duration_tiers || []).map((t, ti) => (
                       <tr key={`${p.id}-t${ti}`} className="border-b bg-amber-50/40" data-testid={`pricing-tier-${p.id}-${ti}`}>
                         <td className="px-2 py-1 sticky left-0 bg-amber-50/40 z-10">
-                          <div className="flex items-center gap-1 ml-4">
+                          <div className="flex items-center gap-1 ml-5">
                             <select value={t.label || ''} onChange={e => updateTier(i, ti, 'label', e.target.value)}
-                              className="border rounded px-1.5 py-1 text-[10px] bg-white w-[100px]">
+                              className="border rounded px-1 py-1 text-[10px] bg-white w-[110px]">
                               {DURATION_PRESETS.map(d => <option key={d} value={d}>{d}</option>)}
                             </select>
                           </div>
                         </td>
-                        <td></td><td></td><td></td>
+                        <td colSpan={3}></td>
                         <td className="px-1 py-1"><Cell value={t.price_aed} onChange={v => updateTier(i, ti, 'price_aed', v)} /></td>
                         <td className="px-1 py-1"><Cell value={t.price_inr} onChange={v => updateTier(i, ti, 'price_inr', v)} /></td>
                         <td className="px-1 py-1"><Cell value={t.price_usd} onChange={v => updateTier(i, ti, 'price_usd', v)} /></td>
@@ -220,13 +244,24 @@ const PricingHubTab = () => {
       <div>
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-1.5"><Tag size={14} /> Personal Sessions</h3>
-          <Button size="sm" variant="outline" onClick={addSession} className="text-xs h-7" data-testid="add-session-btn"><Plus size={12} className="mr-1" /> Add Session</Button>
+          <div className="flex items-center gap-2">
+            {showAddSession ? (
+              <div className="flex items-center gap-1">
+                <Input value={newSessionName} onChange={e => setNewSessionName(e.target.value)} placeholder="Session name..." className="h-7 text-xs w-48"
+                  onKeyDown={e => e.key === 'Enter' && addSession()} data-testid="new-session-name-input" autoFocus />
+                <Button size="sm" onClick={addSession} className="h-7 text-xs bg-[#D4AF37] hover:bg-[#b8962e]" data-testid="confirm-add-session">Add</Button>
+                <Button size="sm" variant="ghost" onClick={() => { setShowAddSession(false); setNewSessionName(''); }} className="h-7 text-xs">Cancel</Button>
+              </div>
+            ) : (
+              <Button size="sm" variant="outline" onClick={() => setShowAddSession(true)} className="text-xs h-7" data-testid="add-session-btn"><Plus size={12} className="mr-1" /> Add Session</Button>
+            )}
+          </div>
         </div>
         <div className="overflow-x-auto border rounded-lg">
           <table className="w-full text-[11px]" data-testid="pricing-sessions-table">
             <thead>
               <tr className="bg-gray-100 border-b">
-                <th className="text-left px-2 py-2 font-semibold text-gray-700 min-w-[150px] sticky left-0 bg-gray-100 z-10">Session</th>
+                <th className="text-left px-2 py-2 font-semibold text-gray-700 min-w-[180px] sticky left-0 bg-gray-100 z-10">Session</th>
                 <th className="px-1 py-2 font-semibold text-gray-600 w-12">Show</th>
                 <th className="px-1 py-2 font-semibold text-blue-700 min-w-[70px]">AED</th>
                 <th className="px-1 py-2 font-semibold text-green-700 min-w-[70px]">INR</th>
@@ -240,8 +275,9 @@ const PricingHubTab = () => {
             <tbody>
               {sessions.map((s, i) => (
                 <tr key={s.id} className={`border-b ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'} hover:bg-yellow-50/30`} data-testid={`pricing-session-${s.id}`}>
-                  <td className="px-2 py-1.5 font-medium text-gray-900 sticky left-0 bg-inherit z-10">
-                    <div className="truncate max-w-[180px]" title={s.title}>{s.title}</div>
+                  <td className="px-2 py-1.5 sticky left-0 bg-inherit z-10">
+                    <Input value={s.title || ''} onChange={e => updateSession(i, 'title', e.target.value)}
+                      className="h-7 text-[11px] font-medium border-transparent hover:border-gray-200 focus:border-[#D4AF37] px-1" data-testid={`session-name-${s.id}`} />
                   </td>
                   <td className="px-1 py-1 text-center"><Switch checked={s.visible !== false} onCheckedChange={v => updateSession(i, 'visible', v)} /></td>
                   <td className="px-1 py-1"><Cell value={s.price_aed} onChange={v => updateSession(i, 'price_aed', v)} /></td>
