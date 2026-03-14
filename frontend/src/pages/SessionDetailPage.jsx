@@ -195,9 +195,9 @@ function SessionDetailPage() {
   useEffect(() => { loadData(); }, [loadData]);
 
   const modeLabel = (mode) => {
-    if (mode === 'offline') return 'In-Person';
-    if (mode === 'both') return 'Online & In-Person';
-    return 'Online';
+    if (mode === 'offline') return 'Offline (Remote, Not In-Person)';
+    if (mode === 'both') return 'Online (Zoom) & Offline';
+    return 'Online (Zoom)';
   };
 
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-white"><p className="text-gray-400 text-xs">Loading...</p></div>;

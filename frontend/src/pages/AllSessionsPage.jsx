@@ -40,9 +40,9 @@ function AllSessionsPage() {
   };
 
   const modeLabel = (mode) => {
-    if (mode === 'offline') return 'In-Person';
-    if (mode === 'both') return 'Online & In-Person';
-    return 'Online';
+    if (mode === 'offline') return 'Offline (Remote, Not In-Person)';
+    if (mode === 'both') return 'Online (Zoom) & Offline';
+    return 'Online (Zoom)';
   };
 
   return (

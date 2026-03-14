@@ -193,9 +193,9 @@ const UpcomingCard = ({ program }) => {
           className={`w-full h-full object-cover transition-transform duration-500 ${!(expired || program.enrollment_open === false) ? 'group-hover:scale-105' : 'grayscale-[30%]'}`}
           onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1545389336-cf090694435e?w=600&h=400&fit=crop'; }} />
         <div className="absolute top-3 left-3 flex gap-1.5 flex-wrap">
-          {program.enable_online !== false && <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-sm bg-blue-500 text-white">Online</span>}
-          {program.enable_offline !== false && <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-sm bg-teal-600 text-white">Remote</span>}
-          {program.enable_in_person && <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-sm bg-emerald-500 text-white">In Person</span>}
+          {program.enable_online !== false && <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-sm bg-blue-500 text-white">Online (Zoom)</span>}
+          {program.enable_offline !== false && <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-sm bg-teal-600 text-white">Offline (Remote, Not In-Person)</span>}
+          {program.enable_in_person && <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-sm bg-teal-600 text-white">Offline (Remote, Not In-Person)</span>}
           {program.show_duration_on_card !== false && autoDuration && <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-sm bg-purple-600 text-white">{autoDuration}</span>}
         </div>
         {(expired || program.enrollment_open === false) && (

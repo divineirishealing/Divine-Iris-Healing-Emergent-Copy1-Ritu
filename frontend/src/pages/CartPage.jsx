@@ -181,7 +181,7 @@ const CartItemCard = ({ item, onRemove, onUpdateParticipants, symbol, getItemPri
                       <button type="button" onClick={() => updateParticipant(idx, 'attendance_mode', 'online')}
                         className={`flex-1 flex flex-col items-center gap-0.5 py-1 rounded border text-[10px] transition-all ${
                           p.attendance_mode === 'online' ? 'bg-blue-50 border-blue-400 text-blue-600' : 'bg-white border-gray-200 text-gray-500'}`}>
-                        <span className="flex items-center gap-0.5"><Monitor size={10} /> Online</span>
+                        <span className="flex items-center gap-0.5"><Monitor size={10} /> Online (Zoom)</span>
                         <span className="text-[8px] opacity-70">via Zoom</span>
                       </button>
                     )}
@@ -196,9 +196,9 @@ const CartItemCard = ({ item, onRemove, onUpdateParticipants, symbol, getItemPri
                     {item.enable_in_person && (
                       <button type="button" onClick={() => updateParticipant(idx, 'attendance_mode', 'in_person')}
                         className={`flex-1 flex flex-col items-center gap-0.5 py-1 rounded border text-[10px] transition-all ${
-                          p.attendance_mode === 'in_person' ? 'bg-emerald-50 border-emerald-400 text-emerald-600' : 'bg-white border-gray-200 text-gray-500'}`}>
-                        <span className="flex items-center gap-0.5"><Monitor size={10} /> In Person</span>
-                        <span className="text-[8px] opacity-70">Visit</span>
+                          p.attendance_mode === 'in_person' ? 'bg-teal-50 border-teal-400 text-teal-700' : 'bg-white border-gray-200 text-gray-500'}`}>
+                        <span className="flex items-center gap-0.5"><Wifi size={10} /> Offline</span>
+                        <span className="text-[8px] opacity-70">Remote, Not In-Person</span>
                       </button>
                     )}
                   </div>

@@ -102,7 +102,7 @@ function PaymentSuccessPage() {
                             <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
                               p.attendance_mode === 'online' ? 'bg-blue-100 text-blue-700' : 'bg-teal-100 text-teal-700'
                             }`}>
-                              {p.attendance_mode === 'online' ? 'Online (Zoom)' : 'Remote Healing'}
+                              {p.attendance_mode === 'online' ? 'Online (Zoom)' : 'Offline (Remote, Not In-Person)'}
                             </span>
                           </div>
                         ))}

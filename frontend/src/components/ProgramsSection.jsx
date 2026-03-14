@@ -59,7 +59,7 @@ const ProgramCard = ({ program }) => {
             <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-teal-600/90 text-white backdrop-blur-sm">Offline (Remote, Not In-Person)</span>
           )}
           {program.enable_in_person && (
-            <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-emerald-500/90 text-white backdrop-blur-sm">In Person</span>
+            <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-teal-600/90 text-white backdrop-blur-sm">Offline (Remote, Not In-Person)</span>
           )}
         </div>
         {program.offer_text && (
