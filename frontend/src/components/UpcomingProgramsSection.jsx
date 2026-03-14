@@ -89,110 +89,82 @@ const UpcomingCard = ({ program }) => {
     return !isNaN(t.getTime()) && t.getTime() < Date.now();
   })();
 
+  // Parse date string, handling ordinal suffixes like "27th", "1st"
+  const parseDate = (d) => {
+    if (!d) return null;
+    const cleaned = d.replace(/(\d+)(st|nd|rd|th)/gi, '$1').replace(',', '');
+    const dt = new Date(cleaned);
+    return isNaN(dt.getTime()) ? null : dt;
+  };
+
+  // Auto-calculate duration from start_date and end_date
+  const autoDuration = (() => {
+    const s = parseDate(program.start_date);
+    const e = parseDate(program.end_date);
+    if (!s || !e) return program.duration && program.duration !== '90 days' ? program.duration : '';
+    const diffDays = Math.round((e - s) / (1000 * 60 * 60 * 24));
+    if (diffDays <= 0) return '';
+    return `${diffDays} Days`;
+  })();
+
+  // Format date to standard: "27 Mar 2026"
+  const fmtDate = (d) => {
+    const dt = parseDate(d);
+    if (!dt) return d || '';
+    return dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  };
+
+  // Format timing with GMT
+  const fmtTiming = (() => {
+    if (!program.timing) return '';
+    const tz = program.time_zone || '';
+    return `${program.timing} ${tz}`.trim();
+  })();
+
   return (
     <div data-testid={`upcoming-card-${program.id}`}
-      className={`group bg-white rounded-xl overflow-hidden shadow-lg transition-all duration-300 border border-gray-100 flex flex-col ${expired ? 'opacity-75' : 'hover:shadow-2xl'}`}>
-      <div className="relative h-52 overflow-hidden cursor-pointer" onClick={() => navigate(`/program/${program.id}`)}>
+      className={`group bg-white rounded-xl overflow-hidden shadow-lg transition-all duration-300 border border-gray-100 flex flex-col ${expired || program.enrollment_open === false ? 'opacity-75' : 'hover:shadow-2xl'}`}>
+      <div className="relative h-48 overflow-hidden cursor-pointer" onClick={() => navigate(`/program/${program.id}`)}>
         <img src={resolveImageUrl(program.image)} alt={program.title}
-          className={`w-full h-full object-cover transition-transform duration-500 ${!expired ? 'group-hover:scale-105' : 'grayscale-[30%]'}`}
+          className={`w-full h-full object-cover transition-transform duration-500 ${!(expired || program.enrollment_open === false) ? 'group-hover:scale-105' : 'grayscale-[30%]'}`}
           onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1545389336-cf090694435e?w=600&h=400&fit=crop'; }} />
-        <div className="absolute top-3 left-3 flex flex-col gap-1">
-          {program.enable_online !== false && (
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-medium shadow-sm bg-blue-500 text-white">
-              <Monitor size={12} /> Online (Zoom)
-            </span>
-          )}
-          {program.enable_offline !== false && (
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-medium shadow-sm bg-teal-600 text-white">
-              <Wifi size={12} /> Offline (Remote, Not In-Person)
-            </span>
-          )}
-          {program.enable_in_person && (
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-medium shadow-sm bg-emerald-500 text-white">
-              <Monitor size={12} /> In Person
-            </span>
-          )}
+        <div className="absolute top-3 left-3 flex gap-1">
+          {program.enable_online !== false && <span className="px-2 py-0.5 rounded-full text-[9px] font-medium shadow-sm bg-blue-500 text-white">Online</span>}
+          {program.enable_offline !== false && <span className="px-2 py-0.5 rounded-full text-[9px] font-medium shadow-sm bg-teal-600 text-white">Remote</span>}
+          {program.enable_in_person && <span className="px-2 py-0.5 rounded-full text-[9px] font-medium shadow-sm bg-emerald-500 text-white">In Person</span>}
         </div>
-        {!expired && program.offer_text && (
-          <div className="absolute top-3 right-3">
-            <span className="bg-gradient-to-r from-red-600 to-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg animate-pulse">{program.offer_text}</span>
-          </div>
-        )}
         {(expired || program.enrollment_open === false) && (
           <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-            <span className="bg-gray-900/80 text-white text-xs font-bold px-4 py-2 rounded-full tracking-wider uppercase">Registration Closed</span>
+            <span className="bg-gray-900/80 text-white text-[10px] font-bold px-3 py-1.5 rounded-full tracking-wider uppercase">Registration Closed</span>
           </div>
         )}
-        {/* Countdown on bottom of image */}
-        {!expired && deadline && (
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3 pt-6">
+        {!expired && program.enrollment_open !== false && deadline && (
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2.5 pt-5">
             <CountdownTimer deadline={deadline} />
           </div>
         )}
       </div>
 
-      <div className="p-6 flex-1 flex flex-col">
-        <p className="text-[#D4AF37] text-xs tracking-wider mb-1 uppercase">{program.category}</p>
-        <h3 className="text-lg font-semibold text-gray-900 mb-2 leading-tight">{program.title}</h3>
-        <p className="text-gray-500 text-sm leading-relaxed mb-4 line-clamp-3 flex-1">{program.description}</p>
+      <div className="p-4 flex-1 flex flex-col">
+        <p className="text-[#D4AF37] text-[10px] tracking-wider mb-0.5 uppercase">{program.category}</p>
+        <h3 className="text-base font-semibold text-gray-900 mb-1.5 leading-tight">{program.title}</h3>
+        <p className="text-gray-500 text-xs leading-relaxed mb-3 line-clamp-2 flex-1">{program.description}</p>
 
-        {/* Dates left | Duration & Time right */}
-        {(program.start_date || program.end_date || program.duration || program.timing) && (
-          <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-gray-500 text-xs mb-3">
-            <div className="space-y-1">
-              {program.start_date && <div className="flex items-center gap-1.5"><Calendar size={12} /><span>Starts: {program.start_date}</span></div>}
-              {program.end_date && <div className="flex items-center gap-1.5"><Calendar size={12} /><span>Ends: {program.end_date}</span></div>}
+        {/* Compact info line: dates · duration · time */}
+        <div className="text-gray-400 text-[10px] mb-3 space-y-0.5">
+          {(program.start_date || program.end_date) && (
+            <div className="flex items-center gap-1">
+              <Calendar size={10} className="flex-shrink-0" />
+              <span>{fmtDate(program.start_date)}{program.end_date ? ` — ${fmtDate(program.end_date)}` : ''}{autoDuration ? ` · ${autoDuration}` : ''}</span>
             </div>
-            <div className="space-y-1">
-              {program.duration && <div className="flex items-center gap-1.5"><Clock size={12} /><span>{program.duration}</span></div>}
-              {program.timing && (
-                <div className="flex items-center gap-1.5">
-                  <Clock size={12} />
-                  <span>{program.timing}{program.time_zone ? ` ${program.time_zone}` : ''}</span>
-                </div>
-              )}
+          )}
+          {fmtTiming && (
+            <div className="flex items-center gap-1">
+              <Clock size={10} className="flex-shrink-0" />
+              <span>{fmtTiming}</span>
             </div>
-          </div>
-        )}
-        {program.timing && program.time_zone && (() => {
-          try {
-            const tzShort = new Date().toLocaleTimeString('en-US', { timeZoneName: 'short' }).split(' ').pop();
-            const programTz = program.time_zone;
-            if (!programTz.toLowerCase().includes(tzShort.toLowerCase()) && 
-                !tzShort.toLowerCase().includes(programTz.split(' ')[0]?.toLowerCase())) {
-              const timeMatch = program.timing.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
-              if (timeMatch) {
-                let hours = parseInt(timeMatch[1]);
-                const minutes = parseInt(timeMatch[2]);
-                const ampm = timeMatch[3].toUpperCase();
-                if (ampm === 'PM' && hours !== 12) hours += 12;
-                if (ampm === 'AM' && hours === 12) hours = 0;
-                const tzOffsets = { 'GST': 4, 'Dubai': 4, 'UAE': 4, 'IST': 5.5, 'India': 5.5, 'EST': -5, 'EDT': -4, 'CST': -6, 'CDT': -5, 'PST': -8, 'PDT': -7, 'GMT': 0, 'UTC': 0, 'BST': 1, 'CET': 1, 'AEST': 10, 'JST': 9, 'SGT': 8, 'AST': 3, 'PKT': 5 };
-                let programOffset = null;
-                for (const [key, val] of Object.entries(tzOffsets)) {
-                  if (programTz.toUpperCase().includes(key.toUpperCase())) { programOffset = val; break; }
-                }
-                if (programOffset !== null) {
-                  const now = new Date();
-                  const utcMinutes = (hours * 60 + minutes) - (programOffset * 60);
-                  const localDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, utcMinutes + now.getTimezoneOffset() * -1);
-                  const localTimeStr = localDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-                  return <p className="text-blue-500 text-xs mb-3">{localTimeStr} Your Time ({tzShort})</p>;
-                }
-              }
-            }
-            return null;
-          } catch { return null; }
-        })()}
-
-        {!expired && program.offer_text && (
-          <div className="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-lg p-3 mb-4">
-            <div className="flex items-center gap-2">
-              <Clock size={14} className="text-amber-600" />
-              <span className="text-amber-800 text-xs font-bold uppercase tracking-wider">Limited Period Offer</span>
-            </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Duration Tier Selector */}
         {hasTiers && (
@@ -233,53 +205,53 @@ const UpcomingCard = ({ program }) => {
         })()}
 
         {/* Pricing */}
-        <div className="border-t pt-4 mt-auto">
+        <div className="border-t pt-3 mt-auto">
           {showContact ? (
-            <div className="text-center mb-3">
-              <p className="text-gray-500 text-xs mb-2">Custom pricing for extended programs</p>
+            <div className="text-center mb-2">
+              <p className="text-gray-500 text-[10px] mb-1.5">Custom pricing</p>
               <button onClick={() => navigate(`/contact?program=${program.id}&title=${encodeURIComponent(program.title)}&tier=Annual`)} data-testid={`upcoming-contact-${program.id}`}
-                className="w-full bg-gray-900 hover:bg-gray-800 text-white py-2.5 rounded-full text-xs tracking-wider transition-colors uppercase font-medium">
+                className="w-full bg-gray-900 hover:bg-gray-800 text-white py-2 rounded-full text-[10px] tracking-wider transition-colors uppercase font-medium">
                 Contact for Pricing
               </button>
             </div>
           ) : (
             <>
-              <div className="flex items-baseline gap-3 mb-3">
+              <div className="flex items-baseline gap-2 mb-2">
                 {offerPrice > 0 ? (
                   <>
-                    <span className="text-2xl font-bold text-[#D4AF37]">{symbol} {offerPrice.toLocaleString()}</span>
-                    <span className="text-sm text-gray-400 line-through">{symbol} {price.toLocaleString()}</span>
+                    <span className="text-xl font-bold text-[#D4AF37]">{symbol} {offerPrice.toLocaleString()}</span>
+                    <span className="text-xs text-gray-400 line-through">{symbol} {price.toLocaleString()}</span>
                   </>
                 ) : price > 0 ? (
-                  <span className="text-2xl font-bold text-gray-900">{symbol} {price.toLocaleString()}</span>
+                  <span className="text-xl font-bold text-gray-900">{symbol} {price.toLocaleString()}</span>
                 ) : (
-                  <span className="text-sm text-gray-500 italic">Contact for pricing</span>
+                  <span className="text-xs text-gray-500 italic">Contact for pricing</span>
                 )}
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-1.5">
                 <button onClick={() => navigate(`/program/${program.id}`)}
                   data-testid={`upcoming-know-more-${program.id}`}
-                  className="flex-1 bg-[#1a1a1a] hover:bg-[#333] text-white py-2.5 rounded-full text-xs tracking-wider transition-all duration-300 uppercase font-medium">
+                  className="flex-1 bg-[#1a1a1a] hover:bg-[#333] text-white py-2 rounded-full text-[10px] tracking-wider transition-all duration-300 uppercase font-medium">
                   Know More
                 </button>
                 {!expired && price > 0 && program.enrollment_open !== false ? (
                   <>
                     <button onClick={handleAddToCart} data-testid={`upcoming-add-cart-${program.id}`}
                       disabled={inCart || justAdded}
-                      className={`flex items-center justify-center gap-1 px-3 py-2.5 rounded-full text-xs tracking-wider transition-all uppercase font-medium border ${
+                      className={`flex items-center justify-center px-2.5 py-2 rounded-full text-[10px] transition-all font-medium border ${
                         inCart || justAdded ? 'bg-green-50 text-green-600 border-green-200' : 'bg-white text-gray-700 border-gray-200 hover:border-[#D4AF37] hover:text-[#D4AF37]'
                       }`}>
-                      {inCart || justAdded ? <Check size={12} /> : <ShoppingCart size={12} />}
+                      {inCart || justAdded ? <Check size={11} /> : <ShoppingCart size={11} />}
                     </button>
                     <button onClick={() => navigate(`/enroll/program/${program.id}?tier=${selectedTier}`)}
                       data-testid={`upcoming-enroll-${program.id}`}
-                      className="flex-1 bg-[#D4AF37] hover:bg-[#b8962e] text-white py-2.5 rounded-full text-xs tracking-wider transition-all duration-300 uppercase font-medium">
+                      className="flex-1 bg-[#D4AF37] hover:bg-[#b8962e] text-white py-2 rounded-full text-[10px] tracking-wider transition-all duration-300 uppercase font-medium">
                       Enroll Now
                     </button>
                   </>
                 ) : (expired || program.enrollment_open === false) ? (
                   <button disabled data-testid={`upcoming-enroll-disabled-${program.id}`}
-                    className="flex-1 bg-gray-300 text-gray-500 py-2.5 rounded-full text-xs tracking-wider uppercase font-medium cursor-not-allowed">
+                    className="flex-1 bg-gray-300 text-gray-500 py-2 rounded-full text-[10px] tracking-wider uppercase font-medium cursor-not-allowed">
                     Closed
                   </button>
                 ) : null}
