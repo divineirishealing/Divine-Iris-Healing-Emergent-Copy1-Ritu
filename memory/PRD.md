@@ -22,6 +22,13 @@ Build a pixel-perfect clone of https://divineirishealing.com/ with comprehensive
 
 ## Implemented Features
 
+### Program Card Closure Logic Redesign (Mar 14, 2026) - COMPLETED
+- [x] Flagship cards: NEVER show "Registration Closed" overlay — always clean, full color, no dimming
+- [x] Upcoming cards: Closure is now ONLY admin-controlled via `enrollment_open` toggle (no auto-expire)
+- [x] Admin dropdown for custom closure text: "Registration Closed", "Seats Full", "Enrollment Closed", "Sold Out"
+- [x] Custom closure text shown in overlay badge AND on disabled enroll button
+- [x] All 10/10 tests passing (iteration 46)
+
 ### Program Card Image Overlay Redesign (Mar 14, 2026) - COMPLETED
 - [x] Dates/times moved to TOP-RIGHT of image (stacked: start, end, timing IST, local TZ)
 - [x] Gold duration badge (e.g., "21 Days") positioned below dates at top-right
