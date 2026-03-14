@@ -27,12 +27,16 @@ class ContentSection(BaseModel):
     body_style: Optional[Dict] = None
 
 class DurationTier(BaseModel):
-    label: str = ""  # e.g., "1 Month", "3 Months", "1 Year"
+    label: str = ""  # e.g., "1 Month", "3 Months", "1 Year", "7 Days"
     duration_value: int = 1
     duration_unit: str = "month"  # month, year, week, day
     price_aed: float = 0.0
     price_inr: float = 0.0
     price_usd: float = 0.0
+    offer_price_aed: float = 0.0
+    offer_price_inr: float = 0.0
+    offer_price_usd: float = 0.0
+    offer_text: str = ""
 
 
 class Program(BaseModel):
@@ -79,6 +83,8 @@ class Program(BaseModel):
     show_start_date_on_page: bool = False
     show_timing_on_page: bool = False
     show_duration_on_card: bool = True
+    show_pricing_on_card: bool = True
+    show_tiers_on_card: bool = True
     exclusive_offer_enabled: bool = False
     exclusive_offer_text: str = "Limited Time Offer"
     closure_text: str = "Registration Closed"
@@ -128,6 +134,8 @@ class ProgramCreate(BaseModel):
     show_start_date_on_page: Optional[bool] = False
     show_timing_on_page: Optional[bool] = False
     show_duration_on_card: Optional[bool] = True
+    show_pricing_on_card: Optional[bool] = True
+    show_tiers_on_card: Optional[bool] = True
     exclusive_offer_enabled: Optional[bool] = False
     exclusive_offer_text: Optional[str] = "Limited Time Offer"
     closure_text: Optional[str] = "Registration Closed"
@@ -181,6 +189,10 @@ class Session(BaseModel):
     price_aed: float = 0.0
     duration: str = "60-90 minutes"
     session_mode: str = "online"  # online / offline / both
+    offer_price_aed: float = 0.0
+    offer_price_inr: float = 0.0
+    offer_price_usd: float = 0.0
+    offer_text: str = ""
     available_dates: List[str] = []  # list of ISO date strings
     time_slots: List[str] = []  # e.g. ["10:00 AM", "2:00 PM", "5:00 PM"]
     testimonial_text: str = ""  # 2-5 line testimonial snippet
@@ -201,6 +213,10 @@ class SessionCreate(BaseModel):
     price_aed: float = 0.0
     duration: Optional[str] = "60-90 minutes"
     session_mode: Optional[str] = "online"
+    offer_price_aed: Optional[float] = 0.0
+    offer_price_inr: Optional[float] = 0.0
+    offer_price_usd: Optional[float] = 0.0
+    offer_text: Optional[str] = ""
     available_dates: Optional[List[str]] = []
     time_slots: Optional[List[str]] = []
     testimonial_text: Optional[str] = ""

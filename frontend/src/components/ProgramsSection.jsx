@@ -252,7 +252,7 @@ const ProgramCard = ({ program }) => {
           onClick={() => navigate(`/program/${program.id}`)}>{program.title}</h3>
         <p className="text-gray-500 text-xs leading-relaxed mb-3 line-clamp-2 flex-1" style={{ ...BODY, fontSize: '0.8rem' }}>{program.description}</p>
 
-        {hasTiers && (
+        {hasTiers && program.show_tiers_on_card !== false && (
           <div data-testid={`tier-selector-${program.id}`} className="flex gap-1 mb-3">
             {tiers.map((t, i) => (
               <button key={i} data-testid={`tier-btn-${program.id}-${i}`}
@@ -288,6 +288,7 @@ const ProgramCard = ({ program }) => {
         })()}
 
         {/* Pricing */}
+        {program.show_pricing_on_card !== false && (
         <div className="border-t pt-3 mt-auto">
           {showContact ? (
             <div className="text-center mb-2">
@@ -339,6 +340,22 @@ const ProgramCard = ({ program }) => {
             </>
           )}
         </div>
+        )}
+        {/* If pricing hidden, still show action buttons */}
+        {program.show_pricing_on_card === false && (
+          <div className="border-t pt-3 mt-auto flex gap-1.5">
+            <button onClick={() => navigate(`/program/${program.id}`)} data-testid={`know-more-btn-${program.id}`}
+              className="flex-1 bg-[#1a1a1a] hover:bg-[#333] text-white py-2 rounded-full text-[10px] tracking-wider transition-all duration-300 uppercase font-medium">
+              Know More
+            </button>
+            {program.enrollment_open !== false && (
+              <button onClick={() => navigate(`/enroll/program/${program.id}?tier=${selectedTier}`)} data-testid={`enroll-btn-${program.id}`}
+                className="flex-1 bg-[#D4AF37] hover:bg-[#b8962e] text-white py-2 rounded-full text-[10px] tracking-wider transition-all duration-300 uppercase font-medium">
+                Enroll Now
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -360,7 +377,7 @@ const ProgramsSection = ({ sectionConfig }) => {
 
   if (programs.length === 0) return null;
 
-  const title = hero.title_text || sectionConfig?.title || 'Flagship Programs';
+  const title = hero.title_text || sectionConfig?.title || 'Programs';
   const subtitle = hero.subtitle_text || sectionConfig?.subtitle || '';
   const titleStyle = Object.keys(hero.title_style || {}).length > 0 ? hero.title_style : sectionConfig?.title_style;
   const subtitleStyle = Object.keys(hero.subtitle_style || {}).length > 0 ? hero.subtitle_style : sectionConfig?.subtitle_style;

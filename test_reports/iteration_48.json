@@ -1,0 +1,111 @@
+{
+  "summary": "Iteration 48 - Pricing Hub Overhaul testing complete. Backend: 12/12 tests passed. Frontend: Pricing Hub UI verified with all features working. One database configuration issue found: Homepage 'Programs' section title still shows 'Flagship Programs' instead of 'Programs' - needs admin update.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "Homepage Programs Section",
+        "issues": ["Title shows 'Flagship Programs' instead of 'Programs' - this is a DATABASE CONFIG issue in homepage_sections[4].title, not a code bug"]
+      }
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iteration48_pricing_hub.py",
+    "/app/test_reports/pytest/pytest_iteration48.xml"
+  ],
+  "action_items": [
+    "Update homepage_sections[4].title from 'Flagship Programs' to 'Programs' via Admin > Homepage tab or API"
+  ],
+  "critical_code_review_comments": [
+    "ProgramsSection.jsx line 116: `hasTiers = program.is_flagship && tiers.length > 0` - tier selector requires is_flagship=true, all current programs have is_flagship=false",
+    "This is intentional design - tier selectors only show for flagship programs"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iteration48_pricing_hub.py"
+  ],
+  "success_rate": {
+    "backend": "100% (12/12 tests passed)",
+    "frontend": "100% (All Pricing Hub features verified)"
+  },
+  "test_credentials": {
+    "admin_url": "/admin",
+    "admin_username": "admin",
+    "admin_password": "divineadmin2024"
+  },
+  "seed_data_creation": "Tests create and cleanup TEST_ prefixed programs/sessions automatically",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Iteration 48 verified the rewritten Pricing Hub with: (1) Programs table with Show/Price/Tiers toggles, (2) Each tier row has full offer pricing (Offer AED/INR/USD + Offer Badge), (3) Duration dropdown presets (2 Days, 3 Days, 7 Days, 1 Month, etc.), (4) Add/Remove tiers working, (5) Add Program/Session buttons working, (6) Sessions table has Offer AED/INR/USD + Offer Badge columns, (7) Save All persists changes. The homepage title 'Flagship Programs' vs 'Programs' is a database config issue.",
+  "features_tested": {
+    "pricing_hub_programs_table": {
+      "status": "PASS",
+      "verified": [
+        "Table columns: Name/Duration, Show, Price, Tiers, AED, INR, USD, Offer AED, Offer INR, Offer USD, Offer Badge",
+        "Programs with tiers show tier rows (no base 0/0/0 row)",
+        "Programs without tiers show base pricing row",
+        "15 tier rows found initially"
+      ]
+    },
+    "pricing_hub_duration_presets": {
+      "status": "PASS",
+      "verified": [
+        "Duration dropdown has: 2 Days, 3 Days, 5 Days, 7 Days, 10 Days, 14 Days, 21 Days, 1 Month, 3 Months, 6 Months, Annual"
+      ]
+    },
+    "pricing_hub_add_remove_tiers": {
+      "status": "PASS",
+      "verified": [
+        "Add Tier button (+) adds new tier to program",
+        "Remove Tier button (trash) removes tier",
+        "Tier count changed from 15 to 14 after delete test"
+      ]
+    },
+    "pricing_hub_buttons": {
+      "status": "PASS",
+      "verified": [
+        "Add Program button creates new program",
+        "Add Session button creates new session",
+        "Save All button persists changes with success toast 'All pricing saved!'"
+      ]
+    },
+    "pricing_hub_sessions_table": {
+      "status": "PASS",
+      "verified": [
+        "Sessions table columns: Session, Show, AED, INR, USD, Offer AED, Offer INR, Offer USD, Offer Badge"
+      ]
+    },
+    "backend_models": {
+      "status": "PASS",
+      "verified": [
+        "DurationTier model has offer_price_aed, offer_price_inr, offer_price_usd, offer_text fields",
+        "Session model has offer_price_aed, offer_price_inr, offer_price_usd, offer_text fields",
+        "Program model has show_pricing_on_card, show_tiers_on_card fields"
+      ]
+    },
+    "show_pricing_tiers_toggles": {
+      "status": "PASS",
+      "verified": [
+        "show_pricing_on_card toggle works via API - hides pricing on homepage card when false",
+        "show_tiers_on_card toggle works via API - hides tier selector when false (requires is_flagship=true)"
+      ]
+    },
+    "homepage_programs_title": {
+      "status": "FAIL",
+      "issue": "Title shows 'Flagship Programs' instead of 'Programs'",
+      "root_cause": "homepage_sections[4].title = 'Flagship Programs' in database settings",
+      "fix": "Update via Admin > Homepage tab or PUT /api/settings"
+    }
+  },
+  "database_config_issue": {
+    "description": "Homepage 'Programs' section title needs to be changed from 'Flagship Programs' to 'Programs'",
+    "location": "site_settings.homepage_sections[4].title",
+    "current_value": "Flagship Programs",
+    "expected_value": "Programs",
+    "fix_method": "Admin Panel > Homepage tab > Programs section > Edit title, OR API PUT /api/settings with updated homepage_sections"
+  }
+}
