@@ -22,18 +22,19 @@ Build a pixel-perfect clone of https://divineirishealing.com/ with comprehensive
 
 ## Implemented Features
 
-### Admin Efficiency: Pricing Hub & Upcoming Hub (Mar 14, 2026) - COMPLETED
-- [x] Pricing Hub: Excel-style grid for ALL programs + sessions with AED/INR/USD base & offer prices
-- [x] Duration tier sub-rows with full offer pricing per tier (AED/INR/USD + Offer + Badge)
-- [x] Custom duration presets: 2 Days, 3 Days, 5 Days, 7 Days, 10 Days, 14 Days, 21 Days, 1 Month, 3 Months, 6 Months, Annual
-- [x] Add/Remove tiers, Add Program, Add Session buttons
-- [x] No more confusing base 0/0/0 row — tier programs show tier rows directly
+### Admin Efficiency: Pricing Hub & Programs Hub v2 (Mar 14, 2026) - COMPLETED
+- [x] Pricing Hub: Inline program/session naming (type name → Add, not auto "New Program")
+- [x] Pricing Hub: Expanded duration dropdown: 1-30 days, 1-4 weeks, 1-12 months, Annual (47 options)
+- [x] Pricing Hub: Full offer pricing per tier (AED/INR/USD + Offer + Badge)
+- [x] Pricing Hub: Add/Remove tiers, Add Program/Session with name input
+- [x] Pricing Hub: Show/Price/Tiers toggle switches per program
+- [x] Programs Hub: Split into Upcoming Programs (blue) + Programs (gold) sections
+- [x] Programs Hub: 17 column toggles per row (Enroll, Closure, Start, End, Deadline, Timing, TZ, Excl.Offer, Offer Text, Badge, Online, Offline, In-Person, Duration, Price, Tiers)
 - [x] Sessions now have offer pricing (offer_price_aed/inr/usd + offer_text)
-- [x] show_pricing_on_card and show_tiers_on_card toggles per program
-- [x] Renamed "Flagship Programs" to "Programs" on homepage
-- [x] Upcoming Hub: Excel-style grid for all card settings
-- [x] Big prominent closure badge + faded/dimmed look on BOTH card types when enrollment is OFF
-- [x] All 12/12 backend + 100% frontend tests passing (iteration 48)
+- [x] Homepage section renamed from "Flagship Programs" to "Programs"
+- [x] show_pricing_on_card and show_tiers_on_card toggles control homepage card display
+- [x] Big prominent closure badge + faded look when enrollment is OFF
+- [x] All tests passing: 100% backend + 100% frontend (iterations 48-49)
 
 ### Program Card Closure Logic Redesign (Mar 14, 2026) - COMPLETED
 - [x] Flagship cards: NEVER show "Registration Closed" overlay — always clean, full color, no dimming
