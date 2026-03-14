@@ -1,0 +1,112 @@
+{
+  "summary": "Iteration 47 - Pricing Hub, Upcoming Hub, and Closure Badge Features COMPLETE. All features tested and working: (1) Flagship cards show 'REGISTRATION CLOSED' overlay with opacity-60 and grayscale effect when enrollment_open=false. (2) Upcoming cards show closure badge with custom text when enrollment_open=false, disabled enroll button shows closure_text. (3) Pricing Hub admin tab renders Excel-style table with all programs, tier pricing rows, and sessions pricing. (4) Upcoming Hub admin tab renders all programs with toggles for Upcoming/Flagship/Enrollment, closure text dropdown appears only when Enroll Open is OFF.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iteration47_pricing_upcoming_hub.py",
+    "/app/test_reports/pytest/pytest_iteration47.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [
+    "/app/backend/tests/test_iteration47_pricing_upcoming_hub.py"
+  ],
+  "success_rate": {
+    "backend": "100% (12/12 tests passed)",
+    "frontend": "100% (All UI features verified)"
+  },
+  "test_credentials": {
+    "admin_url": "/admin",
+    "admin_username": "admin",
+    "admin_password": "divineadmin2024",
+    "frontend_url": "https://stripe-donation-flow.preview.emergentagent.com"
+  },
+  "seed_data_creation": "Temporarily set SoulSync enrollment_open=false with closure_text='Seats Full' for testing closure overlay, then restored to enrollment_open=true",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Iteration 47 verified new admin tabs (Pricing Hub, Upcoming Hub) and closure overlay logic. Both Flagship and Upcoming cards now show closure overlay when enrollment_open=false (admin-controlled via Upcoming Hub tab). Pricing Hub allows editing all program/session prices in one Excel-style grid. Upcoming Hub manages card settings including enrollment toggle and closure text dropdown.",
+  "features_tested": {
+    "flagship_cards_closure_overlay": {
+      "status": "PASS",
+      "verified": [
+        "Card with enrollment_open=false shows opacity-60 class",
+        "Image has grayscale-[40%] effect",
+        "Closure overlay badge displays closure_text (e.g., 'SEATS FULL')",
+        "Enroll button hidden when enrollment_open=false",
+        "Know More button still visible",
+        "Countdown timer hidden when enrollment_open=false"
+      ]
+    },
+    "flagship_cards_normal_state": {
+      "status": "PASS",
+      "verified": [
+        "Card with enrollment_open=true has no opacity class",
+        "Image has full color (no grayscale)",
+        "No closure overlay",
+        "Enroll Now button visible",
+        "Countdown timer visible (if deadline exists)",
+        "Early Bird badge visible (if offer enabled)"
+      ]
+    },
+    "upcoming_cards_closure_overlay": {
+      "status": "PASS",
+      "verified": [
+        "Card with enrollment_open=false shows opacity-75 class",
+        "Image has grayscale-[30%] effect",
+        "Closure overlay badge displays closure_text",
+        "Disabled enroll button shows closure_text (e.g., 'Closed')"
+      ]
+    },
+    "pricing_hub_admin_tab": {
+      "status": "PASS",
+      "verified": [
+        "Tab visible in sidebar as 'Pricing Hub' with DollarSign icon",
+        "Excel-style Programs table with columns: Program, Visible, AED, INR, USD, Offer AED, Offer INR, Offer USD, Offer Badge",
+        "Duration tier sub-rows (1 Month, 3 Month, Annual) with editable tier pricing",
+        "6 program rows found",
+        "15 tier sub-rows found",
+        "Sessions table below with AED/INR/USD pricing columns",
+        "23 session rows found",
+        "Save All button functional"
+      ]
+    },
+    "upcoming_hub_admin_tab": {
+      "status": "PASS",
+      "verified": [
+        "Tab visible in sidebar as 'Upcoming Hub' with Calendar icon",
+        "Excel-style table with columns: Program, Upcoming, Flagship, Enroll Open, Closure Text, Start Date, End Date, Deadline, Timing, Timezone",
+        "6 program rows found",
+        "Upcoming/Flagship/Enroll Open columns have toggle switches",
+        "Closure Text column shows dropdown ONLY when Enroll Open is OFF",
+        "Closure dropdown has 4 options: Registration Closed, Seats Full, Enrollment Closed, Sold Out",
+        "Placeholder '-' shown when Enroll Open is ON",
+        "Save All button functional"
+      ]
+    },
+    "backend_api_tests": {
+      "status": "PASS",
+      "tests_passed": 12,
+      "tests_total": 12,
+      "test_categories": [
+        "Programs CRUD with closure_text field",
+        "Sessions API with multi-currency pricing",
+        "Upcoming programs filter",
+        "Flagship programs duration_tiers",
+        "Enrollment status verification"
+      ]
+    }
+  },
+  "code_review_notes": {
+    "ProgramsSection.jsx": "Lines 171-247: ProgramCard component correctly implements closure overlay when enrollment_open===false. Uses opacity-60 class, grayscale-[40%] on image, and displays closure_text in overlay.",
+    "UpcomingProgramsSection.jsx": "Lines 188-362: UpcomingCard component has closure overlay at lines 236-242. Uses opacity-75 class, grayscale-[30%] on image. Disabled enroll button at line 351-354 shows closure_text.",
+    "PricingHubTab.jsx": "New Excel-style pricing grid with Programs table (with tier sub-rows) and Sessions table. Save All button persists all changes.",
+    "UpcomingHubTab.jsx": "New Excel-style upcoming programs manager with all required columns. Closure text dropdown conditionally rendered at lines 94-99."
+  }
+}

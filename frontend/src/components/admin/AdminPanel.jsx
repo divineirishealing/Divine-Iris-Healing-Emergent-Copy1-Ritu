@@ -12,7 +12,7 @@ import { resolveImageUrl } from '../../lib/imageUtils';
 import {
   Settings, Package, Calendar, MessageSquare, BarChart3, Mail,
   Trash2, Edit, Plus, X, Eye, EyeOff, Save, ArrowUp, ArrowDown,
-  Globe, Layout, Image, Users, Palette, Gift, Monitor, Wifi, Tag, ChevronLeft, ChevronRight, Upload, FileText
+  Globe, Layout, Image, Users, Palette, Gift, Monitor, Wifi, Tag, ChevronLeft, ChevronRight, Upload, FileText, DollarSign
 } from 'lucide-react';
 
 import HeroSettingsTab from './tabs/HeroSettingsTab';
@@ -33,6 +33,8 @@ import ApiKeysTab from './tabs/ApiKeysTab';
 import PaymentSettingsTab from './tabs/PaymentSettingsTab';
 import IndiaPaymentsTab from './tabs/IndiaPaymentsTab';
 import ReceiptTemplateTab from './tabs/ReceiptTemplateTab';
+import PricingHubTab from './tabs/PricingHubTab';
+import UpcomingHubTab from './tabs/UpcomingHubTab';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -177,6 +179,8 @@ const AdminPanel = () => {
     { key: 'about', label: 'About', icon: Layout },
     { key: 'sponsor', label: 'Sponsor', icon: Gift },
     { key: 'programs', label: 'Programs', icon: Package, count: programs.length },
+    { key: 'pricing_hub', label: 'Pricing Hub', icon: DollarSign },
+    { key: 'upcoming_hub', label: 'Upcoming Hub', icon: Calendar },
     { key: 'sessions', label: 'Sessions', icon: Calendar, count: sessions.length },
     { key: 'testimonials', label: 'Testimonials', icon: MessageSquare, count: testimonials.length },
     { key: 'stats', label: 'Stats', icon: BarChart3, count: stats.length },
@@ -295,6 +299,8 @@ const AdminPanel = () => {
           {activeTab === 'payment_settings' && <PaymentSettingsTab />}
           {activeTab === 'india_payments' && <IndiaPaymentsTab />}
           {activeTab === 'receipt_template' && <ReceiptTemplateTab />}
+          {activeTab === 'pricing_hub' && <PricingHubTab />}
+          {activeTab === 'upcoming_hub' && <UpcomingHubTab />}
 
           {/* ===== PROGRAMS TAB ===== */}
           {activeTab === 'programs' && (

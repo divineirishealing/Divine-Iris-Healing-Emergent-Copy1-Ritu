@@ -232,10 +232,12 @@ const UpcomingCard = ({ program }) => {
             )}
           </div>
         )}
-        {/* Closure overlay — admin-controlled only */}
+        {/* Big closure badge when enrollment is OFF */}
         {program.enrollment_open === false && (
-          <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-            <span className="bg-gray-900/80 text-white text-[10px] font-bold px-3 py-1.5 rounded-full tracking-wider uppercase">{program.closure_text || 'Registration Closed'}</span>
+          <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+            <span className="bg-gray-900/90 text-white text-sm font-bold px-5 py-2.5 rounded-full tracking-wider uppercase shadow-xl border border-white/20">
+              {program.closure_text || 'Registration Closed'}
+            </span>
           </div>
         )}
         {/* Bottom overlay: countdown left, exclusive offer right */}

@@ -170,10 +170,10 @@ const ProgramCard = ({ program }) => {
 
   return (
     <div data-testid={`program-card-${program.id}`}
-      className="group bg-white rounded-xl overflow-hidden shadow-lg transition-all duration-300 border border-gray-100 flex flex-col hover:shadow-2xl">
+      className={`group bg-white rounded-xl overflow-hidden shadow-lg transition-all duration-300 border border-gray-100 flex flex-col ${program.enrollment_open === false ? 'opacity-60' : 'hover:shadow-2xl'}`}>
       <div className="relative h-48 overflow-hidden cursor-pointer" onClick={() => navigate(`/program/${program.id}`)}>
         <img src={resolveImageUrl(program.image)} alt={program.title}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          className={`w-full h-full object-cover transition-transform duration-500 ${program.enrollment_open !== false ? 'group-hover:scale-105' : 'grayscale-[40%]'}`}
           onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1545389336-cf090694435e?w=600&h=400&fit=crop'; }} />
         {/* Top-left: Mode badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-1">
@@ -219,6 +219,14 @@ const ProgramCard = ({ program }) => {
                 {autoDuration}
               </span>
             )}
+          </div>
+        )}
+        {/* Big closure badge when enrollment is OFF */}
+        {program.enrollment_open === false && (
+          <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+            <span className="bg-gray-900/90 text-white text-sm font-bold px-5 py-2.5 rounded-full tracking-wider uppercase shadow-xl border border-white/20">
+              {program.closure_text || 'Registration Closed'}
+            </span>
           </div>
         )}
         {/* Bottom overlay: countdown left, exclusive offer right */}
