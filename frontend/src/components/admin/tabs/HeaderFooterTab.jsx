@@ -38,6 +38,7 @@ const HeaderFooterTab = ({ settings, onChange }) => {
   const removeSenderEmail = (idx) => set('sender_emails', senderEmails.filter((_, i) => i !== idx));
 
   const sections = [
+    { key: 'header_nav', label: 'Header Navigation' },
     { key: 'social', label: 'Social Media' },
     { key: 'footer_nav', label: 'Footer Navigation' },
     { key: 'footer', label: 'Footer Content' },
@@ -61,6 +62,89 @@ const HeaderFooterTab = ({ settings, onChange }) => {
           </button>
         ))}
       </div>
+
+      {/* Header Navigation */}
+      {activeSection === 'header_nav' && (() => {
+        const DEFAULT_HEADER_NAV = [
+          { label: 'Home', href: '/', position: 'left', visible: true },
+          { label: 'About', href: '/about', position: 'left', visible: true },
+          { label: 'Services', href: '/sessions', position: 'left', visible: true },
+          { label: 'Transformations', href: '/transformations', position: 'left', visible: true },
+          { label: 'Upcoming Sessions', href: '/#upcoming', position: 'left', visible: true },
+          { label: 'Contact', href: '/contact', position: 'right', visible: true },
+        ];
+        const headerNav = s.header_nav_items?.length ? s.header_nav_items : DEFAULT_HEADER_NAV;
+        const updateHeaderNav = (items) => set('header_nav_items', items);
+        const toggleHeaderItem = (idx) => { const m = [...headerNav]; m[idx] = { ...m[idx], visible: !m[idx].visible }; updateHeaderNav(m); };
+        const moveHeaderItem = (idx, dir) => { const m = [...headerNav]; const sw = idx + dir; if (sw < 0 || sw >= m.length) return; [m[idx], m[sw]] = [m[sw], m[idx]]; updateHeaderNav(m); };
+        const updateHeaderItem = (idx, field, val) => { const m = [...headerNav]; m[idx] = { ...m[idx], [field]: val }; updateHeaderNav(m); };
+        const addHeaderItem = () => updateHeaderNav([...headerNav, { label: 'New Link', href: '/', position: 'left', visible: true }]);
+        const removeHeaderItem = (idx) => updateHeaderNav(headerNav.filter((_, i) => i !== idx));
+
+        const leftItems = headerNav.filter(i => i.position !== 'right');
+        const rightItems = headerNav.filter(i => i.position === 'right');
+
+        return (
+          <div className="space-y-4">
+            <div className="bg-white rounded-lg p-5 shadow-sm border" data-testid="header-nav-panel">
+              <div className="flex justify-between items-center mb-1">
+                <p className="text-xs font-semibold text-gray-800">Header Menu Links</p>
+                <Button size="sm" variant="outline" onClick={addHeaderItem} className="text-[10px]">
+                  <Plus size={12} className="mr-1" /> Add Link
+                </Button>
+              </div>
+              <p className="text-[10px] text-gray-400 mb-4">Configure the navigation bar at the top of your site. Set position to Left or Right. Paste any URL or choose an internal page.</p>
+
+              {/* Preview */}
+              <div className="bg-gray-900 rounded-lg px-4 py-2.5 mb-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  {headerNav.filter(i => i.visible && i.position !== 'right').map((item, i) => (
+                    <span key={i} className="text-white/70 text-[9px] tracking-wider uppercase">{item.label}</span>
+                  ))}
+                </div>
+                <div className="flex items-center gap-3">
+                  {headerNav.filter(i => i.visible && i.position === 'right').map((item, i) => (
+                    <span key={i} className="text-white/70 text-[9px] tracking-wider uppercase">{item.label}</span>
+                  ))}
+                  <span className="text-[#D4AF37] text-[9px]">Cart</span>
+                  <span className="text-white/40 text-[9px]">Socials</span>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                {headerNav.map((item, idx) => (
+                  <div key={idx} className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors ${item.visible ? 'bg-white border-gray-200' : 'bg-gray-50 border-gray-100 opacity-50'}`}
+                    data-testid={`header-nav-item-${idx}`}>
+                    <div className="flex flex-col gap-0.5">
+                      <button type="button" disabled={idx === 0} onClick={() => moveHeaderItem(idx, -1)} className="p-0.5 hover:bg-gray-200 rounded disabled:opacity-20"><ArrowUp size={10} /></button>
+                      <button type="button" disabled={idx === headerNav.length - 1} onClick={() => moveHeaderItem(idx, 1)} className="p-0.5 hover:bg-gray-200 rounded disabled:opacity-20"><ArrowDown size={10} /></button>
+                    </div>
+                    <Input value={item.label} onChange={e => updateHeaderItem(idx, 'label', e.target.value)} className="text-[10px] h-7 w-28" placeholder="Label" />
+                    <Input value={item.href} onChange={e => updateHeaderItem(idx, 'href', e.target.value)} className="text-[10px] h-7 flex-1" placeholder="Paste URL or path like /about" />
+                    <select value={item.position || 'left'} onChange={e => updateHeaderItem(idx, 'position', e.target.value)}
+                      className={`text-[10px] border rounded px-2 py-1 h-7 w-20 font-medium ${item.position === 'right' ? 'bg-blue-50 text-blue-600 border-blue-200' : 'bg-gray-50 text-gray-600 border-gray-200'}`}>
+                      <option value="left">Left</option>
+                      <option value="right">Right</option>
+                    </select>
+                    {item.visible ? <Eye size={12} className="text-green-500" /> : <EyeOff size={12} className="text-gray-300" />}
+                    <Switch checked={item.visible} onCheckedChange={() => toggleHeaderItem(idx)} />
+                    <button type="button" onClick={() => removeHeaderItem(idx)} className="text-red-300 hover:text-red-500 p-1"><Trash2 size={12} /></button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg p-5 shadow-sm border">
+              <p className="text-xs font-semibold text-gray-800 mb-1">Programs Dropdown</p>
+              <p className="text-[10px] text-gray-400 mb-3">The "Programs" dropdown always appears automatically in the header, listing all visible programs grouped by Flagship, Upcoming, and All.</p>
+              <div className="flex items-center gap-2">
+                <Switch checked={s.header_show_programs_dropdown !== false} onCheckedChange={v => set('header_show_programs_dropdown', v)} />
+                <Label className="text-[10px] text-gray-600">Show Programs dropdown in header</Label>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Social Media Links */}
       {activeSection === 'social' && (

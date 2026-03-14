@@ -407,6 +407,8 @@ class SiteSettings(BaseModel):
     program_section_template: List[Dict] = []
     # Footer navigation menu items
     footer_menu_items: List[Dict] = []  # [{label: "Home", href: "/", visible: true}, ...]
+    header_nav_items: List[Dict] = []  # [{label: "Home", href: "/", position: "left", visible: true}, ...]
+    header_show_programs_dropdown: bool = True
     footer_show_programs: bool = True  # Show programs column in footer
     # Discount & Loyalty Settings (global for all flagship programs)
     enable_referral: bool = True
@@ -523,6 +525,8 @@ class SiteSettingsUpdate(BaseModel):
     sections: Optional[Dict] = None
     program_section_template: Optional[List[Dict]] = None
     footer_menu_items: Optional[List[Dict]] = None
+    header_nav_items: Optional[List[Dict]] = None
+    header_show_programs_dropdown: Optional[bool] = None
     footer_show_programs: Optional[bool] = None
     enable_referral: Optional[bool] = None
     enable_group_discount: Optional[bool] = None
