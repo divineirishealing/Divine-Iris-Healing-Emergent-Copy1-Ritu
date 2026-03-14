@@ -71,6 +71,7 @@ const HeaderFooterTab = ({ settings, onChange }) => {
           { label: 'Services', href: '/sessions', position: 'left', visible: true },
           { label: 'Transformations', href: '/transformations', position: 'left', visible: true },
           { label: 'Upcoming Sessions', href: '/#upcoming', position: 'left', visible: true },
+          { label: 'Programs', href: '/#programs', position: 'left', visible: true },
           { label: 'Contact', href: '/contact', position: 'right', visible: true },
         ];
         const headerNav = s.header_nav_items?.length ? s.header_nav_items : DEFAULT_HEADER_NAV;
@@ -135,11 +136,11 @@ const HeaderFooterTab = ({ settings, onChange }) => {
             </div>
 
             <div className="bg-white rounded-lg p-5 shadow-sm border">
-              <p className="text-xs font-semibold text-gray-800 mb-1">Programs Dropdown</p>
-              <p className="text-[10px] text-gray-400 mb-3">The "Programs" dropdown always appears automatically in the header, listing all visible programs grouped by Flagship, Upcoming, and All.</p>
+              <p className="text-xs font-semibold text-gray-800 mb-1">Flagship Programs Dropdown</p>
+              <p className="text-[10px] text-gray-400 mb-3">The "Flagship Programs" dropdown always appears in the header, listing all visible programs grouped by Flagship, Upcoming, and All.</p>
               <div className="flex items-center gap-2">
                 <Switch checked={s.header_show_programs_dropdown !== false} onCheckedChange={v => set('header_show_programs_dropdown', v)} />
-                <Label className="text-[10px] text-gray-600">Show Programs dropdown in header</Label>
+                <Label className="text-[10px] text-gray-600">Show Flagship Programs dropdown in header</Label>
               </div>
             </div>
           </div>

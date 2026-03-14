@@ -64,6 +64,7 @@ const Header = () => {
     { label: 'Services', href: '/sessions', position: 'left', visible: true },
     { label: 'Transformations', href: '/transformations', position: 'left', visible: true },
     { label: 'Upcoming Sessions', href: '/#upcoming', position: 'left', visible: true },
+    { label: 'Programs', href: '/#programs', position: 'left', visible: true },
   ];
 
   const headerNav = (settings?.header_nav_items?.length ? settings.header_nav_items : DEFAULT_NAV).filter(i => i.visible !== false);
@@ -118,7 +119,7 @@ const Header = () => {
                   <div ref={dropdownRef} className="relative">
                     <button onClick={() => setProgramsOpen(!programsOpen)} data-testid="nav-programs-dropdown"
                       className="text-white/80 hover:text-[#D4AF37] text-[11px] tracking-[0.12em] uppercase font-medium px-3 py-2 transition-colors inline-flex items-center gap-1 whitespace-nowrap">
-                      Programs <ChevronDown size={12} className={`transition-transform duration-200 ${programsOpen ? 'rotate-180' : ''}`} />
+                      Flagship Programs <ChevronDown size={12} className={`transition-transform duration-200 ${programsOpen ? 'rotate-180' : ''}`} />
                     </button>
                     {programsOpen && (
                       <div className="absolute top-full left-0 mt-1 min-w-[220px] bg-black/90 backdrop-blur-md rounded-lg shadow-2xl border border-white/10 py-2 z-50">
@@ -210,7 +211,7 @@ const Header = () => {
               <>
                 <button onClick={() => setProgramsOpen(!programsOpen)}
                   className="text-white/80 hover:text-[#D4AF37] text-sm tracking-[0.15em] uppercase font-light transition-colors inline-flex items-center gap-2">
-                  Programs <ChevronDown size={14} className={`transition-transform ${programsOpen ? 'rotate-180' : ''}`} />
+                  Flagship Programs <ChevronDown size={14} className={`transition-transform ${programsOpen ? 'rotate-180' : ''}`} />
                 </button>
                 {programsOpen && programs.map(p => (
                   <button key={p.id} onClick={() => handleNav(`/program/${p.id}`)}
