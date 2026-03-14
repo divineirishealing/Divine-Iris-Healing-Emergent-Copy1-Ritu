@@ -22,6 +22,12 @@ Build a pixel-perfect clone of https://divineirishealing.com/ with comprehensive
 
 ## Implemented Features
 
+### Program Card Layout Consistency (Mar 14, 2026) - COMPLETED
+- [x] Upcoming Programs: Gold duration badge (e.g., "21 Days") added above dates on image overlay
+- [x] Flagship Programs: Full layout replicated from Upcoming — countdown timer, dates, duration, timing + timezone, mode badges, early bird banner, pricing with cart/enroll buttons
+- [x] Both card types now share identical visual structure and interaction patterns
+- [x] All 13/13 frontend tests passing (iteration 44)
+
 ### Program Timing & Local Timezone (Mar 13, 2026) - COMPLETED
 - [x] Added `timing` and `time_zone` fields to Program backend model
 - [x] Program detail page hero displays duration, start_date, timing, and timezone
@@ -79,23 +85,20 @@ Build a pixel-perfect clone of https://divineirishealing.com/ with comprehensive
 ### Program Card Date/Time on Image + Local Timezone (Mar 14, 2026) - COMPLETED
 - [x] Moved dates and timing from card body onto the program card image
 - [x] Date/time positioned at bottom-right of image, alongside countdown timer at bottom-left
-- [x] Admin sets time in IST; card auto-converts to viewer's local timezone (GST for Dubai, EST for US, etc.)
+- [x] Admin sets time in IST; card auto-converts to viewer's local timezone
 - [x] Bold, bigger text (11px) with pill backgrounds for high visibility
-- [x] Supports all major timezone abbreviations (IST, GST, EST, PST, BST, AEST, etc.)
-- [x] Clean layout on both desktop and mobile
+- [x] Supports all major timezone abbreviations
 
 ### India Payment: Exly Gateway + Bank Transfer (Mar 14, 2026) - COMPLETED
-- [x] Replaced GPay/UPI with Exly payment gateway (handles GPay, debit/credit cards automatically)
-- [x] Added Bank Transfer option with admin-configurable bank details (account name, number, IFSC, bank, branch)
-- [x] Bank Transfer has proof submission form: screenshot, name, date, bank, txn ID, amount, city, state
+- [x] Replaced GPay/UPI with Exly payment gateway
+- [x] Added Bank Transfer option with admin-configurable bank details
+- [x] Bank Transfer has proof submission form
 - [x] Admin "India Proofs" tab for viewing/approving/rejecting bank transfer proofs
-- [x] Receipt shows proper discount breakdown: base - promo - auto - 9% alt discount + 18% GST
-- [x] All settings configurable from admin "Payments" tab (Exly link, bank details, discount %, GST %)
+- [x] All settings configurable from admin "Payments" tab
 
 ### Stripe: Disabled Adaptive Pricing (Mar 14, 2026) - COMPLETED
-- [x] Disabled "Choose a currency" popup on Stripe checkout by setting `adaptive_pricing: {enabled: false}`
+- [x] Disabled "Choose a currency" popup on Stripe checkout
 - [x] Original currency behavior preserved: INR for India, AED for UAE, USD for others
-- [x] Applied to all checkout flows: enrollment, regular payment, and sponsor/donation
 
 ## Pending / Upcoming Tasks
 
