@@ -5,7 +5,7 @@ import { resolveImageUrl } from '../lib/imageUtils';
 import { useCurrency } from '../context/CurrencyContext';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../hooks/use-toast';
-import { Monitor, Calendar, Clock, AlertTriangle, Wifi, ShoppingCart, Check, Bell, Globe } from 'lucide-react';
+import { Monitor, Calendar, Clock, AlertTriangle, Wifi, ShoppingCart, Check, Bell } from 'lucide-react';
 
 // Map common timezone abbreviations to UTC offset in hours
 const TZ_OFFSETS = {
@@ -27,7 +27,6 @@ const TZ_OFFSETS = {
 const parseTimeStr = (str) => {
   if (!str) return null;
   str = str.trim().toUpperCase();
-  // Match patterns like "9PM", "9:30PM", "9:30 PM", "21:00"
   const match = str.match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)?$/);
   if (!match) return null;
   let h = parseInt(match[1], 10);
@@ -38,16 +37,14 @@ const parseTimeStr = (str) => {
   return { hours: h, minutes: m };
 };
 
-// Convert a time from source timezone to GMT and local time
-const convertTimingToGMTAndLocal = (timing, timeZone) => {
-  if (!timing || !timeZone) return { gmt: '', local: '', localTz: '' };
+// Convert timing from source timezone to viewer's local time
+const convertTimingToLocal = (timing, timeZone) => {
+  if (!timing || !timeZone) return { local: '', localTz: '' };
 
-  // Find the offset for the source timezone
   const tzKey = Object.keys(TZ_OFFSETS).find(k => timeZone.toUpperCase().includes(k.toUpperCase()));
-  if (!tzKey && tzKey !== 0) return { gmt: '', local: '', localTz: '' };
+  if (!tzKey && tzKey !== 0) return { local: '', localTz: '' };
   const srcOffset = TZ_OFFSETS[tzKey];
 
-  // Parse time range like "9PM - 10PM" or "9:00 PM - 10:30 PM"
   const parts = timing.split(/\s*[-–—to]+\s*/i);
   const formatTime = (h, m) => {
     const period = h >= 12 ? 'PM' : 'AM';
@@ -58,24 +55,17 @@ const convertTimingToGMTAndLocal = (timing, timeZone) => {
   const convertToOffset = (parsed, fromOffset, toOffset) => {
     if (!parsed) return null;
     let totalMin = parsed.hours * 60 + parsed.minutes - fromOffset * 60 + toOffset * 60;
-    // Wrap around 24h
     totalMin = ((totalMin % 1440) + 1440) % 1440;
     return { hours: Math.floor(totalMin / 60), minutes: totalMin % 60 };
   };
 
-  const localOffset = -(new Date().getTimezoneOffset()) / 60; // local UTC offset in hours
-  const localTzName = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  // Short label like "IST", "EST" etc
+  const localOffset = -(new Date().getTimezoneOffset()) / 60;
   const localTzAbbr = new Date().toLocaleTimeString('en-US', { timeZoneName: 'short' }).split(' ').pop();
 
-  const gmtTimes = parts.map(p => convertToOffset(parseTimeStr(p.trim()), srcOffset, 0));
   const localTimes = parts.map(p => convertToOffset(parseTimeStr(p.trim()), srcOffset, localOffset));
-
-  const gmtStr = gmtTimes.filter(Boolean).map(t => formatTime(t.hours, t.minutes)).join(' - ');
   const localStr = localTimes.filter(Boolean).map(t => formatTime(t.hours, t.minutes)).join(' - ');
 
   return {
-    gmt: gmtStr ? `${gmtStr} GMT` : '',
     local: localStr,
     localTz: localTzAbbr || '',
   };
@@ -188,8 +178,8 @@ const UpcomingCard = ({ program }) => {
     return dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
   };
 
-  // Convert timing to GMT and local
-  const timingConverted = convertTimingToGMTAndLocal(program.timing, program.time_zone);
+  // Convert timing to viewer's local time
+  const timingConverted = convertTimingToLocal(program.timing, program.time_zone);
 
   return (
     <div data-testid={`upcoming-card-${program.id}`}
@@ -218,24 +208,18 @@ const UpcomingCard = ({ program }) => {
                 <CountdownTimer deadline={deadline} />
               )}
             </div>
-            {/* Date & Time right */}
-            {(program.start_date || timingConverted.gmt) && (
-              <div data-testid={`card-image-datetime-${program.id}`} className="flex flex-col items-end gap-0.5">
+            {/* Date & Local Time right */}
+            {(program.start_date || timingConverted.local) && (
+              <div data-testid={`card-image-datetime-${program.id}`} className="flex flex-col items-end gap-1">
                 {(program.start_date || program.end_date) && (
-                  <span className="text-white/90 text-[9px] font-medium flex items-center gap-1">
-                    <Calendar size={9} className="flex-shrink-0 text-white/70" />
+                  <span className="bg-black/50 backdrop-blur-sm text-white text-[11px] font-bold px-2.5 py-1 rounded flex items-center gap-1.5">
+                    <Calendar size={11} className="flex-shrink-0" />
                     {fmtDate(program.start_date)}{program.end_date ? ` — ${fmtDate(program.end_date)}` : ''}
                   </span>
                 )}
-                {timingConverted.gmt && (
-                  <span className="text-white/90 text-[9px] font-medium flex items-center gap-1">
-                    <Globe size={9} className="flex-shrink-0 text-white/70" />
-                    {timingConverted.gmt}
-                  </span>
-                )}
                 {timingConverted.local && (
-                  <span className="text-blue-300 text-[9px] font-medium flex items-center gap-1">
-                    <Clock size={9} className="flex-shrink-0" />
+                  <span className="bg-blue-600/70 backdrop-blur-sm text-white text-[11px] font-bold px-2.5 py-1 rounded flex items-center gap-1.5">
+                    <Clock size={11} className="flex-shrink-0" />
                     {timingConverted.local} {timingConverted.localTz}
                   </span>
                 )}
