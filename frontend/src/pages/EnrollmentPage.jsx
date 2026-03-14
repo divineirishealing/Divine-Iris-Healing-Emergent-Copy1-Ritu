@@ -213,7 +213,7 @@ function EnrollmentPage() {
   const [emailVerified, setEmailVerified] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [discountSettings, setDiscountSettings] = useState({ enable_referral: true });
-  const [paymentSettings, setPaymentSettings] = useState({ disclaimer: '', india_links: [], india_exly_link: '', india_bank_details: {} });
+  const [paymentSettings, setPaymentSettings] = useState({ disclaimer: '', india_links: [], india_exly_link: '', india_bank_details: {}, india_enabled: false });
 
   // Country → currency mapping for real-time pricing updates
   const CURRENCY_MAP = {
