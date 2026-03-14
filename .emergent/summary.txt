@@ -4,176 +4,154 @@ The user wants to build a pixel-perfect clone of their existing website, . The p
 **User's preferred language**: English
 
 **what currently exists?**
-A full-stack application (React + FastAPI + MongoDB) with a comprehensive admin panel. Key features include:
-- **Email OTP System:** User enrollment is secured via an email OTP system integrated with the user's Google Workspace account (using an app password). This replaced a previous Resend implementation.
-- **Editable API Keys Admin:** A dedicated admin tab allows the user to securely view, edit, and save API keys (for Stripe, SMTP, etc.) directly into the database, removing the need for  file modifications.
-- **Advanced Geo-Pricing & Currency Logic:** The enrollment process features robust geo-pricing. It cross-validates the user's selected country with their phone number for special Indian pricing and displays currency dynamically (INR, AED, USD) based on user selection and IP location.
-- **India-Specific Payment Flow:** The enrollment page displays a disclaimer and admin-configurable payment links (Exly, GPay, Bank Transfer) as alternatives to Stripe for Indian users, including a note about potential surcharges.
-- **Enhanced Enrollment Form:** The multi-step enrollment form features dynamic UI updates, including auto-populating phone country codes based on country selection and auto-copying the participant's phone number to their WhatsApp field.
-- **Luxury Receipt Template:** A highly customizable, luxury-style HTML email receipt template has been implemented. An admin panel allows control over fonts, colors, a thank-you message, and toggles for showing logo, duration, and timing.
-- **Program & Session Management:** Extensive admin controls for creating and managing programs and personal sessions, including styling, content, special offers, and visibility.
-- **Global Style Controls:** A Global Styles admin tab includes a control for a universal pricing font that applies to all program pages.
-- **Homepage Customization:** The homepage content, including a newly fixed stats section, can be managed from the admin panel.
+A full-stack application (React + FastAPI + MongoDB) with a highly customized admin panel and dynamic homepage components. Key features include:
+-   **Admin Panel Hubs:**
+    -   : A centralized, Excel-style grid to manage pricing (AED/INR/USD base & offer), duration tiers (e.g., 1M, 3M, Annual), and offer badges for all programs and personal sessions.
+    -   : An admin tab split into Upcoming Programs and Programs sections for managing visibility, enrollment status (), closure text, dates, and other card details via individual toggles.
+-   **Dynamic Program Cards:**
+    -   **Upcoming Programs:** Feature-rich cards that display a countdown timer, dates, pricing, and an exclusive offer badge. When a program has multiple duration tiers, the card's dates and pricing update dynamically as the user selects a tier.
+    -   **Programs (Flagship/Non-Upcoming):** Clean, minimalist cards showing just the image, title, description, and a Know More button. All programs are displayed in this section, providing an evergreen catalog.
+-   **Admin-Controlled Enrollment & Display:** The admin panel provides extensive toggles to control the visibility of almost every element on the program cards (dates, times, countdown, pricing, etc.) and to manually open/close enrollment with a custom message (e.g., Seats Full).
+-   **Previous Features:** A robust India-specific payment system (Exly/Bank Transfer), a free enrollment flow, and a fix for a Stripe currency popup issue are also implemented.
 
 **Last working item**:
-- **Last item agent was working:** The user reported that the  and  for a program are not showing on the program's detail page header, even though the feature was implemented. The agent was in the process of debugging this by checking if the data for the Quad Layer Healing program exists in the database.
-- **Status:** IN PROGRESS
-- **Agent Testing Done:** N
-- **Which testing method agent to use?** Manual testing. First, use  to inspect the program data from the  endpoint. Then, use the screenshot tool to verify the frontend rendering on .
-- **User Testing Done:** N
+-   **Last item agent was working:** The user requested a major change to the Upcoming Programs card. When enrollment is toggled OFF in the admin panel, the card should hide all details (dates, countdown, pricing) and only show a prominent closure badge. When enrollment is ON, it should display all details. The agent was in the middle of rewriting  to implement this conditional rendering logic.
+-   **Status:** IN PROGRESS
+-   **Agent Testing Done:** N
+-   **Which testing method agent to use?** screenshot tool (to verify the Upcoming card's display for both enrollment ON and OFF states).
+-   **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
-- **Issue 1: Program  and  are not displaying on the detail page header.** (P0)
-- **Issue 2: Program timing on Upcoming Programs cards is not localized.** (P1)
-
-**Issues Detail:**
-- **Issue 1: Program  and  are not displaying on the detail page header.**
-    - **Attempted fixes:** The UI to display this information was added to . The agent's last action was initiating a  command to fetch the program's data to verify if the  and  fields are populated in the database.
-    - **Next debug checklist:**
-        1.  Analyze the result of the  command from the last step (Chat 571) to check the data for the Quad Layer Healing program.
-        2.  If the  and  fields are null or missing, the program data needs to be updated. The admin panel should be checked to see if these fields can be edited.
-        3.  If the data exists, debug the rendering logic in  to identify why it's not being displayed.
-    - **Why fix this issue and what will be achieved with the fix?** To ensure essential program details are clearly visible to users on the program page, as requested.
-    - **Status:** IN PROGRESS
-    - **Is recurring issue?** N
-    - **Should Test frontend/backend/both after fix?** Frontend
-    - **Blocked on other issue:** None
-
-- **Issue 2: Program timing on Upcoming Programs cards is not localized.**
-    - **Attempted fixes:** The agent successfully added the display of timing and timezone (e.g., 7:00 PM - 8:30 PM GST Dubai) to the cards. However, the user's request to also show the time converted to the user's local timezone has not been implemented yet.
-    - **Next debug checklist:**
-        1.  In , use a library like  or the browser's native  API.
-        2.  For each program, parse the stored time and .
-        3.  Convert this time to the user's local timezone.
-        4.  Update the UI to display both the localized time and the original time, for clarity (e.g., 7:00 PM Your Time / 9:00 PM GST).
-    - **Why fix this issue and what will be achieved with the fix?** This will prevent confusion for international users by showing them program start times in their local context.
-    - **Status:** NOT STARTED
-    - **Is recurring issue?** N
-    - **Should Test frontend/backend/both after fix?** Frontend
-    - **Blocked on other issue:** None
+-   **Issue 1 (P0): Implement Conditional Card Display Based on Enrollment Status**
+    -   **Description:** The Upcoming Programs card () needs two distinct states controlled by the  toggle in the admin panel:
+        1.  **Enrollment ON:** The card should display all details: dates, times, countdown, pricing, tier selector, session mode, and exclusive offer badge.
+        2.  **Enrollment OFF:** The card should be simplified, showing only the program image, title, and a large closure badge (e.g., Registration Closed). All other details must be hidden.
+    -   **Status:** IN PROGRESS
+    -   **Next debug checklist:**
+        -   The agent's last action was to rewrite . This implementation needs to be completed and verified.
+        -   The core logic involves a large  block based on the  property to render two different card layouts.
+        -   Test by toggling  for an upcoming program in the admin panel and verifying the card's appearance on the homepage.
+    -   **Why fix this issue and what will be achieved with the fix?** To give the user full admin control over how upcoming programs are displayed, allowing them to keep a program visible on the homepage after enrollment closes, but without the confusing active elements like Enroll Now buttons or countdowns.
 
 **In progress Task List**:
-- None.
+-   None.
 
 **Upcoming and Future Tasks**
-- **Upcoming Tasks:**
-    - **P1: Global & Testimonial Search:** Implement a global site search functionality and a keyword-based search for testimonials.
-    - **P2: Video Testimonials:** Add support for embedding and managing video testimonials.
-    - **P3: Reply to Questions:** Build the UI in the admin panel to allow the user to reply to submitted questions from the Personal Sessions feature.
-- **Future Tasks:**
-    - **P4: User Login & Subscriber Dashboard:** Implement a full user authentication system and a dedicated dashboard for subscribers.
+-   **Upcoming Tasks:**
+    -   **P1: Global & Testimonial Search:** Implement a global site search functionality and a keyword-based search for testimonials.
+    -   **P2: Video Testimonials:** Add support for embedding and managing video testimonials.
+    -   **P3: Reply to Questions:** Build the UI in the admin panel to allow the user to reply to submitted questions from the Personal Sessions feature.
+-   **Future Tasks:**
+    -   **P4: User Login & Subscriber Dashboard:** Implement a full user authentication system and a dedicated dashboard for subscribers.
 
 **Completed work in this session**
-- **Email OTP Migration:** Successfully migrated the email OTP system from Resend to the user's Google Workspace SMTP, including updating all backend services to use the new method.
-- **Editable API Keys Admin:** Implemented a new API Keys admin tab where API credentials can be edited and are stored securely in MongoDB, with a  service on the backend for dynamic retrieval.
-- **Geo-Pricing and Payment Flow:**
-    - Fixed bugs related to Indian pricing and offer price application.
-    - Implemented a robust geo-pricing system with phone number cross-validation and dynamic currency display (INR/AED/USD).
-    - Added an admin section to manage India-specific payment links (Exly, GPay, Bank Transfer) and a payment disclaimer, which are displayed on the enrollment page for Indian users.
-- **Enrollment Form UX:** Greatly improved the enrollment form with dynamic country code selection, auto-copying of phone to WhatsApp field, and a currency display that updates in real-time with country selection.
-- **Luxury Email Receipt:** Created a new, customizable HTML receipt template and a corresponding Receipt Template admin tab with controls for fonts, colors, content toggles, and a Send Preview function.
-- **Program Page Fixes:**
-    - Ensured the Know More button appears for all programs, not just flagship ones.
-    - Fixed an issue where pricing (both tiered and regular) was not displaying correctly for certain programs.
-    - Added a global, site-wide control for the pricing font in the Global Styles admin tab.
-- **Homepage Stats Section:** Resolved a bug where the stats section was not visible on the homepage.
+-   **Admin Panel Overhaul (Pricing & Programs Hubs):**
+    -   Created a Pricing Hub for centralized, Excel-style management of pricing for all programs and sessions, including multi-currency offer prices and custom duration tiers.
+    -   Created a Programs Hub, separating Upcoming and Programs into distinct sections with granular visibility toggles for every card element.
+    -   Implemented Add Program functionality with inline naming.
+-   **Dynamic & Tier-Aware Program Cards:**
+    -   Redesigned Upcoming cards to be interactive. Selecting a duration tier (e.g., 1 Month) now dynamically updates the card's start/end dates and pricing.
+    -   Redesigned Programs (non-upcoming) cards to be clean and minimal, showing only essential info and a Know More button.
+-   **Admin-Controlled Enrollment & Closure:**
+    -   Replaced automatic Registration Closed logic with a manual system. Admins now use an  toggle and can set a custom closure message (e.g., Seats Full).
+-   **Exclusive Offer Badge Feature:**
+    -   Added a new Exclusive Offer badge (e.g., Limited Seats) on program cards, which can be enabled and customized per program from the admin panel.
 
 **Earlier issues found/mentioned but not fixed**
-- None that haven't been captured in the pending/upcoming tasks.
+-   None.
 
 **Known issue recurrence from previous fork**
-- N/A
+-   N/A
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
-- **Dynamic API Key Management:** Shifted from static  variables to a database-driven approach for API keys using a  service, allowing for in-app editing by the admin.
-- **SMTP Integration:** Replaced a third-party email service (Resend) with direct SMTP integration using the user's Google Workspace account for sending transactional emails.
-- **Conditional Geo-Pricing:** Implemented complex backend logic in  that uses a combination of IP-based geolocation and user-provided form data (country, phone number) to determine the correct currency and pricing.
-- **Dynamic Frontend Reactivity:** The  makes heavy use of React state and effects to create a highly responsive user experience where pricing, currency, and form fields update instantly based on user input.
-- **Centralized Styling:** Expanded the use of global and template-based styling, creating a new Global Styles admin tab for site-wide settings like the pricing font.
+-   **Centralized Admin Hubs:** Consolidating related settings into dedicated, table-based UIs (Pricing Hub, Programs Hub) for efficient bulk management.
+-   **Dynamic Frontend from Admin Toggles:** Extensive use of boolean flags in the database (, ) to give the admin real-time control over frontend component visibility without code changes.
+-   **Interactive Component State:** Managing local React state () to create interactive experiences, such as updating dates and prices on the fly when a user selects a different pricing tier.
+-   **Conditional Rendering:** Using  logic to render completely different component structures based on a single data property (e.g., ).
 
 **key DB schema**
-- **api_keys** (New Collection): Stores service names and their encrypted API keys.
-- **site_settings**:
-    - Heavily expanded to include ,  (array of objects),  (object with styles and content), and .
-- **programs**:
-    - Added optional  (string) and  (string) fields.
-- **enrollments**:
-    - The  field is now optional but crucial for Indian pricing validation.
+-   **programs**:
+    -   : Boolean
+    -   : String
+    -   : Boolean (defaults to )
+    -   : String (e.g., Registration Closed, Sold Out)
+    -   , : Boolean
+    -   : Array of  objects.
+-   **DurationTier** (New embedded model):
+    -   : String (e.g., 1 Month)
+    -   , , : Number
+    -   , , : Number
+    -   : String
+    -   , : String (Now removed from UI but model may still have it).
+-   **sessions**:
+    -   , , : Number
 
 **changes in tech stack**
-- Removed dependency on the  Python package.
-- Implicitly relies on Python's built-in  and  modules for the new email functionality.
+-   None.
 
 **All files of reference**
-- 
-- 
-- 
-- 
-- 
-- 
-- 
-- 
-- 
-- 
-- 
-- 
+-   
+-   
+-   
+-   
+-   
+-   
 
 **Areas that need refactoring**:
--  has become very large and complex due to the numerous dynamic features. It could be broken down into smaller, more manageable sub-components for each step of the enrollment process (e.g., , , ).
+-   The wrapper function  is duplicated in  and . It could be moved to a shared utility file to follow the DRY principle.
 
 **key api endpoints**
-- : Updates all API keys in the database.
-- : Retrieves all API keys for the admin panel.
-- : Updates the phone number for an in-progress enrollment.
-- : Sends a test receipt email.
-- : Returns all site settings, now including payment disclaimer, India links, and global styles.
-- : Updates site settings, expanded to handle new receipt template, payment, and global style settings.
+-   : (GET) Fetches all programs.
+-   : (PUT) Updates a program.
+-   : (PUT) Updates a session.
 
 **Critical Info for New Agent**
-- The user is highly engaged and provides detailed, often visual, feedback. Be prepared for iterative UI/UX refinement.
-- The payment and enrollment flow is now quite complex, involving IP location, user-selected country, and phone number validation. When debugging this area, check the logic in  and the state management in .
-- All API keys are now managed from the admin panel, not  files. The  service is the single source of truth for keys used in backend services.
+-   The immediate task is to complete the rewrite of . The goal is to make the card's appearance conditional on the  flag. If , show all details (dates, countdown, price). If , show only the title and the closure badge.
+-   The Programs section on the homepage () is now a clean, evergreen display of all programs. It should *not* show any date, time, or pricing info.
+-   The Upcoming Programs section () is the dynamic one. It handles tier selection (updating dates/price) and the new conditional display logic.
 
 **documents and test reports created in this job**
--  (Continuously updated)
-- 
-- 
+-    (Updated multiple times)
+-    through 
 
 **Last 10 User Messages and any pending HUMAN messages**
-1. **User (Chat 546):** Asked for a single, common pricing font setting across all programs instead of per-template. (COMPLETED)
-2. **Agent (Chat 547-568):** Implemented the global pricing font control.
-3. **User (Chat 569):** Requested that  and  should be shown on the program page header.
-4. **Agent (Chat 570-571):** Acknowledged the request and began investigating, suspecting the data was not set for the specific program. (IN PROGRESS)
-5. **User (Chat 526):** Asked how to change the font of the pricing on the program page. (COMPLETED)
-6. **User (Chat 511):** Stated they had not added tiers to the Quad Layer program, correcting the agent's assumption. (COMPLETED)
-7. **Agent (Chat 512-525):** Removed the test tier data and added a fallback to show regular pricing if no tiers are configured.
-8. **User (Chat 470):** Provided feedback on multiple items: upcoming programs should show localized time, Quad Layer program not showing pricing, and Know More button was missing. (Partially addressed, localization pending)
-9. **User (Chat 466):** Requested a test receipt. (COMPLETED)
-10. **User (Chat 401):** Provided detailed requirements for the receipt template (logo, duration, timing, timezone, luxury look, admin controls) and for program display (duration/timing toggle). (COMPLETED)
+1.  **User:** Requests to remove tier start/end dates from Pricing Hub, show all programs in the main Programs section, and have Upcoming cards hide all details except a closure badge when enrollment is off. **(IN PROGRESS - Current P0 Task)**
+2.  **User:** Feedback on admin hubs: wants program naming in Pricing Hub, separate sections for Upcoming vs. Flagship in Programs Hub, and consistent card appearances. (COMPLETED)
+3.  **User:** Feedback on Pricing Hub: remove Flagship title, add toggles to show/hide pricing on homepage, clarify tier pricing, add offer prices for sessions, add add program buttons, support custom durations. (COMPLETED)
+4.  **User:** Requests that when enrollment is closed, the card should fade and show a large Enrollment Closed badge. Also asks for Pricing Hub and Upcoming Hub. (COMPLETED)
+5.  **User:** Reports Registration Closed on flagship programs and wants manual control over it via an admin toggle and custom text. (COMPLETED)
+6.  **User:** Requests layout changes for program cards: dates top-right, duration badge below, and a new admin-controlled Exclusive Offer badge. (COMPLETED)
+7.  **User:** Initial request to change program card layout. (COMPLETED)
+8.  **User:** Provides lots of feedback on the Pricing Hub. (COMPLETED)
+9.  **User:** Confirms plan for an earlier task. (COMPLETED)
+10. **User:** Agrees to proceed with the first task of the session. (COMPLETED)
 
 **Project Health Check:**
-- **Broken:** The program detail page is not displaying  and  as expected.
-- **Mocked:** None.
+-   **Broken:**  is in the middle of a rewrite and will not function correctly until the implementation is complete.
+-   **Mocked:** None
 
 **3rd Party Integrations**
-- **Stripe:** For payments. Key is managed via the admin panel.
-- **Google Workspace SMTP:** For all transactional emails (OTP, receipts). Credentials (email and app password) are managed via the admin panel.
-- **ipinfo.io:** For geolocation to determine initial currency.
-- **forex-python:** For currency conversion.
+-   **Stripe:** For international payments.
+-   **Exly:** Used as a redirect link for one of the Indian payment options.
+-   **Google Workspace SMTP:** For transactional emails.
+-   **ipinfo.io:** For geolocation.
+-   **forex-python:** For currency conversion.
+-   **Framer Motion:** For UI animations.
+-   **qrcode.react:** For QR code generation in the frontend.
 
 **Testing status**
-- **Testing agent used after significant changes:** YES. The agent was used after implementing the editable API keys feature and the geo-pricing/payment settings flow.
-- **Troubleshoot agent used after agent stuck in loop:** NO.
-- **Test files created:** None.
-- **Known regressions:** None.
+-   **Testing agent used after significant changes:** YES (used 5 times)
+-   **Troubleshoot agent used after agent stuck in loop:** NO
+-   **Test files created:** []
+-   **Known regressions:** A backend bug where upcoming programs were incorrectly shown in the main Programs section was found by the testing agent and fixed.
 
 **Credentials to test flow:**
-- **Admin Panel URL:** 
-- **Username:** 
-- **Password:** 
+-   **Admin Panel URL:** 
+-   **Username:** 
+-   **Password:** 
 
 **What agent forgot to execute**
-- The user's request to convert program times to the user's local timezone () on the upcoming program cards (from Chat 470) has not been implemented. It has been added to the pending issue list.</analysis>
+-   Nothing was forgotten. The agent was actively implementing the user's latest and most complex request when the session ended.</analysis>

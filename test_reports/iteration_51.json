@@ -1,0 +1,122 @@
+{
+  "summary": "Iteration 51: Verified P0 enrollment toggle feature. Backend API working correctly (9/9 tests passed). Frontend UI correctly shows/hides card details based on enrollment_open state. Admin Panel has enrollment toggle and closure dropdown working.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "ProgramsSection.jsx",
+        "issue": "Programs section includes is_upcoming=true programs (Quad Layer Healing). Should filter out upcoming programs.",
+        "selector": "[data-testid='programs-section']",
+        "priority": "MEDIUM",
+        "fix_suggestion": "Line 227-228: setPrograms(r.data.filter(p => !p.is_upcoming))",
+        "note": "This is a carry-over bug from iteration_50"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iteration51_enrollment_toggle.py",
+    "/app/test_reports/pytest/pytest_iteration51.xml"
+  ],
+  "action_items": [
+    "Fix ProgramsSection.jsx to filter out is_upcoming=true programs (carry-over from iteration_50)"
+  ],
+  "critical_code_review_comments": [],
+  "updated_files": [
+    "/app/backend/tests/test_iteration51_enrollment_toggle.py"
+  ],
+  "success_rate": {
+    "backend": "100% (9/9 tests passed)",
+    "frontend": "95% - Enrollment toggle feature working; Programs section filter bug persists"
+  },
+  "test_credentials": {
+    "admin_url": "/admin",
+    "admin_username": "admin",
+    "admin_password": "divineadmin2024"
+  },
+  "seed_data_creation": "",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Iteration 51 tested P0 enrollment toggle feature. All features working correctly: (1) GET /api/programs?upcoming_only=true returns enrollment_open and closure_text fields (2) PUT /api/programs/{id} can update enrollment_open and closure_text (3) Admin Panel 'Programs Hub' tab shows enrollment toggle and closure dropdown for each program (4) Homepage Upcoming card shows full details when enrollment ON, shows closure badge only when enrollment OFF. One outstanding bug: Programs section still shows is_upcoming=true programs.",
+  "features_tested": {
+    "enrollment_on_card_display": {
+      "status": "PASS",
+      "verified": [
+        "Dates overlay visible (Starts/Ends dates)",
+        "Timing with timezone conversion (9PM-10PM IST / 3:30PM-4:30PM UTC)",
+        "Countdown timer visible (5d 09h 12m)",
+        "Duration badge (21 Days)",
+        "Exclusive offer badge (LIMITED TIME OFFER)",
+        "Mode badges (Online, Offline)",
+        "Early Bird countdown",
+        "Pricing with strikethrough (USD 150 / USD 1,890)",
+        "Know More button enabled",
+        "Enroll Now button enabled",
+        "Add to Cart button visible"
+      ]
+    },
+    "enrollment_off_card_display": {
+      "status": "PASS",
+      "verified": [
+        "Prominent closure badge overlay (REGISTRATION CLOSED)",
+        "Image slightly dimmed/grayscale",
+        "Title and description visible",
+        "Know More button visible",
+        "Disabled closure button (REGISTRATION CLOSED)",
+        "Card has opacity-60 class",
+        "NO dates overlay",
+        "NO countdown timer",
+        "NO exclusive offer badge",
+        "NO pricing",
+        "NO tier selector",
+        "NO Add to Cart button"
+      ]
+    },
+    "admin_panel_enrollment_toggle": {
+      "status": "PASS",
+      "verified": [
+        "Programs Hub tab has Enroll toggle column",
+        "Toggle shows 'Open' in green when enrollment ON",
+        "Closure dropdown appears when enrollment OFF",
+        "Closure options: Registration Closed, Seats Full, Enrollment Closed, Sold Out",
+        "Save All button saves changes",
+        "Toast message 'All settings saved!' appears"
+      ]
+    },
+    "programs_section_clean_cards": {
+      "status": "PASS",
+      "verified": [
+        "Cards show image with mode badges",
+        "Cards show category, title, description",
+        "Cards have only Know More button",
+        "NO dates, countdown, pricing, tier selector, enroll button"
+      ]
+    },
+    "backend_api": {
+      "status": "PASS",
+      "tests_passed": "9/9",
+      "verified": [
+        "GET /api/programs?upcoming_only=true returns enrollment_open and closure_text",
+        "GET /api/programs/{id} returns enrollment fields",
+        "PUT /api/programs/{id} can set enrollment_open to false",
+        "PUT /api/programs/{id} can set enrollment_open to true",
+        "PUT /api/programs/{id} can update closure_text",
+        "All 4 closure_text options can be saved",
+        "Enrollment toggle changes reflect in upcoming list",
+        "All programs have enrollment_open field",
+        "All programs have closure_text field with default"
+      ]
+    }
+  },
+  "outstanding_bug": {
+    "location": "/app/frontend/src/components/ProgramsSection.jsx",
+    "line": "227-228",
+    "current_code": "axios.get(`${API}/programs?visible_only=true`).then(r => { if (r.data?.length > 0) setPrograms(r.data); })",
+    "fix": "axios.get(`${API}/programs?visible_only=true`).then(r => { if (r.data?.length > 0) setPrograms(r.data.filter(p => !p.is_upcoming)); })",
+    "reason": "Programs section displays Quad Layer Healing (is_upcoming=true) which should only appear in Upcoming section"
+  }
+}

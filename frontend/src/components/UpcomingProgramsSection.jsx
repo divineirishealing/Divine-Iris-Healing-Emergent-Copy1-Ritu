@@ -190,76 +190,72 @@ const UpcomingCard = ({ program }) => {
   const displayStartDate = (activeTier?.start_date) || program.start_date;
   const displayEndDate = (activeTier?.end_date) || program.end_date;
 
+  const enrollOpen = program.enrollment_open !== false;
+
   return (
     <div data-testid={`upcoming-card-${program.id}`}
-      className={`group bg-white rounded-xl overflow-hidden shadow-lg transition-all duration-300 border border-gray-100 flex flex-col ${program.enrollment_open === false ? 'opacity-75' : 'hover:shadow-2xl'}`}>
+      className={`group bg-white rounded-xl overflow-hidden shadow-lg transition-all duration-300 border border-gray-100 flex flex-col ${!enrollOpen ? 'opacity-60' : 'hover:shadow-2xl'}`}>
       <div className="relative h-48 overflow-hidden cursor-pointer" onClick={() => navigate(`/program/${program.id}`)}>
         <img src={resolveImageUrl(program.image)} alt={program.title}
-          className={`w-full h-full object-cover transition-transform duration-500 ${program.enrollment_open !== false ? 'group-hover:scale-105' : 'grayscale-[30%]'}`}
+          className={`w-full h-full object-cover transition-transform duration-500 ${enrollOpen ? 'group-hover:scale-105' : 'grayscale-[40%]'}`}
           onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1545389336-cf090694435e?w=600&h=400&fit=crop'; }} />
-        {/* Top-left: Mode badges */}
-        <div className="absolute top-3 left-3 flex flex-col gap-1">
-          {program.enable_online !== false && <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-sm bg-blue-500 text-white w-fit">Online (Zoom)</span>}
-          {program.enable_offline !== false && <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-sm bg-teal-600 text-white w-fit">Offline (Remote, Not In-Person)</span>}
-          {program.enable_in_person && <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-sm bg-teal-600 text-white w-fit">Offline (Remote, Not In-Person)</span>}
-        </div>
-        {/* Top-right: Dates (tier-aware), Times, then Duration in gold */}
-        {(displayStartDate || program.timing || autoDuration) && (
-          <div data-testid={`card-image-datetime-${program.id}`} className="absolute top-3 right-3 flex flex-col items-end gap-1">
-            {displayStartDate && (
-              <span className="bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1">
-                <Calendar size={10} className="flex-shrink-0" />
-                Starts: {fmtDate(displayStartDate)}
-              </span>
+
+        {enrollOpen ? (
+          <>
+            {/* Top-left: Mode badges */}
+            <div className="absolute top-3 left-3 flex flex-col gap-1">
+              {program.enable_online !== false && <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-sm bg-blue-500 text-white w-fit">Online (Zoom)</span>}
+              {program.enable_offline !== false && <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-sm bg-teal-600 text-white w-fit">Offline (Remote, Not In-Person)</span>}
+              {program.enable_in_person && <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-sm bg-teal-600 text-white w-fit">Offline (Remote, Not In-Person)</span>}
+            </div>
+            {/* Top-right: Dates (tier-aware), Times, Duration */}
+            {(displayStartDate || program.timing || autoDuration) && (
+              <div data-testid={`card-image-datetime-${program.id}`} className="absolute top-3 right-3 flex flex-col items-end gap-1">
+                {displayStartDate && (
+                  <span className="bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1">
+                    <Calendar size={10} className="flex-shrink-0" /> Starts: {fmtDate(displayStartDate)}
+                  </span>
+                )}
+                {displayEndDate && (
+                  <span className="bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1">
+                    <Calendar size={10} className="flex-shrink-0" /> Ends: {fmtDate(displayEndDate)}
+                  </span>
+                )}
+                {program.timing && (
+                  <span className="bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1">
+                    <Clock size={10} className="flex-shrink-0" /> {program.timing} {timingConverted.srcTz}
+                  </span>
+                )}
+                {timingConverted.local && (
+                  <span className="bg-blue-600/80 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1">
+                    <Clock size={10} className="flex-shrink-0" /> {timingConverted.local} {timingConverted.localTz}
+                  </span>
+                )}
+                {autoDuration && (
+                  <span className="bg-[#D4AF37] backdrop-blur-sm text-white text-[11px] font-bold px-2.5 py-1 rounded shadow-sm">{autoDuration}</span>
+                )}
+              </div>
             )}
-            {displayEndDate && (
-              <span className="bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1">
-                <Calendar size={10} className="flex-shrink-0" />
-                Ends: {fmtDate(displayEndDate)}
-              </span>
-            )}
-            {program.timing && (
-              <span className="bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1">
-                <Clock size={10} className="flex-shrink-0" />
-                {program.timing} {timingConverted.srcTz}
-              </span>
-            )}
-            {timingConverted.local && (
-              <span className="bg-blue-600/80 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1">
-                <Clock size={10} className="flex-shrink-0" />
-                {timingConverted.local} {timingConverted.localTz}
-              </span>
-            )}
-            {autoDuration && (
-              <span className="bg-[#D4AF37] backdrop-blur-sm text-white text-[11px] font-bold px-2.5 py-1 rounded shadow-sm">
-                {autoDuration}
-              </span>
-            )}
-          </div>
-        )}
-        {/* Big closure badge when enrollment is OFF */}
-        {program.enrollment_open === false && (
+            {/* Bottom overlay: countdown + exclusive offer */}
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent p-2.5 pt-6">
+              <div className="flex items-end justify-between gap-2">
+                <div className="flex-shrink-0">{deadline && <CountdownTimer deadline={deadline} />}</div>
+                {program.exclusive_offer_enabled && program.exclusive_offer_text && (
+                  <span data-testid={`exclusive-offer-${program.id}`} className="bg-red-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-lg tracking-wide uppercase animate-pulse">
+                    {program.exclusive_offer_text}
+                  </span>
+                )}
+              </div>
+            </div>
+          </>
+        ) : (
+          /* Enrollment OFF — just big closure badge, no details */
           <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
             <span className="bg-gray-900/90 text-white text-sm font-bold px-5 py-2.5 rounded-full tracking-wider uppercase shadow-xl border border-white/20">
               {program.closure_text || 'Registration Closed'}
             </span>
           </div>
         )}
-        {/* Bottom overlay: countdown left, exclusive offer right */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent p-2.5 pt-6">
-          <div className="flex items-end justify-between gap-2">
-            <div className="flex-shrink-0">
-              {program.enrollment_open !== false && deadline && (
-                <CountdownTimer deadline={deadline} />
-              )}
-            </div>
-            {program.exclusive_offer_enabled && program.exclusive_offer_text && program.enrollment_open !== false && (
-              <span data-testid={`exclusive-offer-${program.id}`} className="bg-red-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-lg tracking-wide uppercase animate-pulse">
-                {program.exclusive_offer_text}
-              </span>
-            )}
-          </div>
-        </div>
       </div>
 
       <div className="p-4 flex-1 flex flex-col">
@@ -267,76 +263,75 @@ const UpcomingCard = ({ program }) => {
         <h3 className="text-base font-semibold text-gray-900 mb-1.5 leading-tight">{program.title}</h3>
         <p className="text-gray-500 text-xs leading-relaxed mb-3 line-clamp-2 flex-1">{program.description}</p>
 
-        {/* Duration Tier Selector */}
-        {hasTiers && (
-          <div data-testid={`upcoming-tier-selector-${program.id}`} className="mb-3">
-            <div className="flex gap-1">
-              {tiers.map((t, i) => (
-                <button key={i} data-testid={`upcoming-tier-btn-${program.id}-${i}`}
-                  onClick={() => setSelectedTier(i)}
-                  className={`flex-1 text-[10px] py-1.5 rounded-full border transition-all ${
-                    selectedTier === i ? 'bg-[#D4AF37] text-white border-[#D4AF37]' : 'bg-white text-gray-500 border-gray-200 hover:border-[#D4AF37]'
-                  }`}>
-                  {t.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Early Bird Countdown */}
-        {program.enrollment_open !== false && offerPrice > 0 && deadline && (() => {
-          const now = new Date();
-          const dl = new Date(deadline);
-          if (dl <= now) return null;
-          const diff = dl - now;
-          const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-          const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-          const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-          return (
-            <div data-testid={`early-bird-countdown-${program.id}`}
-              className="flex items-center gap-2 bg-red-50 border border-red-100 rounded-lg px-3 py-2 mb-3 animate-pulse">
-              <Bell size={14} className="text-red-500 flex-shrink-0" />
-              <div className="text-xs">
-                <span className="font-bold text-red-600">{program.offer_text || 'Early Bird'}</span>
-                <span className="text-red-500 ml-1.5">ends in {days}d {hours}h {mins}m</span>
+        {enrollOpen ? (
+          <>
+            {/* Tier Selector */}
+            {hasTiers && (
+              <div data-testid={`upcoming-tier-selector-${program.id}`} className="mb-3">
+                <div className="flex gap-1">
+                  {tiers.map((t, i) => (
+                    <button key={i} data-testid={`upcoming-tier-btn-${program.id}-${i}`}
+                      onClick={() => setSelectedTier(i)}
+                      className={`flex-1 text-[10px] py-1.5 rounded-full border transition-all ${
+                        selectedTier === i ? 'bg-[#D4AF37] text-white border-[#D4AF37]' : 'bg-white text-gray-500 border-gray-200 hover:border-[#D4AF37]'
+                      }`}>
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-          );
-        })()}
+            )}
 
-        {/* Pricing */}
-        <div className="border-t pt-3 mt-auto">
-          {showContact ? (
-            <div className="text-center mb-2">
-              <p className="text-gray-500 text-[10px] mb-1.5">Custom pricing</p>
-              <button onClick={() => navigate(`/contact?program=${program.id}&title=${encodeURIComponent(program.title)}&tier=Annual`)} data-testid={`upcoming-contact-${program.id}`}
-                className="w-full bg-gray-900 hover:bg-gray-800 text-white py-2 rounded-full text-[10px] tracking-wider transition-colors uppercase font-medium">
-                Contact for Pricing
-              </button>
-            </div>
-          ) : (
-            <>
-              <div className="flex items-baseline gap-2 mb-2">
-                {offerPrice > 0 ? (
-                  <>
-                    <span className="text-xl font-bold text-[#D4AF37]">{symbol} {offerPrice.toLocaleString()}</span>
-                    <span className="text-xs text-gray-400 line-through">{symbol} {price.toLocaleString()}</span>
-                  </>
-                ) : price > 0 ? (
-                  <span className="text-xl font-bold text-gray-900">{symbol} {price.toLocaleString()}</span>
-                ) : (
-                  <span className="text-xl font-bold text-green-600">FREE</span>
-                )}
-              </div>
-              <div className="flex gap-1.5">
-                <button onClick={() => navigate(`/program/${program.id}`)}
-                  data-testid={`upcoming-know-more-${program.id}`}
-                  className="flex-1 bg-[#1a1a1a] hover:bg-[#333] text-white py-2 rounded-full text-[10px] tracking-wider transition-all duration-300 uppercase font-medium">
-                  Know More
-                </button>
-                {program.enrollment_open !== false ? (
-                  <>
+            {/* Early Bird */}
+            {offerPrice > 0 && deadline && (() => {
+              const now = new Date();
+              const dl = new Date(deadline);
+              if (dl <= now) return null;
+              const diff = dl - now;
+              const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+              const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+              const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+              return (
+                <div data-testid={`early-bird-countdown-${program.id}`}
+                  className="flex items-center gap-2 bg-red-50 border border-red-100 rounded-lg px-3 py-2 mb-3 animate-pulse">
+                  <Bell size={14} className="text-red-500 flex-shrink-0" />
+                  <div className="text-xs">
+                    <span className="font-bold text-red-600">{program.offer_text || 'Early Bird'}</span>
+                    <span className="text-red-500 ml-1.5">ends in {days}d {hours}h {mins}m</span>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Pricing + Buttons */}
+            <div className="border-t pt-3 mt-auto">
+              {showContact ? (
+                <div className="text-center mb-2">
+                  <p className="text-gray-500 text-[10px] mb-1.5">Custom pricing</p>
+                  <button onClick={() => navigate(`/contact?program=${program.id}&title=${encodeURIComponent(program.title)}&tier=Annual`)} data-testid={`upcoming-contact-${program.id}`}
+                    className="w-full bg-gray-900 hover:bg-gray-800 text-white py-2 rounded-full text-[10px] tracking-wider transition-colors uppercase font-medium">
+                    Contact for Pricing
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-baseline gap-2 mb-2">
+                    {offerPrice > 0 ? (
+                      <>
+                        <span className="text-xl font-bold text-[#D4AF37]">{symbol} {offerPrice.toLocaleString()}</span>
+                        <span className="text-xs text-gray-400 line-through">{symbol} {price.toLocaleString()}</span>
+                      </>
+                    ) : price > 0 ? (
+                      <span className="text-xl font-bold text-gray-900">{symbol} {price.toLocaleString()}</span>
+                    ) : (
+                      <span className="text-xl font-bold text-green-600">FREE</span>
+                    )}
+                  </div>
+                  <div className="flex gap-1.5">
+                    <button onClick={() => navigate(`/program/${program.id}`)} data-testid={`upcoming-know-more-${program.id}`}
+                      className="flex-1 bg-[#1a1a1a] hover:bg-[#333] text-white py-2 rounded-full text-[10px] tracking-wider transition-all duration-300 uppercase font-medium">
+                      Know More
+                    </button>
                     {price > 0 && (
                       <button onClick={handleAddToCart} data-testid={`upcoming-add-cart-${program.id}`}
                         disabled={inCart || justAdded}
@@ -346,22 +341,28 @@ const UpcomingCard = ({ program }) => {
                         {inCart || justAdded ? <Check size={11} /> : <ShoppingCart size={11} />}
                       </button>
                     )}
-                    <button onClick={() => navigate(`/enroll/program/${program.id}?tier=${selectedTier}`)}
-                      data-testid={`upcoming-enroll-${program.id}`}
+                    <button onClick={() => navigate(`/enroll/program/${program.id}?tier=${selectedTier}`)} data-testid={`upcoming-enroll-${program.id}`}
                       className="flex-1 bg-[#D4AF37] hover:bg-[#b8962e] text-white py-2 rounded-full text-[10px] tracking-wider transition-all duration-300 uppercase font-medium">
                       {price > 0 ? 'Enroll Now' : 'Register Free'}
                     </button>
-                  </>
-                ) : (
-                  <button disabled data-testid={`upcoming-enroll-disabled-${program.id}`}
-                    className="flex-1 bg-gray-300 text-gray-500 py-2 rounded-full text-[10px] tracking-wider uppercase font-medium cursor-not-allowed">
-                    {program.closure_text || 'Closed'}
-                  </button>
-                )}
-              </div>
-            </>
-          )}
-        </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </>
+        ) : (
+          /* Enrollment OFF — just Know More + disabled closure button */
+          <div className="border-t pt-3 mt-auto flex gap-1.5">
+            <button onClick={() => navigate(`/program/${program.id}`)} data-testid={`upcoming-know-more-${program.id}`}
+              className="flex-1 bg-[#1a1a1a] hover:bg-[#333] text-white py-2 rounded-full text-[10px] tracking-wider transition-all duration-300 uppercase font-medium">
+              Know More
+            </button>
+            <button disabled data-testid={`upcoming-enroll-disabled-${program.id}`}
+              className="flex-1 bg-gray-300 text-gray-500 py-2 rounded-full text-[10px] tracking-wider uppercase font-medium cursor-not-allowed">
+              {program.closure_text || 'Closed'}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

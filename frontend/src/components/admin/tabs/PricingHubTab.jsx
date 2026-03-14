@@ -172,11 +172,9 @@ const PricingHubTab = () => {
                         <td className="px-2 py-1 sticky left-0 bg-amber-50/40 z-10">
                           <div className="flex items-center gap-1 ml-5">
                             <select value={t.label || ''} onChange={e => updateTier(i, ti, 'label', e.target.value)}
-                              className="border rounded px-1 py-1 text-[10px] bg-white w-[90px]">
+                              className="border rounded px-1 py-1 text-[10px] bg-white w-[110px]">
                               {DURATION_PRESETS.map(d => <option key={d} value={d}>{d}</option>)}
                             </select>
-                            <Input value={t.start_date || ''} onChange={e => updateTier(i, ti, 'start_date', e.target.value)} placeholder="Start" className="h-6 text-[9px] px-1 w-[75px]" title="Tier start date" />
-                            <Input value={t.end_date || ''} onChange={e => updateTier(i, ti, 'end_date', e.target.value)} placeholder="End" className="h-6 text-[9px] px-1 w-[75px]" title="Tier end date" />
                           </div>
                         </td>
                         <td colSpan={3}></td>
