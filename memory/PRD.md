@@ -22,6 +22,17 @@ Build a pixel-perfect clone of https://divineirishealing.com/ with comprehensive
 
 ## Implemented Features
 
+### Programs Hub v3 + Detail Page Pricing Control + Sponsor Link (Mar 14, 2026) - COMPLETED
+- [x] Programs Hub: Single merged table, non-tiered programs first, tiered below
+- [x] Programs Hub: Group toggle removed; Pricing & Tiers toggle columns added
+- [x] Programs Hub: Description clarifies toggles control homepage AND program page
+- [x] Homepage: Flagship + upcoming programs render full UpcomingCard; non-upcoming flagships get purple "Know More" button
+- [x] Program detail page: Respects show_pricing_on_card and show_tiers_on_card toggles
+- [x] Program detail page: Shows "Express Your Interest" when pricing is off, "Enroll" when on
+- [x] Pricing Hub: Number spinners removed (plain text inputs), labels updated
+- [x] Sponsor A Life nav link fixed: /shine a light in a life -> /sponsor
+- [x] All tests passing: 100% backend (15/15), 100% frontend (iteration 53)
+
 ### Programs Hub Restructure + 3-State Enrollment + Flagship Cards (Mar 14, 2026) - COMPLETED
 - [x] Programs Hub restructured into 3 sections: Upcoming Programs, Flagship Programs, Group Programs
 - [x] 3-state enrollment: Open / Closed / Coming Soon (replaces boolean enrollment_open)
