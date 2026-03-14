@@ -214,7 +214,7 @@ const ProgramsSection = ({ sectionConfig }) => {
 
   useEffect(() => {
     axios.get(`${API}/programs?visible_only=true`).then(r => {
-      if (r.data?.length > 0) setPrograms(r.data.filter(p => !p.is_upcoming && !p.is_group_program));
+      if (r.data?.length > 0) setPrograms(r.data.filter(p => p.is_flagship && !p.is_group_program));
     }).catch(() => {});
     axios.get(`${API}/settings`).then(r => {
       setHero(r.data?.page_heroes?.programs || {});
