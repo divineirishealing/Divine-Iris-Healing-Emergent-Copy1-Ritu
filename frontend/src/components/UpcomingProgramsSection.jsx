@@ -192,58 +192,63 @@ const UpcomingCard = ({ program }) => {
         <img src={resolveImageUrl(program.image)} alt={program.title}
           className={`w-full h-full object-cover transition-transform duration-500 ${!(expired || program.enrollment_open === false) ? 'group-hover:scale-105' : 'grayscale-[30%]'}`}
           onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1545389336-cf090694435e?w=600&h=400&fit=crop'; }} />
+        {/* Top-left: Mode badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-1">
           {program.enable_online !== false && <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-sm bg-blue-500 text-white w-fit">Online (Zoom)</span>}
           {program.enable_offline !== false && <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-sm bg-teal-600 text-white w-fit">Offline (Remote, Not In-Person)</span>}
           {program.enable_in_person && <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-sm bg-teal-600 text-white w-fit">Offline (Remote, Not In-Person)</span>}
         </div>
+        {/* Top-right: Dates, Times, then Duration in gold */}
+        {(program.start_date || program.timing || autoDuration) && (
+          <div data-testid={`card-image-datetime-${program.id}`} className="absolute top-3 right-3 flex flex-col items-end gap-1">
+            {program.start_date && (
+              <span className="bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1">
+                <Calendar size={10} className="flex-shrink-0" />
+                Starts: {fmtDate(program.start_date)}
+              </span>
+            )}
+            {program.end_date && (
+              <span className="bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1">
+                <Calendar size={10} className="flex-shrink-0" />
+                Ends: {fmtDate(program.end_date)}
+              </span>
+            )}
+            {program.timing && (
+              <span className="bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1">
+                <Clock size={10} className="flex-shrink-0" />
+                {program.timing} {timingConverted.srcTz}
+              </span>
+            )}
+            {timingConverted.local && (
+              <span className="bg-blue-600/80 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1">
+                <Clock size={10} className="flex-shrink-0" />
+                {timingConverted.local} {timingConverted.localTz}
+              </span>
+            )}
+            {autoDuration && (
+              <span className="bg-[#D4AF37] backdrop-blur-sm text-white text-[11px] font-bold px-2.5 py-1 rounded shadow-sm">
+                {autoDuration}
+              </span>
+            )}
+          </div>
+        )}
         {(expired || program.enrollment_open === false) && (
           <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
             <span className="bg-gray-900/80 text-white text-[10px] font-bold px-3 py-1.5 rounded-full tracking-wider uppercase">Registration Closed</span>
           </div>
         )}
-        {/* Bottom overlay: countdown left, date & time right */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5 pt-6">
+        {/* Bottom overlay: countdown left, exclusive offer right */}
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent p-2.5 pt-6">
           <div className="flex items-end justify-between gap-2">
-            {/* Countdown left */}
             <div className="flex-shrink-0">
               {!expired && program.enrollment_open !== false && deadline && (
                 <CountdownTimer deadline={deadline} />
               )}
             </div>
-            {/* Duration + Date & Local Time right */}
-            {(program.start_date || program.timing || autoDuration) && (
-              <div data-testid={`card-image-datetime-${program.id}`} className="flex flex-col items-end gap-1">
-                {autoDuration && (
-                  <span className="bg-[#D4AF37]/90 backdrop-blur-sm text-white text-[11px] font-bold px-2.5 py-1 rounded flex items-center gap-1.5">
-                    {autoDuration}
-                  </span>
-                )}
-                {program.start_date && (
-                  <span className="bg-black/50 backdrop-blur-sm text-white text-[11px] font-bold px-2.5 py-1 rounded flex items-center gap-1.5">
-                    <Calendar size={11} className="flex-shrink-0" />
-                    Starts: {fmtDate(program.start_date)}
-                  </span>
-                )}
-                {program.end_date && (
-                  <span className="bg-black/50 backdrop-blur-sm text-white text-[11px] font-bold px-2.5 py-1 rounded flex items-center gap-1.5">
-                    <Calendar size={11} className="flex-shrink-0" />
-                    Ends: {fmtDate(program.end_date)}
-                  </span>
-                )}
-                {program.timing && (
-                  <span className="bg-black/50 backdrop-blur-sm text-white text-[11px] font-bold px-2.5 py-1 rounded flex items-center gap-1.5">
-                    <Clock size={11} className="flex-shrink-0" />
-                    {program.timing} {timingConverted.srcTz}
-                  </span>
-                )}
-                {timingConverted.local && (
-                  <span className="bg-blue-600/70 backdrop-blur-sm text-white text-[11px] font-bold px-2.5 py-1 rounded flex items-center gap-1.5">
-                    <Clock size={11} className="flex-shrink-0" />
-                    {timingConverted.local} {timingConverted.localTz}
-                  </span>
-                )}
-              </div>
+            {program.exclusive_offer_enabled && program.exclusive_offer_text && !expired && program.enrollment_open !== false && (
+              <span data-testid={`exclusive-offer-${program.id}`} className="bg-red-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-lg tracking-wide uppercase animate-pulse">
+                {program.exclusive_offer_text}
+              </span>
             )}
           </div>
         </div>
