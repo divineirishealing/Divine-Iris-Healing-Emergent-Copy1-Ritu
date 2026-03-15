@@ -36,6 +36,7 @@ import ReceiptTemplateTab from './tabs/ReceiptTemplateTab';
 import PricingHubTab from './tabs/PricingHubTab';
 import UpcomingHubTab from './tabs/UpcomingHubTab';
 import InboxTab from './tabs/InboxTab';
+import ClientsTab from './tabs/ClientsTab';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -189,6 +190,7 @@ const AdminPanel = () => {
     { key: 'header_footer', label: 'Header & Footer', icon: Globe },
     { key: 'enrollments', label: 'Enrollments', icon: Users },
     { key: 'inbox', label: 'Inbox', icon: Inbox },
+    { key: 'clients', label: 'Client Garden', icon: Users },
     { key: 'promotions', label: 'Promotions', icon: Gift },
     { key: 'discounts', label: 'Discounts & Loyalty', icon: Tag },
     { key: 'exchange_rates', label: 'Exchange Rates', icon: Globe },
@@ -295,6 +297,7 @@ const AdminPanel = () => {
 
           {activeTab === 'enrollments' && <EnrollmentsTab />}
           {activeTab === 'inbox' && <InboxTab />}
+          {activeTab === 'clients' && <ClientsTab />}
           {activeTab === 'promotions' && <PromotionsTab programs={programs} />}
           {activeTab === 'discounts' && <DiscountsTab />}
           {activeTab === 'exchange_rates' && <ExchangeRatesTab />}
