@@ -29,6 +29,15 @@ All pages with dark hero sections use:
 
 ## Implemented Features
 
+### Enrollment Form Enhancements + Excel Export (Mar 15, 2026) - COMPLETED
+- [x] Added 7 new relationships: Son, Daughter, Grandmother, Grandfather, Grandson, Granddaughter, Relative
+- [x] Online mode forces notify mandatory (golden message, no checkbox)
+- [x] Replaced first-time checkbox with two-button selector: "First time joining Divine Iris" / "I am Divine Iris Soul Tribe"
+- [x] "How did you hear?" dropdown only shown for first-timers, hidden for Soul Tribe
+- [x] Removed "Returning Client" from referral sources
+- [x] Both Inbox and Client Garden exports switched to .xlsx Excel format with styled headers and color-coded rows
+- [x] All 15/15 tests passing (iteration 60)
+
 ### Client Garden CRM (Mar 15, 2026) - COMPLETED
 - [x] Backend: clients collection with unique email/phone deduplication
 - [x] Sync/backfill from all touchpoints: contacts, interests, questions, enrollments, payment transactions
