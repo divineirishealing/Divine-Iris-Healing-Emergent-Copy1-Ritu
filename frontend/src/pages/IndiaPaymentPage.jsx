@@ -63,8 +63,8 @@ const IndiaPaymentPage = () => {
     const effectiveBase = Math.max(0, basePrice - promoDiscount - autoDiscount);
     const altDiscountAmt = effectiveBase * altDiscount / 100;
     const discountedBase = effectiveBase - altDiscountAmt;
-    const gstAmount = effectiveBase * gstPct / 100; // GST on full base amount
-    const platformAmount = effectiveBase * platformPct / 100;
+    const gstAmount = discountedBase * gstPct / 100; // GST on taxable amount
+    const platformAmount = discountedBase * platformPct / 100; // Platform on taxable amount
     const total = discountedBase + gstAmount + platformAmount;
     return {
       originalBase: basePrice,

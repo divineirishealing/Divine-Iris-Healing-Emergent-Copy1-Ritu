@@ -14,6 +14,7 @@ const PaymentSettingsTab = () => {
   const [exlyLink, setExlyLink] = useState('');
   const [altDiscountPct, setAltDiscountPct] = useState(9);
   const [gstPct, setGstPct] = useState(18);
+  const [platformPct, setPlatformPct] = useState(3);
   const [bankDetails, setBankDetails] = useState({
     account_name: '', account_number: '', ifsc: '', bank_name: '', branch: ''
   });
@@ -27,6 +28,7 @@ const PaymentSettingsTab = () => {
       setExlyLink(r.data.india_exly_link || '');
       setAltDiscountPct(r.data.india_alt_discount_percent ?? 9);
       setGstPct(r.data.india_gst_percent ?? 18);
+      setPlatformPct(r.data.india_platform_charge_percent ?? 3);
       setBankDetails({
         account_name: r.data.india_bank_details?.account_name || '',
         account_number: r.data.india_bank_details?.account_number || '',
@@ -46,6 +48,7 @@ const PaymentSettingsTab = () => {
         india_exly_link: exlyLink,
         india_alt_discount_percent: parseFloat(altDiscountPct) || 9,
         india_gst_percent: parseFloat(gstPct) || 18,
+        india_platform_charge_percent: parseFloat(platformPct) || 3,
         india_bank_details: bankDetails,
       });
       toast({ title: 'Payment settings saved!' });
@@ -162,7 +165,7 @@ const PaymentSettingsTab = () => {
         </div>
         <p className="text-[10px] text-gray-400 mb-3">When Indian users choose Exly or bank transfer, the receipt shows a reduced base price + GST.</p>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <div>
             <label className="text-xs font-semibold text-gray-700 block mb-1">Alt. Payment Discount (%)</label>
             <p className="text-[10px] text-gray-400 mb-1.5">Discount on base price</p>
@@ -171,17 +174,24 @@ const PaymentSettingsTab = () => {
           </div>
           <div>
             <label className="text-xs font-semibold text-gray-700 block mb-1">GST (%)</label>
-            <p className="text-[10px] text-gray-400 mb-1.5">Added on top of discounted base</p>
+            <p className="text-[10px] text-gray-400 mb-1.5">On taxable amount</p>
             <Input data-testid="india-gst-input" type="number" value={gstPct}
               onChange={e => setGstPct(e.target.value)} className="text-xs h-9" min={0} max={100} />
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-gray-700 block mb-1">Platform Charges (%)</label>
+            <p className="text-[10px] text-gray-400 mb-1.5">On taxable amount</p>
+            <Input data-testid="india-platform-input" type="number" value={platformPct}
+              onChange={e => setPlatformPct(e.target.value)} className="text-xs h-9" min={0} max={100} />
           </div>
         </div>
 
         <div className="mt-3 bg-white rounded-lg p-3 border text-xs">
           <p className="text-gray-500 mb-1">Receipt Preview (example INR 10,000 base):</p>
-          <p className="text-gray-700">Base after {altDiscountPct}% discount: <strong>INR {(10000 * (1 - (parseFloat(altDiscountPct) || 9) / 100)).toLocaleString()}</strong></p>
+          <p className="text-gray-700">Taxable (after {altDiscountPct}% discount): <strong>INR {(10000 * (1 - (parseFloat(altDiscountPct) || 9) / 100)).toLocaleString()}</strong></p>
           <p className="text-gray-700">GST ({gstPct}%): <strong>INR {Math.round(10000 * (1 - (parseFloat(altDiscountPct) || 9) / 100) * (parseFloat(gstPct) || 18) / 100).toLocaleString()}</strong></p>
-          <p className="text-[#D4AF37] font-bold">Total: INR {Math.round(10000 * (1 - (parseFloat(altDiscountPct) || 9) / 100) * (1 + (parseFloat(gstPct) || 18) / 100)).toLocaleString()}</p>
+          <p className="text-gray-700">Platform ({platformPct}%): <strong>INR {Math.round(10000 * (1 - (parseFloat(altDiscountPct) || 9) / 100) * (parseFloat(platformPct) || 3) / 100).toLocaleString()}</strong></p>
+          <p className="text-[#D4AF37] font-bold">Total: INR {Math.round(10000 * (1 - (parseFloat(altDiscountPct) || 9) / 100) * (1 + (parseFloat(gstPct) || 18) / 100 + (parseFloat(platformPct) || 3) / 100)).toLocaleString()}</p>
         </div>
       </div>
 
