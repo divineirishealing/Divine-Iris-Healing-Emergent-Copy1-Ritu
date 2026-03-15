@@ -228,6 +228,22 @@ const Header = () => {
         </div>
       </header>
 
+      {/* Red countdown banner - only when end date is set */}
+      {hasCountdown && (
+        <div data-testid="offer-banner" className="fixed left-0 right-0 z-40 flex items-center justify-center gap-3 py-1.5 cursor-pointer bg-gradient-to-r from-red-700 via-red-600 to-red-700"
+          style={{ top: '56px', fontFamily: "'Lato', sans-serif" }}
+          onClick={() => handleNav('/#upcoming')}>
+          <Sparkles size={12} className="text-yellow-300" />
+          <span className="text-[10px] font-bold tracking-[0.15em] uppercase text-white">{offer.text}</span>
+          <span className="text-red-300 text-[10px]">|</span>
+          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-yellow-200 tracking-wider">
+            <Clock size={10} />
+            <OfferCountdown endDate={offer.end_date} />
+          </span>
+          <span className="text-[9px] tracking-wider uppercase text-red-200">&rarr;</span>
+        </div>
+      )}
+
       {/* Mobile menu */}
       {mobileOpen && (
         <div data-testid="mobile-menu" className="fixed inset-0 z-[60] bg-black/95 backdrop-blur-md pt-16 overflow-y-auto">
