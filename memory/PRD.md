@@ -38,6 +38,16 @@ All pages with dark hero sections use:
 - [x] Both Inbox and Client Garden exports switched to .xlsx Excel format with styled headers and color-coded rows
 - [x] All 15/15 tests passing (iteration 60)
 
+### Manual/Cash Payment Option (Feb 2026) - COMPLETED
+- [x] 3 payment options for India users: Stripe (International), Exly/Bank Transfer, Submit Manual Payment
+- [x] Manual mode navigates to /india-payment/:id?mode=manual — hides Exly tab, shows proof form directly
+- [x] Payment method dropdown: Bank Transfer, UPI, Cash Deposit, Cheque, Other
+- [x] Notes/additional details textarea on proof form
+- [x] Pricing: Base - 9% alt discount + 18% GST (on full base) + 3% platform charges
+- [x] india_platform_charge_percent added to SiteSettings (default 3%)
+- [x] Admin approves/rejects via India Proofs tab — approved → receipt email sent, rejected → start over
+- [x] All tests passed (iteration_61.json): 11/11 backend, all frontend verified
+
 ### Enrollment Receipt Email Overhaul (Feb 2026) - COMPLETED
 - [x] Changed "STATUS" column header → "MEMBER STATUS"
 - [x] Changed "First session" / "Returning" → "First Time Joiner" / "Soul Tribe"
