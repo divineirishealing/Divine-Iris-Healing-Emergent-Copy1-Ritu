@@ -10,7 +10,7 @@ import { Label } from '../ui/label';
 import ImageUploader from './ImageUploader';
 import { resolveImageUrl } from '../../lib/imageUtils';
 import {
-  Settings, Package, Calendar, MessageSquare, BarChart3, Mail,
+  Settings, Package, Calendar, MessageSquare, BarChart3, Mail, Inbox,
   Trash2, Edit, Plus, X, Eye, EyeOff, Save, ArrowUp, ArrowDown,
   Globe, Layout, Image, Users, Palette, Gift, Monitor, Wifi, Tag, ChevronLeft, ChevronRight, Upload, FileText, DollarSign
 } from 'lucide-react';
@@ -35,6 +35,7 @@ import IndiaPaymentsTab from './tabs/IndiaPaymentsTab';
 import ReceiptTemplateTab from './tabs/ReceiptTemplateTab';
 import PricingHubTab from './tabs/PricingHubTab';
 import UpcomingHubTab from './tabs/UpcomingHubTab';
+import InboxTab from './tabs/InboxTab';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -187,6 +188,7 @@ const AdminPanel = () => {
     { key: 'newsletter', label: 'Newsletter', icon: Mail },
     { key: 'header_footer', label: 'Header & Footer', icon: Globe },
     { key: 'enrollments', label: 'Enrollments', icon: Users },
+    { key: 'inbox', label: 'Inbox', icon: Inbox },
     { key: 'promotions', label: 'Promotions', icon: Gift },
     { key: 'discounts', label: 'Discounts & Loyalty', icon: Tag },
     { key: 'exchange_rates', label: 'Exchange Rates', icon: Globe },
@@ -292,6 +294,7 @@ const AdminPanel = () => {
           )}
 
           {activeTab === 'enrollments' && <EnrollmentsTab />}
+          {activeTab === 'inbox' && <InboxTab />}
           {activeTab === 'promotions' && <PromotionsTab programs={programs} />}
           {activeTab === 'discounts' && <DiscountsTab />}
           {activeTab === 'exchange_rates' && <ExchangeRatesTab />}
