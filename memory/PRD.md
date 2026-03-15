@@ -264,9 +264,15 @@ All pages with dark hero sections use:
 
 ### Session Enrollment Purple Header & Testimonials (Feb 2026) - COMPLETED
 - [x] Removed flower/session image from session enrollment page left sidebar
-- [x] Replaced with purple gradient header (matching homepage style) with gold sparkles (StarField)
+- [x] Replaced with purple gradient header (matching homepage style) with gold sparkles (StarField count=120)
 - [x] Session title, category label, and gold divider displayed in the purple header
 - [x] "What Clients Say" testimonials section added below pricing summary (up to 3 testimonials)
 - [x] Program enrollment pages remain unchanged (still show image)
 - [x] Removed "Graphic Testimonials" heading from /transformations page
 - [x] All 7/7 tests passed (iteration_64)
+
+### Enrollment Flow Bug Fixes (Feb 2026) - COMPLETED
+- [x] Fixed NameError: 'footer_email' not defined in enrollment_confirmation_email — emails now send correctly for free enrollments
+- [x] Fixed back button on payment step (step 3→2): verified email badge + "Continue to Payment" button shown when email already verified
+- [x] Auto-prefill booker name/email/phone/country from first participant when moving to billing step
+- [x] All 13/13 tests passed (iteration_65)
