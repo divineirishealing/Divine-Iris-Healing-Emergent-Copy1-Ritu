@@ -84,7 +84,7 @@ const ParticipantRow = ({ index, data, onChange, onRemove, canRemove, showReferr
       </div>
       <div className="grid grid-cols-2 gap-2 mb-2">
         <div><label className="text-[9px] text-gray-500">Name *</label>
-          <Input data-testid={`p-name-${index}`} value={data.name} onChange={e => update('name', e.target.value)} placeholder="Full name" className="text-xs h-8" /></div>
+          <Input data-testid={`p-name-${index}`} name="name" autoComplete="name" value={data.name} onChange={e => update('name', e.target.value)} placeholder="Full name" className="text-xs h-8" /></div>
         <div><label className="text-[9px] text-gray-500">Relationship *</label>
           <select data-testid={`p-relation-${index}`} value={data.relationship} onChange={e => update('relationship', e.target.value)} className="w-full border rounded-md px-2 py-1.5 text-xs bg-white h-8">
             <option value="">Select</option>{RELATIONSHIPS.map(r => <option key={r} value={r}>{r}</option>)}
@@ -191,13 +191,13 @@ const ParticipantRow = ({ index, data, onChange, onRemove, canRemove, showReferr
       )}
       {data.notify && (
         <div className="grid grid-cols-3 gap-2 mt-2">
-          <Input data-testid={`p-email-${index}`} type="email" value={data.email} onChange={e => update('email', e.target.value)} placeholder="Email" className="text-xs h-8" />
+          <Input data-testid={`p-email-${index}`} type="email" name="email" autoComplete="email" value={data.email} onChange={e => update('email', e.target.value)} placeholder="Email" className="text-xs h-8" />
           <div className="flex gap-0.5">
             <select value={data.phone_code || '+971'} onChange={e => onChange({ ...data, phone_code: e.target.value, wa_code: e.target.value })}
               className="border rounded-md px-0.5 py-1 text-[10px] w-[60px] bg-white h-8 flex-shrink-0" data-testid={`p-phone-code-${index}`}>
               {COUNTRIES.map(c => <option key={c.code} value={c.phone}>{c.phone}</option>)}
             </select>
-            <Input data-testid={`p-phone-${index}`} type="tel" value={data.phone} onChange={e => {
+            <Input data-testid={`p-phone-${index}`} type="tel" name="phone" autoComplete="tel-national" value={data.phone} onChange={e => {
               const val = e.target.value.replace(/\D/g, '').slice(0, 10);
               const shouldSync = !data.whatsapp || data.whatsapp === data.phone;
               onChange({ ...data, phone: val, ...(shouldSync ? { whatsapp: val } : {}) });
@@ -660,9 +660,9 @@ function EnrollmentPage() {
                     <h2 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2"><CreditCard size={16} className="text-[#D4AF37]" /> Billing Details</h2>
                     <div className="grid grid-cols-2 gap-3 mb-3">
                       <div><label className="text-[9px] text-gray-500">Name *</label>
-                        <Input data-testid="booker-name" value={bookerName} onChange={e => setBookerName(e.target.value)} placeholder="Your name" className="text-sm" /></div>
+                        <Input data-testid="booker-name" name="billing-name" autoComplete="name" value={bookerName} onChange={e => setBookerName(e.target.value)} placeholder="Your name" className="text-sm" /></div>
                       <div><label className="text-[9px] text-gray-500">Email *</label>
-                        <Input data-testid="booker-email" type="email" value={bookerEmail} onChange={e => setBookerEmail(e.target.value)} placeholder="email@example.com" className="text-sm" /></div>
+                        <Input data-testid="booker-email" type="email" name="billing-email" autoComplete="email" value={bookerEmail} onChange={e => setBookerEmail(e.target.value)} placeholder="email@example.com" className="text-sm" /></div>
                     </div>
                     <div className="grid grid-cols-2 gap-3 mb-3">
                       <div><label className="text-[9px] text-gray-500">Country *</label>
