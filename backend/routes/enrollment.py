@@ -615,7 +615,9 @@ async def enrollment_checkout(enrollment_id: str, data: EnrollmentSubmit, reques
 
     host_url = str(request.base_url).rstrip('/')
     success_url = f"{origin}/payment/success?session_id={{CHECKOUT_SESSION_ID}}"
-    cancel_url = f"{origin}/payment/cancel?item_type={data.item_type}&item_id={data.item_id}"
+    cancel_url = f"{origin}/payment/cancel?item_type={data.item_type}&item_id={data.item_id}&enrollment_id={enrollment_id}"
+    if data.tier_index is not None:
+        cancel_url += f"&tier={data.tier_index}"
 
     stripe_checkout = StripeCheckout(
         api_key=await _get_stripe_key(),
