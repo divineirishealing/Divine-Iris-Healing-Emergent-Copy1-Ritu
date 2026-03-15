@@ -233,11 +233,6 @@ function TransformationsPage() {
       {(activeType === 'all' || activeType === 'graphic') && graphicTestimonials.length > 0 && (
         <section data-testid="graphic-testimonials" className="py-10">
           <div className="container mx-auto px-4">
-            {activeType === 'all' && (
-              <h2 className="text-center mb-8" style={{ ...HEADING, fontSize: 'clamp(1.2rem, 2.5vw, 1.6rem)', color: '#4c1d95', fontStyle: 'italic' }}>
-                Graphic Testimonials
-              </h2>
-            )}
             <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {graphicTestimonials.map(t => (
                 <div

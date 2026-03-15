@@ -11,8 +11,9 @@ import { Button } from '../components/ui/button';
 import {
   User, Monitor, Wifi, Mail, Phone, CreditCard, Lock, Plus, Trash2,
   ChevronRight, ChevronLeft, Check, ShieldAlert, ShieldCheck,
-  Loader2, Bell, BellOff, Tag, Calendar, FileText
+  Loader2, Bell, BellOff, Tag, Calendar, FileText, Quote
 } from 'lucide-react';
+import StarField from '../components/ui/StarField';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -248,6 +249,7 @@ function EnrollmentPage() {
   const [processing, setProcessing] = useState(false);
   const [discountSettings, setDiscountSettings] = useState({ enable_referral: true });
   const [paymentSettings, setPaymentSettings] = useState({ disclaimer: '', india_links: [], india_exly_link: '', india_bank_details: {}, india_enabled: false });
+  const [sessionTestimonials, setSessionTestimonials] = useState([]);
 
   // Country → currency mapping for real-time pricing updates
   const CURRENCY_MAP = {
@@ -279,6 +281,9 @@ function EnrollmentPage() {
         india_enabled: s.india_payment_enabled || false,
       });
     }).catch(() => {});
+    if (type === 'session') {
+      axios.get(`${API}/session-extras/testimonials?session_id=${id}`).then(r => setSessionTestimonials(r.data || [])).catch(() => {});
+    }
   }, [id, type, navigate]);
 
   useEffect(() => {
@@ -450,22 +455,35 @@ function EnrollmentPage() {
         <div className="container mx-auto px-4 max-w-5xl">
           <div className="flex flex-col lg:flex-row gap-6">
 
-            {/* LEFT: Program Details (fixed on desktop, top on mobile) */}
+            {/* LEFT: Program/Session Details (fixed on desktop, top on mobile) */}
             <div className="lg:w-2/5">
               <div className="lg:sticky lg:top-24 bg-white rounded-xl border shadow-sm overflow-hidden">
-                <div className="relative h-48 overflow-hidden">
-                  <img src={resolveImageUrl(item.image)} alt={item.title} className="w-full h-full object-cover"
-                    onError={e => { e.target.src = 'https://images.unsplash.com/photo-1545389336-cf090694435e?w=600&h=300&fit=crop'; }} />
-                  {item.session_mode && (
-                    <span className={`absolute top-3 left-3 text-[10px] px-2.5 py-1 rounded-full font-medium ${
-                      item.session_mode === 'online' ? 'bg-blue-500/90 text-white' : 'bg-purple-500/90 text-white'}`}>
-                      {item.session_mode === 'online' ? 'Online' : 'Remote'}
-                    </span>
-                  )}
-                </div>
+                {/* Purple header for sessions, image for programs */}
+                {type === 'session' ? (
+                  <div className="relative h-48 overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a0e2e 0%, #2a1252 20%, #3b1a6e 40%, #4c1d95 60%, #5b21b6 80%, #4c1d95 100%)' }}>
+                    <StarField count={60} color="#D4AF37" />
+                    <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(139, 92, 246, 0.3), transparent 60%), radial-gradient(ellipse 60% 40% at 80% 80%, rgba(212, 175, 55, 0.08), transparent 50%)' }} />
+                    <div className="relative z-10 flex flex-col items-center justify-center h-full px-4 text-center">
+                      <p className="text-[10px] text-[#D4AF37] tracking-[0.3em] uppercase font-medium mb-2">{item.category || 'Personal Session'}</p>
+                      <h2 data-testid="enrollment-title" className="text-lg font-semibold text-white mb-2" style={{ fontFamily: "'Cinzel', serif", fontVariant: 'small-caps', letterSpacing: '0.05em' }}>{item.title}</h2>
+                      <div className="w-12 h-0.5 bg-[#D4AF37]" />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="relative h-48 overflow-hidden">
+                    <img src={resolveImageUrl(item.image)} alt={item.title} className="w-full h-full object-cover"
+                      onError={e => { e.target.src = 'https://images.unsplash.com/photo-1545389336-cf090694435e?w=600&h=300&fit=crop'; }} />
+                    {item.session_mode && (
+                      <span className={`absolute top-3 left-3 text-[10px] px-2.5 py-1 rounded-full font-medium ${
+                        item.session_mode === 'online' ? 'bg-blue-500/90 text-white' : 'bg-purple-500/90 text-white'}`}>
+                        {item.session_mode === 'online' ? 'Online' : 'Remote'}
+                      </span>
+                    )}
+                  </div>
+                )}
                 <div className="p-5">
-                  <p className="text-[#D4AF37] text-[10px] tracking-wider uppercase mb-1">{item.category}</p>
-                  <h2 data-testid="enrollment-title" className="text-lg font-semibold text-gray-900 mb-2">{item.title}</h2>
+                  {type !== 'session' && <p className="text-[#D4AF37] text-[10px] tracking-wider uppercase mb-1">{item.category}</p>}
+                  {type !== 'session' && <h2 data-testid="enrollment-title" className="text-lg font-semibold text-gray-900 mb-2">{item.title}</h2>}
                   {tierObj && (
                     <span className="inline-block bg-[#D4AF37]/10 text-[#D4AF37] text-xs px-3 py-1 rounded-full font-medium mb-3">{tierObj.label}</span>
                   )}
@@ -504,6 +522,24 @@ function EnrollmentPage() {
                     </div>
                   </div>
                 </div>
+
+                {/* What Clients Say - Session testimonials */}
+                {type === 'session' && sessionTestimonials.length > 0 && (
+                  <div className="p-5 border-t" data-testid="enrollment-testimonials">
+                    <h3 className="text-sm font-semibold mb-3 flex items-center gap-2" style={{ fontFamily: "'Cinzel', serif", color: '#4c1d95' }}>
+                      <Quote size={14} className="text-purple-300" /> What Clients Say
+                    </h3>
+                    <div className="space-y-3">
+                      {sessionTestimonials.slice(0, 3).map((t, idx) => (
+                        <div key={t.id || idx} className="bg-purple-50/50 border border-purple-100 rounded-lg p-3 relative" data-testid={`enroll-testimonial-${idx}`}>
+                          <Quote size={12} className="text-purple-200 absolute top-2 left-2" />
+                          <p className="text-gray-600 text-[11px] leading-relaxed italic pl-5 mb-1.5">{t.text}</p>
+                          <p className="text-[10px] text-purple-700/70 font-medium pl-5">{t.client_name || 'Anonymous'}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
