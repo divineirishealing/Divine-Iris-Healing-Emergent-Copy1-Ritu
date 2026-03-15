@@ -140,15 +140,21 @@ async def send_enrollment_emails(session_id: str):
                 program_links["custom_link"] = program["custom_link"]
                 program_links["custom_link_label"] = program.get("custom_link_label", "Link")
 
+    # Fetch social links and community WhatsApp
+    settings = await db.site_settings.find_one({"id": "site_settings"}, {"_id": 0})
+    settings = settings or {}
+    social_links = {k: v for k, v in settings.items() if k.startswith("social_") or k.startswith("show_")}
+    community_whatsapp = program_links.get("whatsapp_group_link_2", "")
+
     # 1. Send booker confirmation (from receipt email)
+    program_description = ""
+    program_start_date = ""
+    program_duration = ""
+    program_end_date = ""
+    program_timing = ""
+    program_timezone = ""
+    logo_url = ""
     if booker_email:
-        # Get program/session details
-        program_description = ""
-        program_start_date = ""
-        program_duration = ""
-        program_end_date = ""
-        program_timing = ""
-        program_timezone = ""
         if item_id and item_type == "program":
             program = await db.programs.find_one({"id": item_id}, {"_id": 0})
             if program:
@@ -174,6 +180,14 @@ async def send_enrollment_emails(session_id: str):
             host = os.environ.get('BACKEND_URL', '') or os.environ.get('HOST_URL', '')
             logo_url = f"{host}{logo_path}" if logo_path.startswith("/api") else logo_path
 
+    # Fetch social links from settings
+        settings = await db.site_settings.find_one({"id": "site_settings"}, {"_id": 0})
+        settings = settings or {}
+        social_links = {k: v for k, v in settings.items() if k.startswith("social_") or k.startswith("show_")}
+
+        # Get community WhatsApp link (link 2 from program)
+        community_whatsapp = program_links.get("whatsapp_group_link_2", "")
+
         html = enrollment_confirmation_email(
             booker_name=booker_name,
             item_title=item_title,
@@ -192,12 +206,14 @@ async def send_enrollment_emails(session_id: str):
             program_timezone=program_timezone,
             logo_url=logo_url,
             receipt_template=receipt_tpl,
+            social_links=social_links,
+            community_whatsapp=community_whatsapp,
         )
         from key_manager import get_key
         receipt_sender = await get_key("receipt_email") or os.environ.get("RECEIPT_EMAIL", "receipt@divineirishealing.com")
         await send_email(booker_email, f"Payment Receipt — {item_title} — Divine Iris Healing", html, from_email=receipt_sender)
 
-    # 2. Send participant notifications (only those who opted in)
+    # 2. Send participant notifications (everything except receipt)
     for p in participants:
         if p.get("notify") and p.get("email"):
             p_html = participant_notification_email(
@@ -205,6 +221,16 @@ async def send_enrollment_emails(session_id: str):
                 item_title=item_title,
                 attendance_mode=p.get("attendance_mode", "online"),
                 booker_name=booker_name,
+                program_links=program_links,
+                program_description=program_description,
+                program_start_date=program_start_date,
+                program_duration=program_duration,
+                program_end_date=program_end_date,
+                program_timing=program_timing,
+                program_timezone=program_timezone,
+                logo_url=logo_url,
+                social_links=social_links,
+                community_whatsapp=community_whatsapp,
             )
             await send_email(p["email"], f"You've Been Enrolled — {item_title}", p_html)
 

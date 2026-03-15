@@ -38,7 +38,7 @@ const COUNTRIES = [
 const GENDERS = ["Female", "Male", "Non-Binary", "Prefer not to say"];
 const RELATIONSHIPS = ["Myself", "Mother", "Father", "Sister", "Brother", "Son", "Daughter", "Spouse", "Husband", "Wife", "Grandmother", "Grandfather", "Grandson", "Granddaughter", "Friend", "Colleague", "Relative", "Other"];
 
-const REFERRAL_SOURCES = ["Instagram", "Facebook", "YouTube", "Google Search", "Friend / Family", "WhatsApp", "Other"];
+const REFERRAL_SOURCES = ["Instagram", "Facebook", "YouTube", "LinkedIn", "Spotify", "Google Search", "Friend / Family", "WhatsApp", "Other"];
 
 const emptyParticipant = () => ({
   name: '', relationship: '', age: '', gender: '',
