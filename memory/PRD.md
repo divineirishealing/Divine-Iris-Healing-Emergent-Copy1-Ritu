@@ -261,3 +261,12 @@ All pages with dark hero sections use:
 - [x] Sessions → About → Newsletter merge seamlessly with matched gradient colors
 - [x] Programs → Testimonials merge seamlessly
 - [x] No visible section boundaries between adjacent sections
+
+### Session Enrollment Purple Header & Testimonials (Feb 2026) - COMPLETED
+- [x] Removed flower/session image from session enrollment page left sidebar
+- [x] Replaced with purple gradient header (matching homepage style) with gold sparkles (StarField)
+- [x] Session title, category label, and gold divider displayed in the purple header
+- [x] "What Clients Say" testimonials section added below pricing summary (up to 3 testimonials)
+- [x] Program enrollment pages remain unchanged (still show image)
+- [x] Removed "Graphic Testimonials" heading from /transformations page
+- [x] All 7/7 tests passed (iteration_64)
