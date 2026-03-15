@@ -36,15 +36,15 @@ const COUNTRIES = [
   { code: "NL", name: "Netherlands", phone: "+31" }, { code: "NZ", name: "New Zealand", phone: "+64" },
 ].sort((a, b) => a.name.localeCompare(b.name));
 const GENDERS = ["Female", "Male", "Non-Binary", "Prefer not to say"];
-const RELATIONSHIPS = ["Myself", "Mother", "Father", "Sister", "Brother", "Spouse", "Husband", "Wife", "Friend", "Colleague", "Other"];
+const RELATIONSHIPS = ["Myself", "Mother", "Father", "Sister", "Brother", "Son", "Daughter", "Spouse", "Husband", "Wife", "Grandmother", "Grandfather", "Grandson", "Granddaughter", "Friend", "Colleague", "Relative", "Other"];
 
-const REFERRAL_SOURCES = ["Instagram", "Facebook", "YouTube", "Google Search", "Friend / Family", "WhatsApp", "Returning Client", "Other"];
+const REFERRAL_SOURCES = ["Instagram", "Facebook", "YouTube", "Google Search", "Friend / Family", "WhatsApp", "Other"];
 
 const emptyParticipant = () => ({
   name: '', relationship: '', age: '', gender: '',
-  country: 'AE', attendance_mode: 'online', notify: false, email: '', phone: '', whatsapp: '',
+  country: 'AE', attendance_mode: 'online', notify: true, email: '', phone: '', whatsapp: '',
   phone_code: '+971', wa_code: '+971',
-  is_first_time: false, referral_source: '',
+  is_first_time: true, referral_source: '',
 });
 
 const StepBar = ({ current, steps }) => (
@@ -64,7 +64,14 @@ const StepBar = ({ current, steps }) => (
 );
 
 const ParticipantRow = ({ index, data, onChange, onRemove, canRemove, showReferral = true, enabledModes = {} }) => {
-  const update = (field, value) => onChange({ ...data, [field]: value });
+  const update = (field, value) => {
+    const updated = { ...data, [field]: value };
+    // When switching to online, force notify on
+    if (field === 'attendance_mode' && value === 'online') {
+      updated.notify = true;
+    }
+    onChange(updated);
+  };
   const showOnline = enabledModes.enable_online !== false;
   const showOffline = enabledModes.enable_offline !== false;
   const showInPerson = enabledModes.enable_in_person === true;
@@ -127,16 +134,34 @@ const ParticipantRow = ({ index, data, onChange, onRemove, canRemove, showReferr
       {!showInPerson && (
         <p className="text-[8px] text-gray-400 mb-1 italic">All sessions are online via Zoom or remote distance healing — no in-person sessions at this time.</p>
       )}
-      <label className="flex items-center gap-1.5 cursor-pointer mb-1.5" data-testid={`p-first-time-${index}`}>
-        <input type="checkbox" checked={data.is_first_time} onChange={e => update('is_first_time', e.target.checked)} className="w-3.5 h-3.5 rounded border-gray-300 text-[#D4AF37]" />
-        <span className="text-[10px] text-gray-600">First time joining Divine Iris Healing</span>
-      </label>
-      <div className="mb-2">
-        <label className="text-[9px] text-gray-500">How did you hear about us?</label>
-        <select data-testid={`p-referral-${index}`} value={data.referral_source || ''} onChange={e => update('referral_source', e.target.value)} className="w-full border rounded-md px-2 py-1.5 text-xs bg-white h-8">
-          <option value="">Select (optional)</option>{REFERRAL_SOURCES.map(r => <option key={r} value={r}>{r}</option>)}
-        </select>
+
+      {/* Divine Iris membership status */}
+      <div className="mb-2 mt-2">
+        <label className="text-[9px] text-gray-500 mb-1 block">Are you new to Divine Iris? *</label>
+        <div className="flex gap-2">
+          <button type="button" data-testid={`p-first-time-${index}`} onClick={() => update('is_first_time', true)}
+            className={`flex-1 py-2 rounded-lg border text-[10px] font-medium transition-all ${
+              data.is_first_time === true ? 'bg-[#D4AF37]/10 border-[#D4AF37] text-[#D4AF37]' : 'bg-white border-gray-200 text-gray-500 hover:border-gray-300'}`}>
+            First time joining Divine Iris
+          </button>
+          <button type="button" data-testid={`p-soul-tribe-${index}`} onClick={() => update('is_first_time', false)}
+            className={`flex-1 py-2 rounded-lg border text-[10px] font-medium transition-all ${
+              data.is_first_time === false ? 'bg-purple-50 border-purple-300 text-purple-700' : 'bg-white border-gray-200 text-gray-500 hover:border-gray-300'}`}>
+            I am Divine Iris Soul Tribe
+          </button>
+        </div>
       </div>
+
+      {/* Referral source - only shown for first-timers */}
+      {data.is_first_time && (
+        <div className="mb-2">
+          <label className="text-[9px] text-gray-500">How did you hear about us?</label>
+          <select data-testid={`p-referral-${index}`} value={data.referral_source || ''} onChange={e => update('referral_source', e.target.value)} className="w-full border rounded-md px-2 py-1.5 text-xs bg-white h-8">
+            <option value="">Select (optional)</option>{REFERRAL_SOURCES.map(r => <option key={r} value={r}>{r}</option>)}
+          </select>
+        </div>
+      )}
+
       {showReferral && (
         <>
           <label className="flex items-center gap-1.5 cursor-pointer mb-1.5" data-testid={`p-referred-toggle-${index}`}>
@@ -148,12 +173,21 @@ const ParticipantRow = ({ index, data, onChange, onRemove, canRemove, showReferr
           )}
         </>
       )}
-      <label className="flex items-center gap-1.5 cursor-pointer" data-testid={`p-notify-${index}`}>
-        <input type="checkbox" checked={data.notify} onChange={e => update('notify', e.target.checked)} className="w-3.5 h-3.5 rounded border-gray-300 text-[#D4AF37]" />
-        <span className="text-[10px] text-gray-600 flex items-center gap-1">
-          {data.notify ? <Bell size={10} className="text-[#D4AF37]" /> : <BellOff size={10} className="text-gray-400" />} Notify this participant
-        </span>
-      </label>
+
+      {/* Notify - mandatory for online, optional otherwise */}
+      {data.attendance_mode === 'online' ? (
+        <div className="flex items-center gap-1.5 mb-0.5">
+          <Bell size={10} className="text-[#D4AF37]" />
+          <span className="text-[10px] text-[#D4AF37] font-medium">Notifications enabled for online participants</span>
+        </div>
+      ) : (
+        <label className="flex items-center gap-1.5 cursor-pointer" data-testid={`p-notify-${index}`}>
+          <input type="checkbox" checked={data.notify} onChange={e => update('notify', e.target.checked)} className="w-3.5 h-3.5 rounded border-gray-300 text-[#D4AF37]" />
+          <span className="text-[10px] text-gray-600 flex items-center gap-1">
+            {data.notify ? <Bell size={10} className="text-[#D4AF37]" /> : <BellOff size={10} className="text-gray-400" />} Notify this participant
+          </span>
+        </label>
+      )}
       {data.notify && (
         <div className="grid grid-cols-3 gap-2 mt-2">
           <Input data-testid={`p-email-${index}`} type="email" value={data.email} onChange={e => update('email', e.target.value)} placeholder="Email" className="text-xs h-8" />
