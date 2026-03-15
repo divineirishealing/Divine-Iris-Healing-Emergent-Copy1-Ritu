@@ -461,7 +461,7 @@ function EnrollmentPage() {
                 {/* Purple header for sessions, image for programs */}
                 {type === 'session' ? (
                   <div className="relative h-48 overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a0e2e 0%, #2a1252 20%, #3b1a6e 40%, #4c1d95 60%, #5b21b6 80%, #4c1d95 100%)' }}>
-                    <StarField count={60} color="#D4AF37" />
+                    <StarField count={120} color="#D4AF37" />
                     <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(139, 92, 246, 0.3), transparent 60%), radial-gradient(ellipse 60% 40% at 80% 80%, rgba(212, 175, 55, 0.08), transparent 50%)' }} />
                     <div className="relative z-10 flex flex-col items-center justify-center h-full px-4 text-center">
                       <p className="text-[10px] text-[#D4AF37] tracking-[0.3em] uppercase font-medium mb-2">{item.category || 'Personal Session'}</p>
@@ -592,7 +592,21 @@ function EnrollmentPage() {
                     </div>
                     <div className="flex gap-3">
                       <Button variant="outline" onClick={() => setStep(0)} className="rounded-full"><ChevronLeft size={16} /> Back</Button>
-                      <Button data-testid="step1-next" onClick={() => setStep(2)} className="flex-1 bg-[#D4AF37] hover:bg-[#b8962e] text-white py-3 rounded-full">Billing <ChevronRight size={16} className="ml-1" /></Button>
+                      <Button data-testid="step1-next" onClick={() => {
+                        // Prefill booker info from first participant if empty
+                        const first = participants[0];
+                        if (first) {
+                          if (!bookerName && first.name) setBookerName(first.name);
+                          if (!bookerEmail && first.email) setBookerEmail(first.email);
+                          if (!phone && first.phone) setPhone(first.phone);
+                          if (first.country) {
+                            setBookerCountry(first.country);
+                            const c = COUNTRIES.find(c => c.code === first.country);
+                            if (c) setCountryCode(c.phone);
+                          }
+                        }
+                        setStep(2);
+                      }} className="flex-1 bg-[#D4AF37] hover:bg-[#b8962e] text-white py-3 rounded-full">Billing <ChevronRight size={16} className="ml-1" /></Button>
                     </div>
                   </div>
                 )}
@@ -654,7 +668,20 @@ function EnrollmentPage() {
                         <button onClick={() => { setOtpSent(false); setOtp(''); }} className="text-[10px] text-purple-600 mt-2 hover:underline">Resend code / change email</button>
                       </div>
                     )}
-                    <Button variant="outline" onClick={() => setStep(1)} className="rounded-full"><ChevronLeft size={16} /> Back</Button>
+                    {emailVerified && (
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-3 flex items-center gap-2">
+                        <ShieldCheck size={14} className="text-green-600" />
+                        <span className="text-xs text-green-700 font-medium">{bookerEmail} — Verified</span>
+                      </div>
+                    )}
+                    <div className="flex gap-3">
+                      <Button variant="outline" onClick={() => setStep(1)} className="rounded-full"><ChevronLeft size={16} /> Back</Button>
+                      {emailVerified && (
+                        <Button data-testid="step2-continue" onClick={() => setStep(3)} className="flex-1 bg-[#D4AF37] hover:bg-[#b8962e] text-white py-3 rounded-full">
+                          Continue to Payment <ChevronRight size={16} className="ml-1" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 )}
 

@@ -91,7 +91,7 @@ async def get_receipt_template():
     return tpl, logo
 
 
-def enrollment_confirmation_email(booker_name, item_title, participants, total, currency_symbol, attendance_modes, booker_email, phone, program_links=None, program_description="", program_start_date="", program_duration="", program_end_date="", program_timing="", program_timezone="", logo_url="", receipt_template=None, social_links=None, community_whatsapp="", footer_phone="", site_url=""):
+def enrollment_confirmation_email(booker_name, item_title, participants, total, currency_symbol, attendance_modes, booker_email, phone, program_links=None, program_description="", program_start_date="", program_duration="", program_end_date="", program_timing="", program_timezone="", logo_url="", receipt_template=None, social_links=None, community_whatsapp="", footer_phone="", site_url="", footer_email=""):
     tpl = receipt_template or {}
     socials = social_links or {}
     tpl = receipt_template or {}

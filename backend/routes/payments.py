@@ -218,6 +218,7 @@ async def send_enrollment_emails(session_id: str):
             social_links=social_links,
             community_whatsapp=community_whatsapp,
             footer_phone=settings.get("footer_phone", ""),
+            footer_email=settings.get("footer_email", ""),
             site_url="https://divineirishealing.com",
         )
         from key_manager import get_key
