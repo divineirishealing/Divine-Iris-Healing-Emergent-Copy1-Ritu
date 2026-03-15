@@ -160,6 +160,9 @@ const ParticipantRow = ({ index, data, onChange, onRemove, canRemove, showReferr
           <select data-testid={`p-referral-${index}`} value={data.referral_source || ''} onChange={e => update('referral_source', e.target.value)} className="w-full border rounded-md px-2 py-1.5 text-xs bg-white h-8">
             <option value="">Select (optional)</option>{REFERRAL_SOURCES.map(r => <option key={r} value={r}>{r}</option>)}
           </select>
+          {data.referral_source === 'Friend / Family' && (
+            <Input data-testid={`p-referrer-name-${index}`} type="text" value={data.referred_by_name || ''} onChange={e => update('referred_by_name', e.target.value)} placeholder="Name of the person who referred you" className="text-xs h-8 mt-2" />
+          )}
         </div>
       )}
 
