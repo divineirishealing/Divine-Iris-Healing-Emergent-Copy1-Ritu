@@ -287,7 +287,7 @@ function EnrollmentPage() {
     }
   }, [id, type, navigate]);
 
-  // Resume enrollment from cancel page — restore all filled info and jump to payment step
+  // Resume enrollment from cancel/back — restore all filled info and jump to payment step
   useEffect(() => {
     if (!resumeId) return;
     axios.get(`${API}/enrollment/${resumeId}`).then(r => {
@@ -320,6 +320,7 @@ function EnrollmentPage() {
       setEmailVerified(true);
       setOtpSent(true);
       setStep(3);
+      toast({ title: "Payment not completed", description: "You came back without completing payment. Your information is saved — you can continue when ready.", variant: "default" });
     }).catch(() => {});
   }, [resumeId]);
 
