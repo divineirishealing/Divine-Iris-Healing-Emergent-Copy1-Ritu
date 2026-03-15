@@ -93,12 +93,18 @@ const Header = () => {
   // Exclusive offer config
   const offer = settings?.exclusive_offer || {};
   const pillEnabled = offer.pill_enabled !== false && offer.enabled && offer.text;
-  const bannerEnabled = offer.banner_enabled && (offer.banner_text || offer.text) && offer.end_date;
   const offerMenuItems = offer.menu_items || ['upcoming sessions', 'services'];
   const pillFrom = offer.pill_color_from || '#D4AF37';
   const pillTo = offer.pill_color_to || '#f0d060';
   const pillFont = offer.pill_font || 'Lato';
   const bannerColor = offer.banner_color || '#dc2626';
+
+  // Auto-pull nearest upcoming program start_date for countdown
+  const nearestUpcomingDate = programs
+    .filter(p => p.is_upcoming && p.start_date)
+    .map(p => p.start_date)
+    .sort()[0] || null;
+  const bannerEnabled = offer.banner_enabled && (offer.banner_text || offer.text) && nearestUpcomingDate;
 
   const shouldShowOffer = (label) => {
     if (!pillEnabled) return false;
@@ -242,7 +248,7 @@ const Header = () => {
           <span className="text-white/40 text-[10px]">|</span>
           <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-white/80 tracking-wider">
             <Clock size={10} />
-            <OfferCountdown endDate={offer.end_date} />
+            <OfferCountdown endDate={nearestUpcomingDate} />
           </span>
           <span className="text-[9px] tracking-wider uppercase text-white/50">&rarr;</span>
         </div>

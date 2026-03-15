@@ -264,9 +264,9 @@ const HeaderFooterTab = ({ settings, onChange }) => {
                   <Label className="text-[10px] text-gray-500 mb-1 block">Banner Text</Label>
                   <Input data-testid="banner-text-input" value={offer.banner_text || offer.text || ''} onChange={e => setOffer('banner_text', e.target.value)} placeholder="e.g. Limited Time Offer!" className="text-sm" />
                 </div>
-                <div>
-                  <Label className="text-[10px] text-gray-500 mb-1 block">End Date & Time (for countdown)</Label>
-                  <Input data-testid="offer-end-date-input" type="datetime-local" value={offer.end_date || ''} onChange={e => setOffer('end_date', e.target.value)} className="text-sm" />
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                  <p className="text-[10px] text-amber-700 font-medium">Countdown auto-syncs with upcoming programs</p>
+                  <p className="text-[9px] text-amber-600 mt-1">The countdown timer automatically pulls the nearest start date from your Upcoming Programs. Set dates in the <strong>Upcoming Hub</strong> tab.</p>
                 </div>
                 <div>
                   <Label className="text-[10px] text-gray-500 mb-1 block">Banner Color</Label>
