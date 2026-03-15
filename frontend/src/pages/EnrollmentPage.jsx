@@ -768,7 +768,6 @@ function EnrollmentPage() {
                             <span className="text-[9px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">International</span>
                           </div>
                           <p className="text-[10px] text-gray-600 mb-2">Secure international payment. Your card must be <strong>enabled for international transactions</strong>.</p>
-                          <p className="text-[9px] text-green-600 font-medium mb-1">Price shown is all-inclusive (VAT + platform charges included).</p>
                           <p className="text-[9px] text-gray-400 italic">Contact your bank to enable international payments if not already active.</p>
                         </div>
 
