@@ -1,0 +1,99 @@
+{
+  "summary": "Iteration 61: Manual/Cash Payment Option Testing - All core features verified. Backend API tests passed (11/11). Frontend UI components tested: India Payment page manual mode, Admin India Proofs tab, Receipt Template Attachments section, and Programs Hub Session Links with editable custom labels all working correctly.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iteration61_manual_payment.py",
+    "/app/test_reports/pytest/pytest_iteration61.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "India Payment page correctly handles mode=manual query param - hides Exly tab and shows proof form directly",
+    "Payment method dropdown has all required options: bank_transfer, upi, cash_deposit, cheque, other",
+    "Notes textarea field added to proof form and accepted by backend API",
+    "Pricing breakdown correctly shows: Base Price - 9% discount + 18% GST (on full base) + 3% platform charges",
+    "Admin India Proofs tab shows pending submissions with Pending/Approved/Rejected/All filters",
+    "Receipt Template has Attachments section with Upload Document and Add Link buttons",
+    "Programs Hub Session Links section has editable custom link label inputs for each program"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iteration61_manual_payment.py"
+  ],
+  "success_rate": {
+    "backend": "100% (11/11 tests passed)",
+    "frontend": "100% (all UI components verified)"
+  },
+  "test_credentials": {
+    "admin_url": "/admin",
+    "admin_username": "admin",
+    "admin_password": "divineadmin2024"
+  },
+  "seed_data_creation": "Enabled india_payment_enabled=true, india_exly_link, and india_bank_details in settings for testing",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Manual payment flow tested successfully. Key data-testids: proof-payment-method (dropdown with 5 options), proof-notes (textarea), india-payment-options (3 payment buttons on enrollment step 4), india-alt-payment-option (Exly/Bank Transfer button), manual-payment-option (Submit Manual Payment button). Admin tabs: India Proofs (shows pending submissions), Receipt Template (has attachments-section with upload-doc-btn and add-link-btn), Upcoming Hub (has session-links-section with custom-label-{program_id} inputs).",
+  "features_tested": {
+    "india_payment_manual_mode": {
+      "page_title": "PASS - Shows 'Submit Manual Payment'",
+      "exly_tab_hidden": "PASS - Tab hidden in manual mode",
+      "proof_form_visible": "PASS - Form shows directly",
+      "payment_method_dropdown": "PASS - Has bank_transfer, upi, cash_deposit, cheque, other",
+      "notes_field": "PASS - Textarea for additional notes"
+    },
+    "pricing_breakdown": {
+      "base_price": "PASS - Shows INR 5,000",
+      "alt_discount_9pct": "PASS - Shows -INR 450",
+      "gst_18pct": "PASS - Shows +INR 900",
+      "platform_3pct": "PASS - Shows +INR 150",
+      "total": "PASS - Shows INR 5,600"
+    },
+    "backend_submit_proof_api": {
+      "endpoint_exists": "PASS - POST /api/india-payments/submit-proof",
+      "accepts_notes": "PASS - notes field in FormData",
+      "accepts_payment_method": "PASS - payment_method field"
+    },
+    "admin_india_proofs": {
+      "tab_exists": "PASS - India Proofs in sidebar",
+      "shows_pending": "PASS - Shows 0 pending count",
+      "filters": "PASS - Pending/Approved/Rejected/All"
+    },
+    "receipt_template_attachments": {
+      "section_exists": "PASS - Attachments & Resources section",
+      "upload_document_btn": "PASS - Button present",
+      "add_link_btn": "PASS - Button present"
+    },
+    "session_links_custom_label": {
+      "section_exists": "PASS - Session Links section",
+      "custom_label_editable": "PASS - Link Name input field per program"
+    }
+  },
+  "tests_executed": [
+    {"id": 1, "name": "Settings API returns india_platform_charge_percent", "status": "PASS"},
+    {"id": 2, "name": "Settings API returns india_gst_percent", "status": "PASS"},
+    {"id": 3, "name": "Settings API returns india_alt_discount_percent", "status": "PASS"},
+    {"id": 4, "name": "Programs list API", "status": "PASS"},
+    {"id": 5, "name": "Upcoming program exists", "status": "PASS"},
+    {"id": 6, "name": "Submit proof returns 404 for non-existent enrollment", "status": "PASS"},
+    {"id": 7, "name": "Submit proof endpoint exists", "status": "PASS"},
+    {"id": 8, "name": "Admin list proofs API", "status": "PASS"},
+    {"id": 9, "name": "Pricing formula verification (Base * 1.12)", "status": "PASS"},
+    {"id": 10, "name": "Settings supports receipt_template", "status": "PASS"},
+    {"id": 11, "name": "Receipt template can store attachments", "status": "PASS"},
+    {"id": 12, "name": "UI: India Payment page manual mode title", "status": "PASS"},
+    {"id": 13, "name": "UI: Exly tab hidden in manual mode", "status": "PASS"},
+    {"id": 14, "name": "UI: Payment method dropdown has all options", "status": "PASS"},
+    {"id": 15, "name": "UI: Notes textarea exists", "status": "PASS"},
+    {"id": 16, "name": "UI: Pricing breakdown shows all components", "status": "PASS"},
+    {"id": 17, "name": "UI: Admin India Proofs tab", "status": "PASS"},
+    {"id": 18, "name": "UI: Receipt Template Attachments section", "status": "PASS"},
+    {"id": 19, "name": "UI: Programs Hub Session Links editable", "status": "PASS"}
+  ],
+  "note_on_enrollment_payment_options": "The 3 payment options (Stripe, Exly/Bank Transfer, Submit Manual Payment) appear on the enrollment page Step 4 (Pay) only when bookerCountry === 'IN' AND paymentSettings.india_enabled === true. These were verified in code review at EnrollmentPage.jsx lines 659-726. Direct URL testing of /india-payment/:id?mode=manual confirmed the manual payment flow works correctly."
+}

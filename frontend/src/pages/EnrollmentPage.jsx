@@ -11,7 +11,7 @@ import { Button } from '../components/ui/button';
 import {
   User, Monitor, Wifi, Mail, Phone, CreditCard, Lock, Plus, Trash2,
   ChevronRight, ChevronLeft, Check, ShieldAlert, ShieldCheck,
-  Loader2, Bell, BellOff, Tag, Calendar
+  Loader2, Bell, BellOff, Tag, Calendar, FileText
 } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -696,6 +696,31 @@ function EnrollmentPage() {
                             </div>
                           </div>
                           <ChevronRight size={16} className="text-gray-400 group-hover:text-purple-600" />
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            const params = new URLSearchParams({
+                              program: item?.title || '',
+                              price: String(subtotal || 0),
+                              promo_discount: String(discount || 0),
+                              auto_discount: String(totalAutoDiscount || 0),
+                              mode: 'manual',
+                            });
+                            navigate(`/india-payment/${enrollmentId}?${params.toString()}`);
+                          }}
+                          className="flex items-center justify-between w-full border rounded-lg p-4 mt-2 hover:border-teal-400 hover:bg-teal-50/50 transition-all group"
+                          data-testid="manual-payment-option">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-teal-100 rounded-lg flex items-center justify-center">
+                              <FileText size={14} className="text-teal-600" />
+                            </div>
+                            <div>
+                              <span className="text-sm font-medium text-gray-900 group-hover:text-teal-600">Submit Manual Payment</span>
+                              <p className="text-[10px] text-teal-600 font-medium">Cash deposit, bank transfer — upload proof for approval</p>
+                            </div>
+                          </div>
+                          <ChevronRight size={16} className="text-gray-400 group-hover:text-teal-600" />
                         </button>
                       </div>
                     )}

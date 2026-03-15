@@ -34,6 +34,7 @@ async def submit_payment_proof(
     state: str = Form(...),
     payment_method: str = Form(""),
     screenshot: UploadFile = File(...),
+    notes: str = Form(""),
 ):
     """Submit India alternative payment proof for admin approval."""
     # Validate enrollment exists
@@ -62,6 +63,7 @@ async def submit_payment_proof(
         "city": city,
         "state": state,
         "payment_method": payment_method,
+        "notes": notes,
         "screenshot_url": f"/api/uploads/payment_proofs/{filename}",
         "status": "pending",
         "participants": enrollment.get("participants", []),

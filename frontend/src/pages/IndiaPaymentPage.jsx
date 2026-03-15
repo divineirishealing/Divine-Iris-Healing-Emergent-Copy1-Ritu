@@ -24,12 +24,14 @@ const IndiaPaymentPage = () => {
   const basePrice = parseFloat(searchParams.get('price') || '0');
   const promoDiscount = parseFloat(searchParams.get('promo_discount') || '0');
   const autoDiscount = parseFloat(searchParams.get('auto_discount') || '0');
+  const isManualMode = searchParams.get('mode') === 'manual';
 
   const [settings, setSettings] = useState({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [activeMethod, setActiveMethod] = useState('exly');
+  const [paymentMethod, setPaymentMethod] = useState('bank_transfer');
 
   // Proof form state (for bank transfer only)
   const [screenshot, setScreenshot] = useState(null);
@@ -41,34 +43,41 @@ const IndiaPaymentPage = () => {
   const [amount, setAmount] = useState('');
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
+  const [notes, setNotes] = useState('');
 
   useEffect(() => {
     axios.get(`${API}/settings`).then(r => {
       setSettings(r.data);
-      // Default to exly if available, else bank
-      if (!r.data.india_exly_link && r.data.india_bank_details?.account_number) {
+      if (isManualMode) {
+        setActiveMethod('bank');
+      } else if (!r.data.india_exly_link && r.data.india_bank_details?.account_number) {
         setActiveMethod('bank');
       }
     }).catch(() => {}).finally(() => setLoading(false));
-  }, []);
+  }, [isManualMode]);
 
   const pricing = useMemo(() => {
     const altDiscount = settings.india_alt_discount_percent || 9;
     const gstPct = settings.india_gst_percent || 18;
+    const platformPct = settings.india_platform_charge_percent || 3;
     const effectiveBase = Math.max(0, basePrice - promoDiscount - autoDiscount);
-    const discountedBase = effectiveBase * (1 - altDiscount / 100);
-    const gstAmount = discountedBase * gstPct / 100;
-    const total = discountedBase + gstAmount;
+    const altDiscountAmt = effectiveBase * altDiscount / 100;
+    const discountedBase = effectiveBase - altDiscountAmt;
+    const gstAmount = effectiveBase * gstPct / 100; // GST on full base amount
+    const platformAmount = effectiveBase * platformPct / 100;
+    const total = discountedBase + gstAmount + platformAmount;
     return {
       originalBase: basePrice,
       promoDiscount,
       autoDiscount,
       effectiveBase,
       altDiscountPct: altDiscount,
-      altDiscountAmt: effectiveBase - discountedBase,
+      altDiscountAmt,
       discountedBase,
       gstPct,
       gstAmount,
+      platformPct,
+      platformAmount,
       total: Math.round(total),
     };
   }, [basePrice, promoDiscount, autoDiscount, settings]);
@@ -98,8 +107,9 @@ const IndiaPaymentPage = () => {
       formData.append('amount', amount);
       formData.append('city', city);
       formData.append('state', state);
-      formData.append('payment_method', 'bank_transfer');
+      formData.append('payment_method', paymentMethod);
       formData.append('screenshot', screenshot);
+      if (notes) formData.append('notes', notes);
       await axios.post(`${API}/india-payments/submit-proof`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
@@ -162,12 +172,12 @@ const IndiaPaymentPage = () => {
               <div className="bg-white rounded-xl shadow-sm border p-6">
                 <h1 className="text-lg font-bold text-gray-900 mb-1 flex items-center gap-2">
                   <IndianRupee size={20} className="text-[#D4AF37]" />
-                  India Payment Options
+                  {isManualMode ? 'Submit Manual Payment' : 'India Payment Options'}
                 </h1>
-                <p className="text-xs text-gray-500 mb-5">Choose a payment method to complete your enrollment.</p>
+                <p className="text-xs text-gray-500 mb-5">{isManualMode ? 'Upload your payment proof for admin approval.' : 'Choose a payment method to complete your enrollment.'}</p>
 
-                {/* Method Tabs */}
-                {hasExly && hasBank && (
+                {/* Method Tabs — hide in manual mode */}
+                {!isManualMode && hasExly && hasBank && (
                   <div className="flex gap-2 mb-5">
                     <button onClick={() => setActiveMethod('exly')}
                       className={`flex-1 py-2.5 rounded-lg text-xs font-semibold transition-all border ${activeMethod === 'exly' ? 'bg-purple-50 border-purple-300 text-purple-700' : 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100'}`}
@@ -203,10 +213,11 @@ const IndiaPaymentPage = () => {
                   </div>
                 )}
 
-                {/* Bank Transfer */}
-                {(activeMethod === 'bank' && hasBank) && (
+                {/* Bank Transfer / Manual Payment */}
+                {(activeMethod === 'bank' && (hasBank || isManualMode)) && (
                   <div data-testid="bank-payment">
-                    {/* Bank Details */}
+                    {/* Bank Details — show only if configured and not pure manual mode */}
+                    {hasBank && (
                     <div className="border rounded-xl p-5 mb-4">
                       <div className="flex items-center gap-2 mb-3">
                         <Building2 size={16} className="text-blue-600" />
@@ -244,6 +255,7 @@ const IndiaPaymentPage = () => {
                         )}
                       </div>
                     </div>
+                    )}
 
                     {/* Proof Submission Form */}
                     <div className="border rounded-xl p-5" data-testid="proof-form">
@@ -312,6 +324,27 @@ const IndiaPaymentPage = () => {
                             <label className="text-[10px] font-semibold text-gray-700 block mb-1">State *</label>
                             <Input value={state} onChange={e => setState(e.target.value)} placeholder="Your state" className="text-xs h-9" data-testid="proof-state" />
                           </div>
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-semibold text-gray-700 block mb-1">Payment Method *</label>
+                          <select value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)}
+                            className="w-full border rounded-lg text-xs h-9 px-3 text-gray-700 focus:ring-1 focus:ring-[#D4AF37]"
+                            data-testid="proof-payment-method">
+                            <option value="bank_transfer">Bank Transfer (NEFT/IMPS/RTGS)</option>
+                            <option value="upi">UPI</option>
+                            <option value="cash_deposit">Cash Deposit</option>
+                            <option value="cheque">Cheque</option>
+                            <option value="other">Other</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-semibold text-gray-700 block mb-1">Additional Notes</label>
+                          <textarea value={notes} onChange={e => setNotes(e.target.value)}
+                            placeholder="Any additional details about your payment..."
+                            rows={2} className="w-full border rounded-lg text-xs px-3 py-2 text-gray-700 resize-none focus:ring-1 focus:ring-[#D4AF37]"
+                            data-testid="proof-notes" />
                         </div>
 
                         <Button onClick={handleSubmitProof} disabled={submitting}
@@ -387,6 +420,13 @@ const IndiaPaymentPage = () => {
                     <span className="text-gray-500">GST ({pricing.gstPct}%)</span>
                     <span className="text-gray-900">+ INR {Math.round(pricing.gstAmount).toLocaleString()}</span>
                   </div>
+
+                  {pricing.platformAmount > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Platform Charges ({pricing.platformPct}%)</span>
+                      <span className="text-gray-900">+ INR {Math.round(pricing.platformAmount).toLocaleString()}</span>
+                    </div>
+                  )}
 
                   <div className="border-t pt-2 mt-2">
                     <div className="flex justify-between text-base font-bold">

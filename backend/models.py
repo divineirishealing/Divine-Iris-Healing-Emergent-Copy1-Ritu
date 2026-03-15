@@ -459,6 +459,7 @@ class SiteSettings(BaseModel):
     # India alternative payment settings
     india_payment_enabled: bool = False
     india_gst_percent: float = 18  # GST %
+    india_platform_charge_percent: float = 3  # Platform charge %
     india_upi_id: str = ""  # UPI ID for GPay/PhonePe
     india_exly_link: str = ""  # Exly payment link
     india_bank_details: Dict = {}  # {account_name, account_number, ifsc, bank_name, branch}
@@ -582,6 +583,7 @@ class SiteSettingsUpdate(BaseModel):
     india_alt_discount_percent: Optional[float] = None
     india_payment_enabled: Optional[bool] = None
     india_gst_percent: Optional[float] = None
+    india_platform_charge_percent: Optional[float] = None
     india_upi_id: Optional[str] = None
     india_exly_link: Optional[str] = None
     india_bank_details: Optional[Dict] = None
