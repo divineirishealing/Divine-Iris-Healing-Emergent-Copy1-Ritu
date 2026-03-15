@@ -17,18 +17,16 @@ db = client[os.environ['DB_NAME']]
 logger = logging.getLogger(__name__)
 
 # Country code → currency mapping
-COUNTRY_CURRENCY = {
-    "AE": "aed", "IN": "inr", "US": "usd",
-    "GB": "gbp", "DE": "eur", "FR": "eur", "IT": "eur", "ES": "eur", "NL": "eur",
-    "AT": "eur", "BE": "eur", "PT": "eur", "IE": "eur", "FI": "eur", "GR": "eur",
-    "CA": "cad", "AU": "aud", "SG": "sgd", "JP": "jpy", "KR": "krw",
-    "SA": "sar", "QA": "qar", "KW": "kwd", "OM": "omr", "BH": "bhd",
-    "PK": "pkr", "BD": "bdt", "LK": "lkr", "NP": "npr", "MY": "myr",
-    "ZA": "zar", "NG": "ngn", "KE": "kes", "EG": "egp", "PH": "php",
-    "TH": "thb", "ID": "idr", "VN": "vnd", "BR": "brl", "MX": "mxn",
-    "TR": "try", "RU": "rub", "CN": "cny", "HK": "hkd", "TW": "twd",
-    "NZ": "nzd", "CH": "chf", "SE": "sek", "NO": "nok", "DK": "dkk", "PL": "pln",
-}
+# Strict 3-currency rule: India=INR, Gulf=AED, everyone else=USD
+AED_COUNTRIES = {"AE", "SA", "QA", "KW", "OM", "BH"}
+INR_COUNTRIES = {"IN"}
+
+def get_currency_for_country(country_code):
+    if country_code in INR_COUNTRIES:
+        return "inr"
+    if country_code in AED_COUNTRIES:
+        return "aed"
+    return "usd"
 
 CURRENCY_SYMBOLS = {
     "aed": "AED", "inr": "INR", "usd": "USD", "gbp": "GBP", "eur": "EUR",
@@ -90,25 +88,17 @@ async def detect_country_from_ip(request: Request) -> str:
 async def detect_currency(request: Request):
     """Detect user's currency from IP, return currency + exchange rate + country"""
     country = await detect_country_from_ip(request)
-    currency = COUNTRY_CURRENCY.get(country, "aed")
+    currency = get_currency_for_country(country)
     symbol = CURRENCY_SYMBOLS.get(currency, currency.upper())
     rates = await get_exchange_rates()
 
-    # For primary currencies (AED/INR/USD), rate is 1 (prices set directly)
-    # For others, rate is AED → local conversion
-    if currency in ("aed", "inr", "usd"):
-        rate = 1.0
-        is_primary = True
-    else:
-        rate = rates.get(currency, 1.0)
-        is_primary = False
-
+    # All 3 currencies are primary (prices set directly in admin)
     return {
         "currency": currency,
         "symbol": symbol,
         "country": country,
-        "rate": rate,
-        "is_primary": is_primary,
+        "rate": 1.0,
+        "is_primary": True,
     }
 
 
