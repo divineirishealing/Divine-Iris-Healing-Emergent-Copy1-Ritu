@@ -29,6 +29,17 @@ All pages with dark hero sections use:
 
 ## Implemented Features
 
+### Client Garden CRM (Mar 15, 2026) - COMPLETED
+- [x] Backend: clients collection with unique email/phone deduplication
+- [x] Sync/backfill from all touchpoints: contacts, interests, questions, enrollments, payment transactions
+- [x] 7-tier garden label hierarchy: Dew → Seed → Root → Bloom → Iris → Purple Bees → Iris Bees
+- [x] Auto-label assignment based on conversion data (workshops, flagship, multiple, annual)
+- [x] Manual label override with auto-recompute when cleared
+- [x] Search by name/email/phone, filter by label
+- [x] Expandable client profiles with: info grid, sources, conversions list, journey timeline, notes
+- [x] Export all client data as CSV
+- [x] All 31/31 tests passing (iteration 59)
+
 ### Admin Inbox — Contact, Interest & Questions Management (Mar 15, 2026) - COMPLETED
 - [x] Backend: `/api/inbox/contacts`, `/api/inbox/interests`, `/api/inbox/questions` GET endpoints
 - [x] Backend: Status update (read/replied), delete, and unified reply endpoint with rich email
