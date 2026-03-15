@@ -29,6 +29,13 @@ All pages with dark hero sections use:
 
 ## Implemented Features
 
+### About Page Hero Admin Controls + Pricing Hub Fix (Mar 15, 2026) - COMPLETED
+- [x] Hero section controls in About admin tab: logo image (upload/visibility/size), title (text/alignment/visibility/font), subtitle (text/alignment/visibility/font), divider line (visibility/color/width/thickness)
+- [x] Removed static logo from About page bio section
+- [x] About page hero renders dynamically from page_heroes.about settings with conditional visibility and alignment
+- [x] Pricing Hub: Fixed input focus loss bug by moving Cell component outside PricingHubTab (uses local state + onBlur)
+- [x] All 22/22 tests passing (iteration 57)
+
 ### Footer Links & Exclusive Offer Feature (Mar 15, 2026) - COMPLETED
 - [x] Footer links: Home → /#home (hero section), Upcoming Sessions → /#upcoming, Services → /sessions
 - [x] All footer/header links scroll to section TITLE (with -60px offset for fixed header), not bottom
@@ -113,9 +120,12 @@ All pages with dark hero sections use:
 
 ## Pending / Upcoming Tasks
 
-### P1: Admin View/Reply to Questions
+### P0: Admin View/Reply to Questions
 - UI in admin panel to reply to submitted questions from Personal Sessions
 - Backend APIs already in place
+
+### P1: User Verification for Programs Hub & Pricing Hub
+- Major refactor of Programs Hub and Pricing Hub from previous session pending user review
 
 ### P2: Global & Testimonial Search
 - Global site search functionality
