@@ -91,7 +91,7 @@ async def get_receipt_template():
     return tpl, logo
 
 
-def enrollment_confirmation_email(booker_name, item_title, participants, total, currency_symbol, attendance_modes, booker_email, phone, program_links=None, program_description="", program_start_date="", program_duration="", program_end_date="", program_timing="", program_timezone="", logo_url="", receipt_template=None, social_links=None, community_whatsapp=""):
+def enrollment_confirmation_email(booker_name, item_title, participants, total, currency_symbol, attendance_modes, booker_email, phone, program_links=None, program_description="", program_start_date="", program_duration="", program_end_date="", program_timing="", program_timezone="", logo_url="", receipt_template=None, social_links=None, community_whatsapp="", footer_phone="", site_url=""):
     tpl = receipt_template or {}
     socials = social_links or {}
     tpl = receipt_template or {}
@@ -127,6 +127,28 @@ def enrollment_confirmation_email(booker_name, item_title, participants, total, 
     # Social links HTML
     social_html_block = _build_social_html(socials, accent_color, body_font)
 
+    # Zoom note HTML
+    zoom_note_html = f"""
+        <div style="padding:0 36px 20px">
+          <div style="background:#eef6f3;border:1px solid #c8e0d5;border-radius:12px;padding:18px 22px;text-align:center">
+            <p style="color:{text_color};font-size:14px;font-weight:600;margin:0 0 8px;font-family:{heading_font}">Important Note</p>
+            <p style="color:#555;font-size:13px;margin:0;line-height:1.7;font-family:{body_font}">Zoom link will be provided 30 mins prior to session in WhatsApp Group. Hence, please join the group to stay updated with instructions and updates.</p>
+          </div>
+        </div>"""
+
+    # Assistance HTML
+    wa_number = footer_phone.replace("+", "").replace(" ", "") if footer_phone else "971553325778"
+    contact_url = f"{site_url}/#contact" if site_url else "https://divineirishealing.com/#contact"
+    assistance_html = f"""
+        <div style="padding:0 36px 20px">
+          <div style="background:#f5f7f9;border:1px solid #dce3e8;border-radius:12px;padding:20px 24px;text-align:center">
+            <p style="color:{text_color};font-size:15px;font-weight:600;margin:0 0 8px;font-family:{heading_font}">Need Assistance?</p>
+            <p style="color:#666;font-size:13px;margin:0 0 14px;line-height:1.6;font-family:{body_font}">For any assistance, reach out to us</p>
+            <a href="https://wa.me/{wa_number}" style="display:inline-block;background:#25D366;color:#fff;padding:10px 22px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;margin:4px;font-family:{body_font}">WhatsApp Us</a>
+            <a href="{contact_url}" style="display:inline-block;background:{accent_color};color:#fff;padding:10px 22px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;margin:4px;font-family:{body_font}">Contact Form</a>
+          </div>
+        </div>"""
+
     # Participant rows
     participant_rows = ""
     for p in participants:
@@ -149,20 +171,20 @@ def enrollment_confirmation_email(booker_name, item_title, participants, total, 
         if full_wa:
             contact_parts.append(f"WA: {full_wa}")
         contact_html = f'<div style="font-size:9px;color:#888;margin-top:1px">{" | ".join(contact_parts)}</div>' if contact_parts else ""
-        first_time = "First session" if p.get("is_first_time") else "Returning"
+        first_time = "First Time Joiner" if p.get("is_first_time") else "Soul Tribe"
         ft_color = accent_color if p.get("is_first_time") else "#888"
 
         participant_rows += f"""
         <tr>
-          <td style="padding:12px 14px;border-bottom:1px solid #f0ece3;vertical-align:top">
+          <td style="padding:12px 14px;border-bottom:1px solid #e5ece8;vertical-align:top">
             <div style="font-size:14px;color:{text_color};font-weight:600;font-family:{heading_font}">{p.get('name','')}</div>
             <div style="font-size:11px;color:#888;margin-top:1px">{p.get('relationship','')}</div>
             {uid_html}{ref_html}{contact_html}
           </td>
-          <td style="padding:12px 14px;border-bottom:1px solid #f0ece3;vertical-align:top;text-align:center">
+          <td style="padding:12px 14px;border-bottom:1px solid #e5ece8;vertical-align:top;text-align:center">
             <span style="background:{mode_color};color:#fff;padding:4px 12px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:0.5px">{mode_label}</span>
           </td>
-          <td style="padding:12px 14px;border-bottom:1px solid #f0ece3;vertical-align:top;text-align:center">
+          <td style="padding:12px 14px;border-bottom:1px solid #e5ece8;vertical-align:top;text-align:center">
             <span style="font-size:11px;color:{ft_color};font-weight:600">{first_time}</span>
           </td>
         </tr>"""
@@ -207,7 +229,7 @@ def enrollment_confirmation_email(booker_name, item_title, participants, total, 
         desc_html = f'<p style="color:#666;font-size:12px;margin:12px 0 0;line-height:1.7;font-family:{body_font}">{program_description[:400]}</p>' if program_description else ""
         program_info = f"""
         <div style="padding:0 36px 20px">
-          <div style="border-left:3px solid {accent_color};padding:16px 20px;background:#fdfcf8;border-radius:0 10px 10px 0">
+          <div style="border-left:3px solid {accent_color};padding:16px 20px;background:#f7faf8;border-radius:0 10px 10px 0">
             <table style="width:100%;border-collapse:collapse;font-family:{body_font}">{details_items}</table>
             {desc_html}
           </div>
@@ -220,8 +242,8 @@ def enrollment_confirmation_email(booker_name, item_title, participants, total, 
       <meta charset="utf-8">
       <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;600&display=swap" rel="stylesheet">
     </head>
-    <body style="margin:0;padding:0;background:#f4f2ed;font-family:{body_font}">
-      <div style="max-width:620px;margin:0 auto;background:#ffffff;border:1px solid #e8e0c8;border-radius:0">
+    <body style="margin:0;padding:0;background:#f2f5f4;font-family:{body_font}">
+      <div style="max-width:620px;margin:0 auto;background:#ffffff;border:1px solid #dce3df;border-radius:0">
 
         <!-- Header -->
         <div style="background:{bg_color};padding:36px 32px;text-align:center;border-bottom:3px solid {accent_color}">
@@ -240,7 +262,7 @@ def enrollment_confirmation_email(booker_name, item_title, participants, total, 
 
         <!-- Program Card -->
         <div style="padding:0 36px 24px">
-          <div style="background:linear-gradient(135deg, #faf8f0, #f8f4e8);border:1px solid #e8dcc4;border-radius:14px;padding:24px;overflow:hidden">
+          <div style="background:linear-gradient(135deg, #f5f9f7, #eef4f1);border:1px solid #d4ddd8;border-radius:14px;padding:24px;overflow:hidden">
             <div style="display:flex;align-items:center;margin-bottom:4px">
               <div style="width:4px;height:28px;background:{accent_color};border-radius:4px;margin-right:12px"></div>
               <h3 style="color:{accent_color};font-size:18px;margin:0;font-weight:600;font-family:{heading_font}">{item_title}</h3>
@@ -253,7 +275,7 @@ def enrollment_confirmation_email(booker_name, item_title, participants, total, 
                 <tr style="background:{accent_color}12">
                   <th style="padding:10px 14px;text-align:left;font-size:10px;color:{accent_color};text-transform:uppercase;letter-spacing:1.5px;font-weight:600;border-bottom:2px solid {accent_color}33">Participant</th>
                   <th style="padding:10px 14px;text-align:center;font-size:10px;color:{accent_color};text-transform:uppercase;letter-spacing:1.5px;font-weight:600;border-bottom:2px solid {accent_color}33">Mode</th>
-                  <th style="padding:10px 14px;text-align:center;font-size:10px;color:{accent_color};text-transform:uppercase;letter-spacing:1.5px;font-weight:600;border-bottom:2px solid {accent_color}33">Status</th>
+                  <th style="padding:10px 14px;text-align:center;font-size:10px;color:{accent_color};text-transform:uppercase;letter-spacing:1.5px;font-weight:600;border-bottom:2px solid {accent_color}33">Member Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -275,6 +297,9 @@ def enrollment_confirmation_email(booker_name, item_title, participants, total, 
         <!-- Links -->
         {links_html}
 
+        <!-- Zoom Note -->
+        {zoom_note_html}
+
         <!-- Booker Info -->
         <div style="padding:0 36px 24px">
           <div style="background:#fafafa;border-radius:12px;padding:18px 22px;font-size:13px;color:#555;font-family:{body_font};border:1px solid #f0f0f0">
@@ -286,7 +311,7 @@ def enrollment_confirmation_email(booker_name, item_title, participants, total, 
 
         <!-- Thank You -->
         <div style="padding:0 36px 32px">
-          <div style="background:linear-gradient(135deg, #faf8f0, #fff8e7);border:1px solid #e8dcc4;border-radius:14px;padding:28px;text-align:center">
+          <div style="background:linear-gradient(135deg, #f5f9f7, #eef4f1);border:1px solid #d4ddd8;border-radius:14px;padding:28px;text-align:center">
             <div style="width:40px;height:1px;background:{accent_color};margin:0 auto 16px"></div>
             <p style="color:{accent_color};font-size:20px;margin:0 0 10px;font-weight:600;font-family:{heading_font}">{thank_you_title}</p>
             <p style="color:#666;font-size:13px;margin:0;line-height:1.8;font-family:{body_font}">{thank_you_message}</p>
@@ -294,6 +319,8 @@ def enrollment_confirmation_email(booker_name, item_title, participants, total, 
             <p style="color:{accent_color};font-size:13px;margin:0;font-style:italic;font-family:{heading_font}">{thank_you_sign}</p>
           </div>
         </div>
+
+        {assistance_html}
 
         {community_whatsapp_html}
 
@@ -369,7 +396,7 @@ def participant_notification_email(participant_name, item_title, attendance_mode
         desc = f'<p style="color:#666;font-size:12px;margin:12px 0 0;line-height:1.7;font-family:{body_font}">{program_description[:400]}</p>' if program_description else ""
         details_html = f"""
         <div style="padding:0 32px 20px">
-          <div style="border-left:3px solid {accent};padding:16px 20px;background:#fdfcf8;border-radius:0 10px 10px 0">
+          <div style="border-left:3px solid {accent};padding:16px 20px;background:#f7faf8;border-radius:0 10px 10px 0">
             <table style="width:100%;border-collapse:collapse;font-family:{body_font}">{details_rows}</table>
             {desc}
           </div>
@@ -415,8 +442,8 @@ def participant_notification_email(participant_name, item_title, attendance_mode
     <head><meta charset="utf-8">
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;600;700&display=swap" rel="stylesheet">
     </head>
-    <body style="margin:0;padding:0;font-family:{body_font};background:#f4f2ed">
-      <div style="max-width:600px;margin:0 auto;background:#ffffff;border:1px solid #e8e0c8">
+    <body style="margin:0;padding:0;font-family:{body_font};background:#f2f5f4">
+      <div style="max-width:600px;margin:0 auto;background:#ffffff;border:1px solid #dce3df">
         <div style="background:#1a1a1a;padding:32px 24px;text-align:center;border-bottom:3px solid {accent}">
           {logo_html}
           <h1 style="color:{accent};margin:0;font-size:22px;font-weight:300;letter-spacing:4px;font-family:{heading_font}">DIVINE IRIS HEALING</h1>
@@ -426,7 +453,7 @@ def participant_notification_email(participant_name, item_title, attendance_mode
           <p style="color:#888;font-size:14px;margin:0;font-family:{body_font}">Hi {participant_name}, {booker_name} has enrolled you in:</p>
         </div>
         <div style="padding:0 32px 24px">
-          <div style="background:linear-gradient(135deg, #faf8f0, #f8f4e8);border:1px solid #e8dcc4;border-radius:14px;padding:24px;text-align:center">
+          <div style="background:linear-gradient(135deg, #f5f9f7, #eef4f1);border:1px solid #d4ddd8;border-radius:14px;padding:24px;text-align:center">
             <h3 style="color:{accent};font-size:18px;margin:0 0 12px;font-family:{heading_font}">{item_title}</h3>
             <p style="color:#333;font-size:14px;margin:0 0 8px;font-family:{body_font}"><strong>Mode:</strong> {mode_label}</p>
             <p style="color:#666;font-size:13px;margin:0;font-family:{body_font}">{mode_detail}</p>

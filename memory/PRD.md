@@ -38,6 +38,15 @@ All pages with dark hero sections use:
 - [x] Both Inbox and Client Garden exports switched to .xlsx Excel format with styled headers and color-coded rows
 - [x] All 15/15 tests passing (iteration 60)
 
+### Enrollment Receipt Email Overhaul (Feb 2026) - COMPLETED
+- [x] Changed "STATUS" column header → "MEMBER STATUS"
+- [x] Changed "First session" / "Returning" → "First Time Joiner" / "Soul Tribe"
+- [x] Replaced warm golden/yellow email backgrounds with calming sage-green palette throughout receipt and notification templates
+- [x] Added "Important Note" section: Zoom link provided 30 mins prior in WhatsApp Group, join group for updates
+- [x] Added "Need Assistance?" section with WhatsApp button (+971553325778) and Contact Form link
+- [x] Tier-aware duration: stores tier_index in transactions, uses tier label (e.g., "1 Month") as duration in emails
+- [x] Updated both enrollment_confirmation_email and participant_notification_email color schemes
+
 ### Client Garden CRM (Mar 15, 2026) - COMPLETED
 - [x] Backend: clients collection with unique email/phone deduplication
 - [x] Sync/backfill from all touchpoints: contacts, interests, questions, enrollments, payment transactions
@@ -156,10 +165,17 @@ All pages with dark hero sections use:
 
 ## Pending / Upcoming Tasks
 
-### P0: User Verification for Programs Hub & Pricing Hub
+### P0: Manual Client Management & Excel Upload
+- Allow manually editing client labels (tag as Iris, Iris Bee, etc.)
+- Upload Excel file of existing clients to bulk-populate Client Garden
+
+### P1: Annual Subscriber Dashboard
+- Design/feature set for managing "Iris" (Annual Program Subscriber) clients
+
+### P2: User Verification for Programs Hub & Pricing Hub
 - Major refactor from previous session pending user review
 
-### P1: Global & Testimonial Search
+### P3: Global & Testimonial Search
 - Global site search functionality
 - Keyword-based testimonial search
 

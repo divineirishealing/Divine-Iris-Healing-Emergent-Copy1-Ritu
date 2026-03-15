@@ -532,6 +532,7 @@ async def enrollment_checkout(enrollment_id: str, data: EnrollmentSubmit, reques
             "participants": enrollment.get("participants"),
             "participant_count": enrollment.get("participant_count", 1),
             "attendance": enrollment.get("attendance"),
+            "tier_index": data.tier_index,
             "is_free": True,
             "created_at": datetime.now(timezone.utc),
             "updated_at": datetime.now(timezone.utc),
@@ -648,6 +649,7 @@ async def enrollment_checkout(enrollment_id: str, data: EnrollmentSubmit, reques
         "participants": enrollment.get("participants"),
         "participant_count": enrollment.get("participant_count", 1),
         "attendance": enrollment.get("attendance"),
+        "tier_index": data.tier_index,
         "created_at": datetime.now(timezone.utc),
         "updated_at": datetime.now(timezone.utc),
     }

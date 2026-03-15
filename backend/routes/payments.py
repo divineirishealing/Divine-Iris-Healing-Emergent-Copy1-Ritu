@@ -154,14 +154,23 @@ async def send_enrollment_emails(session_id: str):
     program_timing = ""
     program_timezone = ""
     logo_url = ""
+    tier_index = tx.get("tier_index")
     if booker_email:
         if item_id and item_type == "program":
             program = await db.programs.find_one({"id": item_id}, {"_id": 0})
             if program:
                 program_description = program.get("description", "")
-                program_start_date = program.get("start_date", "")
-                program_duration = program.get("duration", "")
-                program_end_date = program.get("end_date", "")
+                # Use tier-specific dates/duration if available
+                tiers = program.get("duration_tiers", [])
+                if tier_index is not None and tiers and 0 <= tier_index < len(tiers):
+                    tier = tiers[tier_index]
+                    program_duration = tier.get("label", program.get("duration", ""))
+                    program_start_date = tier.get("start_date", program.get("start_date", ""))
+                    program_end_date = tier.get("end_date", program.get("end_date", ""))
+                else:
+                    program_duration = program.get("duration", "")
+                    program_start_date = program.get("start_date", "")
+                    program_end_date = program.get("end_date", "")
                 program_timing = program.get("timing", "") or ""
                 program_timezone = program.get("time_zone", "") or ""
         elif item_id and item_type == "session":
@@ -208,6 +217,8 @@ async def send_enrollment_emails(session_id: str):
             receipt_template=receipt_tpl,
             social_links=social_links,
             community_whatsapp=community_whatsapp,
+            footer_phone=settings.get("footer_phone", ""),
+            site_url="https://divineirishealing.com",
         )
         from key_manager import get_key
         receipt_sender = await get_key("receipt_email") or os.environ.get("RECEIPT_EMAIL", "receipt@divineirishealing.com")
