@@ -56,6 +56,8 @@ async def update_settings(settings: SiteSettingsUpdate):
         update_data['receipt_template'] = raw['receipt_template']
     if raw.get('exclusive_offer') is not None:
         update_data['exclusive_offer'] = raw['exclusive_offer']
+    if raw.get('community_whatsapp_link') is not None:
+        update_data['community_whatsapp_link'] = raw['community_whatsapp_link']
     existing = await db.site_settings.find_one({"id": "site_settings"})
     if not existing:
         full_settings = {**DEFAULT_SETTINGS, **update_data}

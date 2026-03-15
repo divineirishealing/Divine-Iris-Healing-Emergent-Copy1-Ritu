@@ -140,11 +140,11 @@ async def send_enrollment_emails(session_id: str):
                 program_links["custom_link"] = program["custom_link"]
                 program_links["custom_link_label"] = program.get("custom_link_label", "Link")
 
-    # Fetch social links and community WhatsApp
+    # Fetch social links and community WhatsApp (global)
     settings = await db.site_settings.find_one({"id": "site_settings"}, {"_id": 0})
     settings = settings or {}
     social_links = {k: v for k, v in settings.items() if k.startswith("social_") or k.startswith("show_")}
-    community_whatsapp = program_links.get("whatsapp_group_link_2", "")
+    community_whatsapp = settings.get("community_whatsapp_link", "")
 
     # 1. Send booker confirmation (from receipt email)
     program_description = ""
@@ -194,8 +194,8 @@ async def send_enrollment_emails(session_id: str):
         settings = settings or {}
         social_links = {k: v for k, v in settings.items() if k.startswith("social_") or k.startswith("show_")}
 
-        # Get community WhatsApp link (link 2 from program)
-        community_whatsapp = program_links.get("whatsapp_group_link_2", "")
+        # Get community WhatsApp link (global from site settings)
+        community_whatsapp = settings.get("community_whatsapp_link", "")
 
         html = enrollment_confirmation_email(
             booker_name=booker_name,

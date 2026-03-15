@@ -118,7 +118,7 @@ def enrollment_confirmation_email(booker_name, item_title, participants, total, 
         community_whatsapp_html = f"""
         <div style="padding:0 36px 20px">
           <div style="background:#dcf8c6;border-radius:14px;padding:24px;text-align:center">
-            <p style="color:#075e54;font-size:16px;font-weight:600;margin:0 0 8px;font-family:{heading_font}">Join Our Community (WhatsApp)</p>
+            <p style="color:#075e54;font-size:16px;font-weight:600;margin:0 0 8px;font-family:{heading_font}">Join WhatsApp Community Group</p>
             <p style="color:#555;font-size:12px;margin:0 0 14px;font-family:{body_font}">Connect with fellow seekers and stay updated</p>
             <a href="{community_whatsapp}" style="display:inline-block;background:#25D366;color:#fff;padding:12px 28px;border-radius:10px;text-decoration:none;font-size:14px;font-weight:600;font-family:{body_font}">Join WhatsApp Community</a>
           </div>
@@ -197,9 +197,9 @@ def enrollment_confirmation_email(booker_name, item_title, participants, total, 
     if program_links:
         link_items = ""
         if program_links.get("whatsapp_group_link"):
-            link_items += f'''<a href="{program_links["whatsapp_group_link"]}" style="display:inline-block;background:#25D366;color:#fff;padding:14px 28px;border-radius:10px;text-decoration:none;font-size:14px;margin:6px;font-weight:600;font-family:{body_font}">Join Workshop Group</a>'''
+            link_items += f'''<a href="{program_links["whatsapp_group_link"]}" style="display:inline-block;background:#25D366;color:#fff;padding:14px 28px;border-radius:10px;text-decoration:none;font-size:14px;margin:6px;font-weight:600;font-family:{body_font}">WhatsApp Workshop Group</a>'''
         if program_links.get("whatsapp_group_link_2"):
-            link_items += f'''<a href="{program_links["whatsapp_group_link_2"]}" style="display:inline-block;background:#128C7E;color:#fff;padding:14px 28px;border-radius:10px;text-decoration:none;font-size:14px;margin:6px;font-weight:600;font-family:{body_font}">Join Community Group</a>'''
+            link_items += f'''<a href="{program_links["whatsapp_group_link_2"]}" style="display:inline-block;background:#128C7E;color:#fff;padding:14px 28px;border-radius:10px;text-decoration:none;font-size:14px;margin:6px;font-weight:600;font-family:{body_font}">WhatsApp Community Group</a>'''
         if program_links.get("zoom_link"):
             link_items += f'''<a href="{program_links["zoom_link"]}" style="display:inline-block;background:#2D8CFF;color:#fff;padding:14px 28px;border-radius:10px;text-decoration:none;font-size:14px;margin:6px;font-weight:600;font-family:{body_font}">Join Zoom Meeting</a>'''
         if program_links.get("custom_link"):
@@ -408,9 +408,9 @@ def participant_notification_email(participant_name, item_title, attendance_mode
     # Program links (WhatsApp + Zoom)
     link_items = ""
     if p_links.get("whatsapp_group_link"):
-        link_items += f'<a href="{p_links["whatsapp_group_link"]}" style="display:inline-block;background:#25D366;color:#fff;padding:14px 24px;border-radius:10px;text-decoration:none;font-size:13px;margin:6px;font-weight:600;font-family:{body_font}">Join Workshop Group</a>'
+        link_items += f'<a href="{p_links["whatsapp_group_link"]}" style="display:inline-block;background:#25D366;color:#fff;padding:14px 24px;border-radius:10px;text-decoration:none;font-size:13px;margin:6px;font-weight:600;font-family:{body_font}">WhatsApp Workshop Group</a>'
     if p_links.get("whatsapp_group_link_2"):
-        link_items += f'<a href="{p_links["whatsapp_group_link_2"]}" style="display:inline-block;background:#128C7E;color:#fff;padding:14px 24px;border-radius:10px;text-decoration:none;font-size:13px;margin:6px;font-weight:600;font-family:{body_font}">Join Community Group</a>'
+        link_items += f'<a href="{p_links["whatsapp_group_link_2"]}" style="display:inline-block;background:#128C7E;color:#fff;padding:14px 24px;border-radius:10px;text-decoration:none;font-size:13px;margin:6px;font-weight:600;font-family:{body_font}">WhatsApp Community Group</a>'
     if p_links.get("zoom_link"):
         link_items += f'<a href="{p_links["zoom_link"]}" style="display:inline-block;background:#2D8CFF;color:#fff;padding:14px 24px;border-radius:10px;text-decoration:none;font-size:13px;margin:6px;font-weight:600;font-family:{body_font}">Join Zoom Meeting</a>'
     if p_links.get("custom_link"):
@@ -434,7 +434,7 @@ def participant_notification_email(participant_name, item_title, attendance_mode
         community_html = f"""
         <div style="padding:0 32px 20px">
           <div style="background:#dcf8c6;border-radius:14px;padding:20px;text-align:center">
-            <p style="color:#075e54;font-size:14px;font-weight:600;margin:0 0 8px;font-family:{heading_font}">Join Our Community (WhatsApp)</p>
+            <p style="color:#075e54;font-size:14px;font-weight:600;margin:0 0 8px;font-family:{heading_font}">Join WhatsApp Community Group</p>
             <a href="{community_whatsapp}" style="display:inline-block;background:#25D366;color:#fff;padding:10px 24px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">Join WhatsApp Community</a>
           </div>
         </div>"""

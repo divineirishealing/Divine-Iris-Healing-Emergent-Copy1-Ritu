@@ -45,7 +45,10 @@ All pages with dark hero sections use:
 - [x] Added "Important Note" section — editable from Receipt Template admin tab (default: Zoom link info)
 - [x] Added "Need Assistance?" section with WhatsApp button (+971553325778) and Contact Form link
 - [x] Tier-aware duration: stores tier_index in transactions, uses tier label (e.g., "1 Month") as duration in emails
-- [x] Added WhatsApp + Zoom + Custom link fields to Programs Hub (expandable per-program row with toggles)
+- [x] Added WhatsApp + Zoom + Custom link fields to Programs Hub as dedicated "Session Links" section below table
+- [x] WhatsApp Community Group is now GLOBAL (stored in site_settings, shared across all programs/sessions/enquiries)
+- [x] Per-program links: WhatsApp Workshop Group, Zoom Meeting, Custom Link (with toggles)
+- [x] Labels: "WhatsApp Workshop Group" and "WhatsApp Community Group"
 - [x] Updated both enrollment_confirmation_email and participant_notification_email color schemes
 
 ### Client Garden CRM (Mar 15, 2026) - COMPLETED
