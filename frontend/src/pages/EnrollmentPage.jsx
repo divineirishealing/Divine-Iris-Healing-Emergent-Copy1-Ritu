@@ -228,6 +228,7 @@ function EnrollmentPage() {
 
   const tierParam = searchParams.get('tier');
   const selectedTier = tierParam !== null ? parseInt(tierParam) : null;
+  const resumeId = searchParams.get('resume');
 
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -285,6 +286,42 @@ function EnrollmentPage() {
       axios.get(`${API}/session-extras/testimonials?session_id=${id}`).then(r => setSessionTestimonials(r.data || [])).catch(() => {});
     }
   }, [id, type, navigate]);
+
+  // Resume enrollment from cancel page — restore all filled info and jump to payment step
+  useEffect(() => {
+    if (!resumeId) return;
+    axios.get(`${API}/enrollment/${resumeId}`).then(r => {
+      const e = r.data;
+      setEnrollmentId(resumeId);
+      setBookerName(e.booker_name || '');
+      setBookerEmail(e.booker_email || '');
+      setBookerCountry(e.booker_country || 'AE');
+      if (e.phone) {
+        const phoneStr = e.phone || '';
+        const matchedCountry = COUNTRIES.find(c => phoneStr.startsWith(c.phone));
+        if (matchedCountry) {
+          setCountryCode(matchedCountry.phone);
+          setPhone(phoneStr.slice(matchedCountry.phone.length));
+        } else {
+          setPhone(phoneStr);
+        }
+      }
+      if (e.participants && e.participants.length > 0) {
+        setParticipants(e.participants.map(p => ({
+          name: p.name || '', relationship: p.relationship || '', age: String(p.age || ''), gender: p.gender || '',
+          country: p.country || 'AE', attendance_mode: p.attendance_mode || 'online',
+          notify: p.notify !== false, email: p.email || '', phone: p.phone ? p.phone.replace(/^\+\d+/, '') : '',
+          whatsapp: p.whatsapp ? p.whatsapp.replace(/^\+\d+/, '') : '',
+          phone_code: '+971', wa_code: '+971',
+          is_first_time: p.is_first_time !== false, referral_source: p.referral_source || '',
+          has_referral: !!p.referred_by_name, referred_by_name: p.referred_by_name || '',
+        })));
+      }
+      setEmailVerified(true);
+      setOtpSent(true);
+      setStep(3);
+    }).catch(() => {});
+  }, [resumeId]);
 
   useEffect(() => {
     if (detectedCountry) { setBookerCountry(detectedCountry); const c = COUNTRIES.find(c => c.code === detectedCountry); if (c) setCountryCode(c.phone); }

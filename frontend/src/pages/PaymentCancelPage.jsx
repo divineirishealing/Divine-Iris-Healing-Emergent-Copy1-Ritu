@@ -10,11 +10,15 @@ function PaymentCancelPage() {
   const itemType = searchParams.get('item_type');
   const itemId = searchParams.get('item_id');
   const tier = searchParams.get('tier');
+  const enrollmentId = searchParams.get('enrollment_id');
 
   const handleTryAgain = () => {
     if (itemType && itemId) {
-      const tierParam = tier !== null ? `?tier=${tier}` : '';
-      navigate(`/enroll/${itemType}/${itemId}${tierParam}`);
+      const params = new URLSearchParams();
+      if (tier !== null) params.set('tier', tier);
+      if (enrollmentId) params.set('resume', enrollmentId);
+      const qs = params.toString();
+      navigate(`/enroll/${itemType}/${itemId}${qs ? '?' + qs : ''}`);
     } else {
       navigate('/');
     }
