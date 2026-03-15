@@ -154,51 +154,145 @@ const HeaderFooterTab = ({ settings, onChange }) => {
         const offer = s.exclusive_offer || {};
         const setOffer = (key, val) => set('exclusive_offer', { ...offer, [key]: val });
         const menuItems = offer.menu_items || ['Upcoming Sessions', 'Services'];
+        const PILL_COLORS = [
+          { label: 'Gold', from: '#D4AF37', to: '#f0d060' },
+          { label: 'Rose', from: '#e84393', to: '#fd79a8' },
+          { label: 'Emerald', from: '#00b894', to: '#55efc4' },
+          { label: 'Ocean', from: '#0984e3', to: '#74b9ff' },
+          { label: 'Sunset', from: '#e17055', to: '#fab1a0' },
+        ];
+        const BANNER_COLORS = [
+          { label: 'Red', value: '#dc2626' },
+          { label: 'Purple', value: '#7c3aed' },
+          { label: 'Indigo', value: '#4338ca' },
+          { label: 'Magenta', value: '#c026d3' },
+          { label: 'Teal', value: '#0d9488' },
+          { label: 'Black', value: '#1a1a1a' },
+        ];
+        const FONTS = ['Lato', 'Cinzel', 'Georgia', 'Arial', 'Verdana'];
+        const pillFrom = offer.pill_color_from || '#D4AF37';
+        const pillTo = offer.pill_color_to || '#f0d060';
+        const bannerColor = offer.banner_color || '#dc2626';
+        const pillFont = offer.pill_font || 'Lato';
         return (
           <div className="space-y-4">
-            <div className="bg-white rounded-lg p-5 shadow-sm border" data-testid="exclusive-offer-panel">
-              <p className="text-xs font-semibold text-gray-800 mb-1">Exclusive Offer Banner</p>
-              <p className="text-[10px] text-gray-400 mb-4">Show a special offer badge on selected menu items with a countdown timer.</p>
+            {/* Pill Badges */}
+            <div className="bg-white rounded-lg p-5 shadow-sm border" data-testid="pill-badge-panel">
+              <p className="text-xs font-semibold text-gray-800 mb-1">Pill Badges (Below Menu Items)</p>
+              <p className="text-[10px] text-gray-400 mb-4">Animated golden badges that appear below selected menu items.</p>
 
-              <div className="flex items-center gap-3 mb-5">
-                <Switch checked={offer.enabled || false} onCheckedChange={v => setOffer('enabled', v)} data-testid="offer-enabled-toggle" />
-                <Label className="text-xs">Show Exclusive Offer</Label>
+              <div className="flex items-center gap-3 mb-4">
+                <Switch checked={offer.pill_enabled !== false && offer.enabled} onCheckedChange={v => setOffer('pill_enabled', v)} data-testid="pill-enabled-toggle" />
+                <Label className="text-xs">Show Pill Badges</Label>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <div>
-                  <Label className="text-[10px] text-gray-500 mb-1 block">Offer Text (shown on hover)</Label>
-                  <Input data-testid="offer-text-input" value={offer.text || ''} onChange={e => setOffer('text', e.target.value)} placeholder="e.g. 20% Off — Limited Time!" className="text-sm" />
+                  <Label className="text-[10px] text-gray-500 mb-1 block">Badge Text</Label>
+                  <Input data-testid="pill-text-input" value={offer.text || ''} onChange={e => setOffer('text', e.target.value)} placeholder="e.g. Grab Now" className="text-sm" />
                 </div>
-
-                <div>
-                  <Label className="text-[10px] text-gray-500 mb-1 block">Offer End Date & Time (Optional — adds countdown)</Label>
-                  <Input data-testid="offer-end-date-input" type="datetime-local" value={offer.end_date || ''} onChange={e => setOffer('end_date', e.target.value)} className="text-sm" />
-                </div>
-
                 <div>
                   <Label className="text-[10px] text-gray-500 mb-1 block">Show on Menu Items (comma-separated)</Label>
                   <Input data-testid="offer-menu-items-input" value={menuItems.join(', ')} onChange={e => setOffer('menu_items', e.target.value.split(',').map(v => v.trim()).filter(Boolean))} placeholder="Upcoming Sessions, Services" className="text-sm" />
-                  <p className="text-[9px] text-gray-400 mt-1">Enter menu labels where the offer dot should appear. E.g. "Upcoming Sessions, Services"</p>
+                </div>
+                <div>
+                  <Label className="text-[10px] text-gray-500 mb-1 block">Badge Color</Label>
+                  <div className="flex gap-2 flex-wrap">
+                    {PILL_COLORS.map(c => (
+                      <button key={c.label} onClick={() => { setOffer('pill_color_from', c.from); setOffer('pill_color_to', c.to); }}
+                        className={`px-3 py-1.5 rounded-full text-[9px] font-bold text-white border-2 transition-all ${pillFrom === c.from ? 'border-gray-900 scale-110' : 'border-transparent'}`}
+                        style={{ background: `linear-gradient(to right, ${c.from}, ${c.to})` }}>
+                        {c.label}
+                      </button>
+                    ))}
+                    <div className="flex items-center gap-1 ml-2">
+                      <Label className="text-[9px] text-gray-400">Custom:</Label>
+                      <input type="color" value={pillFrom} onChange={e => setOffer('pill_color_from', e.target.value)} className="w-6 h-6 rounded cursor-pointer border-0" />
+                      <input type="color" value={pillTo} onChange={e => setOffer('pill_color_to', e.target.value)} className="w-6 h-6 rounded cursor-pointer border-0" />
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-[10px] text-gray-500 mb-1 block">Badge Font</Label>
+                  <div className="flex gap-2 flex-wrap">
+                    {FONTS.map(f => (
+                      <button key={f} onClick={() => setOffer('pill_font', f)}
+                        className={`px-3 py-1 rounded text-[10px] border transition-all ${pillFont === f ? 'border-[#D4AF37] bg-[#D4AF37]/10 font-bold' : 'border-gray-200'}`}
+                        style={{ fontFamily: `'${f}', sans-serif` }}>
+                        {f}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
-              {offer.enabled && offer.text && (
-                <div className="mt-5 p-3 bg-gray-50 rounded-lg border">
-                  <p className="text-[10px] text-gray-500 mb-2 font-medium">Preview</p>
-                  <div className="flex items-center gap-3 bg-black/80 rounded px-4 py-2 text-white">
-                    <span className="text-[11px] tracking-wider uppercase relative">
-                      Upcoming Sessions
-                      <span className="absolute -top-1 -right-3 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                    </span>
-                    <span className="text-[11px] tracking-wider uppercase relative ml-4">
-                      Services
-                      <span className="absolute -top-1 -right-3 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                    </span>
+              {offer.text && (
+                <div className="mt-4 p-3 bg-gray-900 rounded-lg">
+                  <p className="text-[9px] text-gray-400 mb-2">Preview</p>
+                  <div className="flex items-center gap-6 text-white">
+                    <div className="relative flex flex-col items-center">
+                      <span className="text-[11px] tracking-wider uppercase">Services</span>
+                      <span className="mt-1 inline-flex items-center gap-0.5 text-[7px] font-bold tracking-wider px-1.5 py-px rounded-full animate-pulse text-gray-900"
+                        style={{ background: `linear-gradient(to right, ${pillFrom}, ${pillTo})`, fontFamily: `'${pillFont}', sans-serif`, animationDuration: '2s' }}>
+                        &#10024; {offer.text?.length > 10 ? offer.text.slice(0, 10) : offer.text}
+                      </span>
+                    </div>
+                    <div className="relative flex flex-col items-center">
+                      <span className="text-[11px] tracking-wider uppercase">Upcoming</span>
+                      <span className="mt-1 inline-flex items-center gap-0.5 text-[7px] font-bold tracking-wider px-1.5 py-px rounded-full animate-pulse text-gray-900"
+                        style={{ background: `linear-gradient(to right, ${pillFrom}, ${pillTo})`, fontFamily: `'${pillFont}', sans-serif`, animationDuration: '2s' }}>
+                        &#10024; {offer.text?.length > 10 ? offer.text.slice(0, 10) : offer.text}
+                      </span>
+                    </div>
                   </div>
-                  <div className="mt-2 bg-gradient-to-r from-red-600 to-red-700 text-white text-[10px] px-3 py-2 rounded-lg inline-block">
-                    <span className="font-semibold">{offer.text}</span>
-                    {offer.end_date && <span className="ml-2 text-red-200">Avail before: countdown</span>}
+                </div>
+              )}
+            </div>
+
+            {/* Countdown Banner */}
+            <div className="bg-white rounded-lg p-5 shadow-sm border" data-testid="banner-panel">
+              <p className="text-xs font-semibold text-gray-800 mb-1">Countdown Banner (Strip Below Header)</p>
+              <p className="text-[10px] text-gray-400 mb-4">Full-width banner strip below the navigation with countdown timer.</p>
+
+              <div className="flex items-center gap-3 mb-4">
+                <Switch checked={offer.banner_enabled || false} onCheckedChange={v => setOffer('banner_enabled', v)} data-testid="banner-enabled-toggle" />
+                <Label className="text-xs">Show Countdown Banner</Label>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <Label className="text-[10px] text-gray-500 mb-1 block">Banner Text</Label>
+                  <Input data-testid="banner-text-input" value={offer.banner_text || offer.text || ''} onChange={e => setOffer('banner_text', e.target.value)} placeholder="e.g. Limited Time Offer!" className="text-sm" />
+                </div>
+                <div>
+                  <Label className="text-[10px] text-gray-500 mb-1 block">End Date & Time (for countdown)</Label>
+                  <Input data-testid="offer-end-date-input" type="datetime-local" value={offer.end_date || ''} onChange={e => setOffer('end_date', e.target.value)} className="text-sm" />
+                </div>
+                <div>
+                  <Label className="text-[10px] text-gray-500 mb-1 block">Banner Color</Label>
+                  <div className="flex gap-2 flex-wrap">
+                    {BANNER_COLORS.map(c => (
+                      <button key={c.label} onClick={() => setOffer('banner_color', c.value)}
+                        className={`px-3 py-1.5 rounded text-[9px] font-bold text-white border-2 transition-all ${bannerColor === c.value ? 'border-gray-900 scale-110' : 'border-transparent'}`}
+                        style={{ background: c.value }}>
+                        {c.label}
+                      </button>
+                    ))}
+                    <div className="flex items-center gap-1 ml-2">
+                      <Label className="text-[9px] text-gray-400">Custom:</Label>
+                      <input type="color" value={bannerColor} onChange={e => setOffer('banner_color', e.target.value)} className="w-6 h-6 rounded cursor-pointer border-0" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {(offer.banner_text || offer.text) && (
+                <div className="mt-4 p-3 bg-gray-50 rounded-lg border">
+                  <p className="text-[9px] text-gray-500 mb-2">Preview</p>
+                  <div className="flex items-center justify-center gap-3 rounded py-1.5 text-white"
+                    style={{ background: `linear-gradient(to right, ${bannerColor}, ${bannerColor}dd, ${bannerColor})` }}>
+                    <span className="text-[10px] font-bold tracking-wider uppercase">&#10024; {offer.banner_text || offer.text}</span>
+                    {offer.end_date && <span className="text-[10px] opacity-70">| Avail before: countdown &rarr;</span>}
                   </div>
                 </div>
               )}

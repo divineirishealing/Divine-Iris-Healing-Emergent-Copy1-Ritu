@@ -92,12 +92,16 @@ const Header = () => {
 
   // Exclusive offer config
   const offer = settings?.exclusive_offer || {};
-  const offerEnabled = offer.enabled && offer.text;
-  const hasCountdown = offerEnabled && offer.end_date;
+  const pillEnabled = offer.pill_enabled !== false && offer.enabled && offer.text;
+  const bannerEnabled = offer.banner_enabled && (offer.banner_text || offer.text) && offer.end_date;
   const offerMenuItems = offer.menu_items || ['upcoming sessions', 'services'];
+  const pillFrom = offer.pill_color_from || '#D4AF37';
+  const pillTo = offer.pill_color_to || '#f0d060';
+  const pillFont = offer.pill_font || 'Lato';
+  const bannerColor = offer.banner_color || '#dc2626';
 
   const shouldShowOffer = (label) => {
-    if (!offerEnabled) return false;
+    if (!pillEnabled) return false;
     return offerMenuItems.some(m => label.toLowerCase().includes(m.toLowerCase()));
   };
 
@@ -132,8 +136,8 @@ const Header = () => {
         {hasOffer && (
           <span data-testid={`offer-badge-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
             onClick={() => handleNav(item.href || item.path)}
-            className="absolute -bottom-2 left-1/2 -translate-x-1/2 cursor-pointer inline-flex items-center gap-0.5 bg-gradient-to-r from-[#D4AF37] to-[#f0d060] text-[#1a1a1a] text-[7px] font-bold tracking-wider px-1.5 py-px rounded-full shadow-md shadow-[#D4AF37]/30 animate-pulse whitespace-nowrap"
-            style={{ fontFamily: "'Lato', sans-serif", animationDuration: '2s' }}>
+            className="absolute -bottom-2 left-1/2 -translate-x-1/2 cursor-pointer inline-flex items-center gap-0.5 text-[7px] font-bold tracking-wider px-1.5 py-px rounded-full shadow-md animate-pulse whitespace-nowrap"
+            style={{ background: `linear-gradient(to right, ${pillFrom}, ${pillTo})`, color: '#1a1a1a', fontFamily: `'${pillFont}', sans-serif`, animationDuration: '2s', boxShadow: `0 4px 12px ${pillFrom}40` }}>
             <Sparkles size={7} />
             <span className="uppercase">{offer.text?.length > 10 ? offer.text.slice(0, 10) : offer.text}</span>
           </span>
@@ -228,19 +232,19 @@ const Header = () => {
         </div>
       </header>
 
-      {/* Red countdown banner - only when end date is set */}
-      {hasCountdown && (
-        <div data-testid="offer-banner" className="fixed left-0 right-0 z-40 flex items-center justify-center gap-3 py-1.5 cursor-pointer bg-gradient-to-r from-red-700 via-red-600 to-red-700"
-          style={{ top: '56px', fontFamily: "'Lato', sans-serif" }}
+      {/* Countdown banner - independently toggleable */}
+      {bannerEnabled && (
+        <div data-testid="offer-banner" className="fixed left-0 right-0 z-40 flex items-center justify-center gap-3 py-1.5 cursor-pointer"
+          style={{ top: '56px', fontFamily: "'Lato', sans-serif", background: `linear-gradient(to right, ${bannerColor}, ${bannerColor}dd, ${bannerColor})` }}
           onClick={() => handleNav('/#upcoming')}>
-          <Sparkles size={12} className="text-yellow-300" />
-          <span className="text-[10px] font-bold tracking-[0.15em] uppercase text-white">{offer.text}</span>
-          <span className="text-red-300 text-[10px]">|</span>
-          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-yellow-200 tracking-wider">
+          <Sparkles size={12} className="text-white/80" />
+          <span className="text-[10px] font-bold tracking-[0.15em] uppercase text-white">{offer.banner_text || offer.text}</span>
+          <span className="text-white/40 text-[10px]">|</span>
+          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-white/80 tracking-wider">
             <Clock size={10} />
             <OfferCountdown endDate={offer.end_date} />
           </span>
-          <span className="text-[9px] tracking-wider uppercase text-red-200">&rarr;</span>
+          <span className="text-[9px] tracking-wider uppercase text-white/50">&rarr;</span>
         </div>
       )}
 
