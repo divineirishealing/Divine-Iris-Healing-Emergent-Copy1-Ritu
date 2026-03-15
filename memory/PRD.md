@@ -240,3 +240,24 @@ All pages with dark hero sections use:
 ## Key Credentials
 - Admin: `/admin` — username: `admin`, password: `divineadmin2024`
 - SMTP: `noreply@divineirishealing.com` via Google Workspace
+
+### Testimonial Template System + Gallery + Global Search (Mar 2026) - COMPLETED
+- [x] New testimonial type: "Template (Text Story)" — admin inputs text + name + photo, auto-generates beautiful styled card
+- [x] TemplateTestimonialCard component with elegant quote marks, gradient backgrounds, author photos
+- [x] Transformations gallery page fully rewritten with: hero section, search bar, type tabs (All/Text Stories/Graphics/Videos), program/session filter dropdowns
+- [x] Global Search spotlight in header — searches across programs, sessions, and testimonials with instant results
+- [x] Search icon added to both desktop and mobile header
+- [x] Testimonial model expanded: program_tags[], session_tags[], category, role fields
+- [x] Backend: /api/search endpoint for global search across 3 collections
+- [x] Backend: /api/testimonials updated with program_id, session_id, type, category, search query params
+- [x] Backend: /api/testimonials/categories endpoint for distinct categories
+- [x] Admin testimonial form: Template type, program/session tag chip selectors, category, role fields
+- [x] ProgramDetailPage: filters testimonials by program_id (shows only tagged testimonials)
+- [x] Bug fixed by testing agent: GlobalSearch navigation routes corrected (singular /program/:id, /session/:id)
+- [x] 22/22 tests passed (iteration_63)
+
+### Seamless Section Flow (Mar 2026) - COMPLETED
+- [x] All homepage sections use alternating purple→white→purple→white gradient flow
+- [x] Sessions → About → Newsletter merge seamlessly with matched gradient colors
+- [x] Programs → Testimonials merge seamlessly
+- [x] No visible section boundaries between adjacent sections
