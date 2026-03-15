@@ -470,6 +470,7 @@ class SiteSettings(BaseModel):
     pricing_weight: str = "700"
     exclusive_offer: Optional[Dict] = None
     community_whatsapp_link: str = ""
+    text_testimonials_style: Optional[Dict] = None
 
 class SiteSettingsUpdate(BaseModel):
     heading_font: Optional[str] = None
@@ -593,6 +594,7 @@ class SiteSettingsUpdate(BaseModel):
     pricing_weight: Optional[str] = None
     exclusive_offer: Optional[Dict] = None
     community_whatsapp_link: Optional[str] = None
+    text_testimonials_style: Optional[Dict] = None
 
 class PaymentTransaction(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
