@@ -99,12 +99,11 @@ const Header = () => {
   const pillFont = offer.pill_font || 'Lato';
   const bannerColor = offer.banner_color || '#dc2626';
 
-  // Auto-pull nearest upcoming program start_date for countdown
-  const nearestUpcomingDate = programs
+  // Auto-pull nearest upcoming program name + start_date for countdown
+  const nearestUpcoming = programs
     .filter(p => p.is_upcoming && p.start_date)
-    .map(p => p.start_date)
-    .sort()[0] || null;
-  const bannerEnabled = offer.banner_enabled && (offer.banner_text || offer.text) && nearestUpcomingDate;
+    .sort((a, b) => a.start_date.localeCompare(b.start_date))[0] || null;
+  const bannerEnabled = offer.banner_enabled && nearestUpcoming;
 
   const shouldShowOffer = (label) => {
     if (!pillEnabled) return false;
@@ -238,17 +237,18 @@ const Header = () => {
         </div>
       </header>
 
-      {/* Countdown banner - independently toggleable */}
+      {/* Countdown banner - auto-pulls from nearest upcoming program */}
       {bannerEnabled && (
         <div data-testid="offer-banner" className="fixed left-0 right-0 z-40 flex items-center justify-center gap-3 py-1.5 cursor-pointer"
           style={{ top: '56px', fontFamily: "'Lato', sans-serif", background: `linear-gradient(to right, ${bannerColor}, ${bannerColor}dd, ${bannerColor})` }}
-          onClick={() => handleNav('/#upcoming')}>
+          onClick={() => handleNav(`/program/${nearestUpcoming.id}`)}>
           <Sparkles size={12} className="text-white/80" />
-          <span className="text-[10px] font-bold tracking-[0.15em] uppercase text-white">{offer.banner_text || offer.text}</span>
+          <span className="text-[10px] font-bold tracking-[0.15em] uppercase text-white">{nearestUpcoming.title}</span>
+          {offer.banner_text && <><span className="text-white/40 text-[10px]">|</span><span className="text-[10px] font-semibold tracking-wider uppercase text-white/90">{offer.banner_text}</span></>}
           <span className="text-white/40 text-[10px]">|</span>
           <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-white/80 tracking-wider">
             <Clock size={10} />
-            <OfferCountdown endDate={nearestUpcomingDate} />
+            <OfferCountdown endDate={nearestUpcoming.start_date} />
           </span>
           <span className="text-[9px] tracking-wider uppercase text-white/50">&rarr;</span>
         </div>
