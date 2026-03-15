@@ -99,10 +99,10 @@ const Header = () => {
   const pillFont = offer.pill_font || 'Lato';
   const bannerColor = offer.banner_color || '#dc2626';
 
-  // Auto-pull nearest upcoming program name + start_date for countdown
+  // Auto-pull nearest upcoming program name + deadline for countdown (same as card)
   const nearestUpcoming = programs
-    .filter(p => p.is_upcoming && p.start_date)
-    .sort((a, b) => a.start_date.localeCompare(b.start_date))[0] || null;
+    .filter(p => p.is_upcoming && (p.deadline_date || p.start_date))
+    .sort((a, b) => (a.deadline_date || a.start_date).localeCompare(b.deadline_date || b.start_date))[0] || null;
   const bannerEnabled = offer.banner_enabled && nearestUpcoming;
 
   const shouldShowOffer = (label) => {
@@ -248,7 +248,7 @@ const Header = () => {
           <span className="text-white/40 text-[10px]">|</span>
           <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-white/80 tracking-wider">
             <Clock size={10} />
-            <OfferCountdown endDate={nearestUpcoming.start_date} />
+            <OfferCountdown endDate={nearestUpcoming.deadline_date || nearestUpcoming.start_date} />
           </span>
           <span className="text-[9px] tracking-wider uppercase text-white/50">&rarr;</span>
         </div>
