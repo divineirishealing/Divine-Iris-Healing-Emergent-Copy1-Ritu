@@ -474,7 +474,7 @@ function ProgramDetailPage() {
                       <div key={`${offset}-${idx}`}
                         className="absolute cursor-pointer"
                         data-testid={isCenter ? 'carousel-center-card' : `carousel-card-${offset}`}
-                        onClick={() => { if (offset !== 0) { offset < 0 ? prevT() : nextT(); } else { setLightboxImg(imgSrc); } }}
+                        onClick={() => setLightboxImg(imgSrc)}
                         onMouseEnter={() => setHoveredCard(offset)}
                         onMouseLeave={() => setHoveredCard(null)}
                         style={{
