@@ -10,7 +10,9 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const PaymentSettingsTab = () => {
   const { toast } = useToast();
   const [disclaimer, setDisclaimer] = useState('');
+  const [disclaimerEnabled, setDisclaimerEnabled] = useState(true);
   const [indiaEnabled, setIndiaEnabled] = useState(false);
+  const [manualFormEnabled, setManualFormEnabled] = useState(true);
   const [exlyLink, setExlyLink] = useState('');
   const [altDiscountPct, setAltDiscountPct] = useState(9);
   const [gstPct, setGstPct] = useState(18);
@@ -24,7 +26,9 @@ const PaymentSettingsTab = () => {
   useEffect(() => {
     axios.get(`${API}/settings`).then(r => {
       setDisclaimer(r.data.payment_disclaimer || '');
+      setDisclaimerEnabled(r.data.payment_disclaimer_enabled !== false);
       setIndiaEnabled(r.data.india_payment_enabled || false);
+      setManualFormEnabled(r.data.manual_form_enabled !== false);
       setExlyLink(r.data.india_exly_link || '');
       setAltDiscountPct(r.data.india_alt_discount_percent ?? 9);
       setGstPct(r.data.india_gst_percent ?? 18);
@@ -43,7 +47,9 @@ const PaymentSettingsTab = () => {
     try {
       await axios.put(`${API}/settings`, {
         payment_disclaimer: disclaimer,
+        payment_disclaimer_enabled: disclaimerEnabled,
         india_payment_enabled: indiaEnabled,
+        manual_form_enabled: manualFormEnabled,
         india_exly_link: exlyLink,
         india_alt_discount_percent: parseFloat(altDiscountPct) || 9,
         india_gst_percent: parseFloat(gstPct) || 18,
@@ -68,17 +74,28 @@ const PaymentSettingsTab = () => {
       <p className="text-xs text-gray-500 mb-6">Manage payment disclaimer, Exly gateway, and bank transfer details for India.</p>
 
       {/* Disclaimer */}
-      <div className="mb-6">
-        <label className="text-xs font-semibold text-gray-700 block mb-1.5">Payment Disclaimer</label>
-        <p className="text-[10px] text-gray-400 mb-2">Shown near pricing on enrollment and payment pages.</p>
-        <textarea
-          data-testid="payment-disclaimer-input"
-          value={disclaimer}
-          onChange={e => setDisclaimer(e.target.value)}
-          rows={3}
-          className="w-full border rounded-lg px-3 py-2 text-xs text-gray-700 resize-none focus:ring-1 focus:ring-[#D4AF37] focus:border-[#D4AF37]"
-          placeholder="We love aligning our work with the natural solar cycle..."
-        />
+      <div className="mb-6 bg-gray-50 border rounded-lg p-5">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900">Payment Disclaimer</h3>
+            <p className="text-[10px] text-gray-400">Shown near pricing on enrollment and payment pages</p>
+          </div>
+          <label className="relative inline-flex items-center cursor-pointer" data-testid="disclaimer-toggle">
+            <input type="checkbox" checked={disclaimerEnabled} onChange={e => setDisclaimerEnabled(e.target.checked)} className="sr-only peer" />
+            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+            <span className="ml-2 text-xs font-medium text-gray-700">{disclaimerEnabled ? 'Visible' : 'Hidden'}</span>
+          </label>
+        </div>
+        {disclaimerEnabled && (
+          <textarea
+            data-testid="payment-disclaimer-input"
+            value={disclaimer}
+            onChange={e => setDisclaimer(e.target.value)}
+            rows={3}
+            className="w-full border rounded-lg px-3 py-2 text-xs text-gray-700 resize-none focus:ring-1 focus:ring-[#D4AF37] focus:border-[#D4AF37]"
+            placeholder="We love aligning our work with the natural solar cycle..."
+          />
+        )}
       </div>
 
       {/* India Payment Master Toggle */}
@@ -91,6 +108,19 @@ const PaymentSettingsTab = () => {
           <input type="checkbox" checked={indiaEnabled} onChange={e => setIndiaEnabled(e.target.checked)} className="sr-only peer" />
           <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
           <span className="ml-2 text-xs font-medium text-gray-700">{indiaEnabled ? 'Enabled' : 'Disabled'}</span>
+        </label>
+      </div>
+
+      {/* Manual Payment Form Toggle */}
+      <div className="mb-6 bg-gray-50 border rounded-lg p-5 flex items-center justify-between">
+        <div>
+          <h3 className="text-sm font-semibold text-gray-900">Manual Payment Form</h3>
+          <p className="text-[10px] text-gray-400">Show manual proof submission option on enrollment page & enable shareable link</p>
+        </div>
+        <label className="relative inline-flex items-center cursor-pointer" data-testid="manual-form-toggle">
+          <input type="checkbox" checked={manualFormEnabled} onChange={e => setManualFormEnabled(e.target.checked)} className="sr-only peer" />
+          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+          <span className="ml-2 text-xs font-medium text-gray-700">{manualFormEnabled ? 'Enabled' : 'Disabled'}</span>
         </label>
       </div>
 

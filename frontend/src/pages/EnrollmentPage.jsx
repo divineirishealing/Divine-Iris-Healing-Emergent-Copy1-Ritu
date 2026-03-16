@@ -257,7 +257,7 @@ function EnrollmentPage() {
   const [emailVerified, setEmailVerified] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [discountSettings, setDiscountSettings] = useState({ enable_referral: true });
-  const [paymentSettings, setPaymentSettings] = useState({ disclaimer: '', india_links: [], india_exly_link: '', india_bank_details: {}, india_enabled: false });
+  const [paymentSettings, setPaymentSettings] = useState({ disclaimer: '', disclaimer_enabled: true, india_links: [], india_exly_link: '', india_bank_details: {}, india_enabled: false, manual_form_enabled: true });
   const [sessionTestimonials, setSessionTestimonials] = useState([]);
 
   // Country → currency mapping for real-time pricing updates
@@ -283,11 +283,13 @@ function EnrollmentPage() {
       const s = r.data;
       setPaymentSettings({
         disclaimer: s.payment_disclaimer || '',
+        disclaimer_enabled: s.payment_disclaimer_enabled !== false,
         india_links: (s.india_payment_links || []).filter(l => l.enabled),
         india_alt_discount: s.india_alt_discount_percent || 9,
         india_exly_link: s.india_exly_link || '',
         india_bank_details: s.india_bank_details || {},
         india_enabled: s.india_payment_enabled || false,
+        manual_form_enabled: s.manual_form_enabled !== false,
       });
     }).catch(() => {});
     if (type === 'session') {
@@ -692,7 +694,7 @@ function EnrollmentPage() {
                         </div></div>
                     </div>
 
-                    {paymentSettings.disclaimer && (
+                    {paymentSettings.disclaimer_enabled && paymentSettings.disclaimer && (
                       <div className="bg-amber-50/60 border border-amber-100 rounded-lg p-3 mb-3" data-testid="payment-disclaimer">
                         <p className="text-[10px] text-amber-800 italic leading-relaxed">{paymentSettings.disclaimer}</p>
                       </div>
@@ -813,6 +815,7 @@ function EnrollmentPage() {
                           <ChevronRight size={16} className="text-gray-400 group-hover:text-purple-600" />
                         </button>
 
+                        {paymentSettings.manual_form_enabled && (
                         <button
                           onClick={() => {
                             navigate(`/manual-payment/${enrollmentId}`);
@@ -830,6 +833,7 @@ function EnrollmentPage() {
                           </div>
                           <ChevronRight size={16} className="text-gray-400 group-hover:text-teal-600" />
                         </button>
+                        )}
                       </div>
                     )}
 
@@ -841,7 +845,7 @@ function EnrollmentPage() {
                       </Button>
                     </div>
 
-                    {paymentSettings.disclaimer && (
+                    {paymentSettings.disclaimer_enabled && paymentSettings.disclaimer && (
                       <div className="mt-3 bg-amber-50/60 border border-amber-100 rounded-lg p-3" data-testid="payment-disclaimer-pay">
                         <p className="text-[10px] text-amber-800 italic leading-relaxed">{paymentSettings.disclaimer}</p>
                       </div>
