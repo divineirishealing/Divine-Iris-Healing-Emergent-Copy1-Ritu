@@ -178,7 +178,7 @@ const ManualPaymentPage = () => {
                   <div className="border rounded-xl p-5 mb-5">
                     <div className="flex items-center gap-2 mb-3">
                       <Building2 size={16} className="text-blue-600" />
-                      <h3 className="text-sm font-semibold text-gray-900">Bank Transfer Details</h3>
+                      <h3 className="text-sm font-semibold text-gray-900">Divine Iris Bank Details</h3>
                     </div>
                     <div className="bg-gray-50 border rounded-lg p-4 space-y-2">
                       {bankDetails.account_name && (

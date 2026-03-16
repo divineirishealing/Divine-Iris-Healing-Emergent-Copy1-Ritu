@@ -118,7 +118,7 @@ const PaymentSettingsTab = () => {
       <div className="mb-6 bg-blue-50/50 border border-blue-200 rounded-lg p-5">
         <div className="flex items-center gap-2 mb-4">
           <Building2 size={16} className="text-blue-600" />
-          <h3 className="text-sm font-semibold text-gray-900">Bank Transfer Details</h3>
+          <h3 className="text-sm font-semibold text-gray-900">Divine Iris Bank Details</h3>
           <span className="text-[9px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">Manual</span>
         </div>
         <p className="text-[10px] text-gray-400 mb-3">For manual bank deposits. Users submit proof and you approve from "India Proofs" tab.</p>
