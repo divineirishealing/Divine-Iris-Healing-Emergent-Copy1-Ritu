@@ -286,6 +286,17 @@ All pages with dark hero sections use:
 - [x] Bug fixed by testing agent: GlobalSearch navigation routes corrected (singular /program/:id, /session/:id)
 - [x] 22/22 tests passed (iteration_63)
 
+### 3D Testimonial Carousel — Image Only (Mar 16, 2026) - COMPLETED
+- [x] Program detail pages now show testimonial images in a clean 3D rotating carousel
+- [x] Cards are image-only — no extra chrome (stars, name footer removed)
+- [x] Center card zooms forward (translateZ: 80px) with prominent shadow
+- [x] Adjacent cards rotate with rotateY(-20deg) and dim (opacity: 0.8, brightness: 0.92)
+- [x] Outer cards rotate more aggressively (rotateY: -35deg) and fade further (opacity: 0.45)
+- [x] Counter "N / Total" replaces excessive dot indicators
+- [x] Backend updated: program pages now include general testimonials (empty program_id) alongside program-specific ones
+- [x] Lightbox opens on center card click, prev/next on side card click
+- [x] Overflow hidden prevents card clipping at container edges
+
 ### Seamless Section Flow v2 — Reorder-Robust (Mar 16, 2026) - COMPLETED
 - [x] Centralized alternating gradient system in HomePage.jsx (replaces per-section hardcoded backgrounds)
 - [x] Two chaining gradients: lavender→white (A) and white→lavender (B), where A's end matches B's start and vice versa
