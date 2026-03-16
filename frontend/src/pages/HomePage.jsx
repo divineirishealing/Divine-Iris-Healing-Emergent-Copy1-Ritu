@@ -36,16 +36,13 @@ const DARK_SECTIONS = new Set(['HeroSection', 'SessionsSection', 'StatsSection']
 
 /*
   Alternating flow logic:
-  - Light sections alternate between WHITE-dominant and LAVENDER-dominant
-  - Each gradient's EDGES use a shared midpoint (#f8f5ff) so boundaries are invisible
-  
-  WHITE section:   #f8f5ff → #ffffff → #ffffff → #f8f5ff
-  LAVENDER section: #f8f5ff → #efe8f8 → #efe8f8 → #f8f5ff
-  
-  Where they meet: both are #f8f5ff = seamless, zero visible divider
+  - Page wrapper provides the base lavender (#f3edff)
+  - Light sections are transparent at edges (showing page lavender through)
+  - Center alternates between pure white and soft lavender
+  - Result: NO visible boundary at any transition point
 */
-const GRADIENT_WHITE = 'linear-gradient(180deg, #f8f5ff 0%, #faf8ff 8%, #ffffff 20%, #ffffff 80%, #faf8ff 92%, #f8f5ff 100%)';
-const GRADIENT_LAVENDER = 'linear-gradient(180deg, #f8f5ff 0%, #f3edff 15%, #efe8f8 40%, #efe8f8 60%, #f3edff 85%, #f8f5ff 100%)';
+const GRADIENT_WHITE = 'linear-gradient(180deg, transparent 0%, #faf8ff 5%, #ffffff 15%, #ffffff 85%, #faf8ff 95%, transparent 100%)';
+const GRADIENT_LAVENDER = 'linear-gradient(180deg, transparent 0%, #f0eaf8 10%, #ebe4f5 35%, #ebe4f5 65%, #f0eaf8 90%, transparent 100%)';
 
 const DEFAULT_ORDER = [
   { id: 'hero', component: 'HeroSection', visible: true },
@@ -98,7 +95,7 @@ function HomePage() {
   return (
     <>
       <Header />
-      <div style={{ position: 'relative', background: '#f8f5ff' }}>
+      <div style={{ position: 'relative', background: '#f3edff' }}>
         {/* Gold dust particles along edges */}
         {[
           { left: '3%', top: '8%', size: 4, delay: '0s' },
