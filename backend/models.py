@@ -473,6 +473,8 @@ class SiteSettings(BaseModel):
     loyalty_discount_pct: float = 0  # % off for returning clients (have existing UID)
     # Payment disclaimer text
     payment_disclaimer: str = "We love aligning our work with the natural solar cycle of where you are. If the pricing you see isn't in your local currency, please reach out\u2014we'd be happy to provide the adjusted rates tailored to your home country."
+    payment_disclaimer_enabled: bool = True
+    payment_disclaimer_style: Dict = {"font_size": "14px", "font_weight": "600", "font_color": "#991b1b", "bg_color": "#fef2f2", "border_color": "#f87171"}
     # India payment options (alternative links for Indian users)
     india_alt_discount_percent: float = 9  # % discount for choosing alt payment
     india_payment_links: List[Dict] = []  # [{type: "exly"|"gpay"|"bank", label: "...", url: "...", details: "...", enabled: true}]
@@ -601,6 +603,8 @@ class SiteSettingsUpdate(BaseModel):
     enable_loyalty: Optional[bool] = None
     loyalty_discount_pct: Optional[float] = None
     payment_disclaimer: Optional[str] = None
+    payment_disclaimer_enabled: Optional[bool] = None
+    payment_disclaimer_style: Optional[Dict] = None
     india_payment_links: Optional[List[Dict]] = None
     india_alt_discount_percent: Optional[float] = None
     india_payment_enabled: Optional[bool] = None
