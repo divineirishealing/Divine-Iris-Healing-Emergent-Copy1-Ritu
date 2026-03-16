@@ -134,7 +134,7 @@ const EnrollmentsTab = () => {
                         <Users size={12} className="text-gray-400" />
                         <span className="font-medium">{e.participant_count || e.participants?.length || 0}</span>
                       </div>
-                      {e.participants?.map((p, i) => (
+                      {e.participants?.filter(p => p.name).map((p, i) => (
                         <p key={i} className="text-gray-400 text-[10px] truncate max-w-[150px]">{p.name}</p>
                       ))}
                     </td>

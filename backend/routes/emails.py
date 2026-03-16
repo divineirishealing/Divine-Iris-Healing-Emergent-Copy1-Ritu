@@ -240,6 +240,8 @@ def enrollment_confirmation_email(booker_name, item_title, participants, total, 
     if program_timing:
         tz = f" ({program_timezone})" if program_timezone else ""
         details_items += f'<tr><td style="padding:6px 0;color:#999;font-size:12px;vertical-align:top">Timing</td><td style="padding:6px 0;color:{text_color};font-size:13px;font-weight:500">{program_timing}{tz}</td></tr>'
+    if program_duration:
+        details_items += f'<tr><td style="padding:6px 0;color:#999;font-size:12px;vertical-align:top">Duration</td><td style="padding:6px 0;color:{text_color};font-size:13px;font-weight:500">{program_duration}</td></tr>'
 
     program_info = ""
     if details_items or program_description:

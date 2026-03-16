@@ -201,49 +201,132 @@ async def list_enrollments():
 
 @router.get("/admin/enrollments/export")
 async def export_enrollments_excel():
-    """Admin: export all enrollments as Excel file."""
+    """Admin: export all enrollments as Excel — wide format, one row per enrollment, database-ready."""
     import io
     try:
         import openpyxl
+        from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
     except ImportError:
         raise HTTPException(status_code=500, detail="openpyxl not installed")
 
+    def clean(val):
+        """Convert any value to a clean string. None/null → empty string."""
+        if val is None:
+            return ""
+        s = str(val)
+        if s in ("None", "null"):
+            return ""
+        return s
+
     enrollments = await db.enrollments.find({}, {"_id": 0}).sort("created_at", -1).to_list(5000)
+
+    # Determine max participant count across all enrollments
+    max_participants = 0
+    for e in enrollments:
+        count = len(e.get("participants") or [])
+        if count > max_participants:
+            max_participants = count
+    max_participants = max(max_participants, 1)
+
+    # Build headers: base columns + per-participant columns
+    base_headers = [
+        "Receipt ID", "Status", "Program", "Program Type",
+        "Booker Name", "Booker Email", "Booker Country", "Booker Phone",
+        "Participant Count", "Enrollment Date",
+    ]
+
+    participant_fields = [
+        "Name", "Relationship", "Age", "Gender", "Country",
+        "Attendance Mode", "Is First Time", "Referral Source", "Referred By",
+        "Email", "Phone", "WhatsApp", "UID",
+    ]
+
+    headers = list(base_headers)
+    for i in range(1, max_participants + 1):
+        for field in participant_fields:
+            headers.append(f"Participant {i} {field}")
 
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Enrollments"
 
-    headers = [
-        "Receipt ID", "Status", "Booker Name", "Booker Email", "Booker Country",
-        "Phone", "Item Type", "Item Title", "Participant Count",
-        "Participants", "Created At", "Updated At"
-    ]
-    ws.append(headers)
+    # Style header
+    header_font = Font(bold=True, color="FFFFFF", size=11)
+    header_fill = PatternFill(start_color="4A148C", end_color="4A148C", fill_type="solid")
+    thin_border = Border(
+        left=Side(style='thin'), right=Side(style='thin'),
+        top=Side(style='thin'), bottom=Side(style='thin')
+    )
+
+    for col_idx, h in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col_idx, value=h)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = Alignment(horizontal='center', wrap_text=True)
+        cell.border = thin_border
+
+    # Build column letter ref for auto_filter
+    last_col = openpyxl.utils.get_column_letter(len(headers))
+    ws.auto_filter.ref = f"A1:{last_col}1"
+    ws.freeze_panes = "A2"
 
     for e in enrollments:
-        participants_str = "; ".join(
-            [f"{p.get('name', '')} ({p.get('email', '')})" for p in e.get("participants", [])]
-        )
-        ws.append([
-            e.get("id", ""),
-            e.get("status", ""),
-            e.get("booker_name", ""),
-            e.get("booker_email", ""),
-            e.get("booker_country", ""),
-            e.get("phone", ""),
-            e.get("item_type", ""),
-            e.get("item_title", ""),
-            e.get("participant_count", 0),
-            participants_str,
-            e.get("created_at", ""),
-            e.get("updated_at", ""),
-        ])
+        # Format created_at
+        created_at = clean(e.get("created_at"))
+        if created_at:
+            try:
+                from datetime import datetime as dt
+                d = dt.fromisoformat(created_at.replace("Z", "+00:00")) if isinstance(created_at, str) else created_at
+                created_at = d.strftime("%Y-%m-%d %H:%M")
+            except Exception:
+                pass
+
+        # Base row data
+        row = [
+            clean(e.get("id")),
+            clean(e.get("status")),
+            clean(e.get("item_title")),
+            clean(e.get("item_type")),
+            clean(e.get("booker_name")),
+            clean(e.get("booker_email")),
+            clean(e.get("booker_country")),
+            clean(e.get("phone")),
+            str(e.get("participant_count", 0) or 0),
+            created_at,
+        ]
+
+        # Append participant columns (wide format)
+        participants = e.get("participants") or []
+        for i in range(max_participants):
+            if i < len(participants):
+                p = participants[i]
+                p_phone = clean(p.get("phone"))
+                p_wa = clean(p.get("whatsapp"))
+                row.extend([
+                    clean(p.get("name")),
+                    clean(p.get("relationship")),
+                    clean(p.get("age")),
+                    clean(p.get("gender")),
+                    clean(p.get("country")),
+                    clean(p.get("attendance_mode")),
+                    "Yes" if p.get("is_first_time") else "No",
+                    clean(p.get("referral_source")),
+                    clean(p.get("referred_by_name")),
+                    clean(p.get("email")),
+                    p_phone,
+                    p_wa,
+                    clean(p.get("uid")),
+                ])
+            else:
+                # Empty columns for missing participants
+                row.extend([""] * len(participant_fields))
+
+        ws.append(row)
 
     # Auto-size columns
     for col in ws.columns:
         max_len = max(len(str(cell.value or "")) for cell in col)
-        ws.column_dimensions[col[0].column_letter].width = min(max_len + 2, 50)
+        ws.column_dimensions[col[0].column_letter].width = min(max_len + 3, 40)
 
     output = io.BytesIO()
     wb.save(output)
@@ -255,11 +338,3 @@ async def export_enrollments_excel():
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers={"Content-Disposition": "attachment; filename=enrollments.xlsx"}
     )
-
-    if enrollment_id:
-        await db.enrollments.update_one(
-            {"id": enrollment_id},
-            {"$set": {"status": "india_payment_rejected", "updated_at": datetime.now(timezone.utc).isoformat()}}
-        )
-
-    return {"message": "Payment proof rejected.", "status": "rejected"}
