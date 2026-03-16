@@ -36,6 +36,7 @@ All pages with dark hero sections use:
 - [x] Transformations page (/transformations): Template testimonials in 3-column grid + mixed graphic/video 3-column grid below
 - [x] Video testimonials have gold play button overlay; clicking opens YouTube dialog
 - [x] Graphic testimonials open dark overlay lightbox on click
+- [x] Program pages: Only show testimonials explicitly tagged to that program (removed fallback to untagged testimonials)
 - [x] All 13/13 frontend tests passed (iteration_69)
 
 ### Advanced Fraud Prevention — Browser Timezone & Language (Feb 2026) - COMPLETED
