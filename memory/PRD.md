@@ -39,6 +39,18 @@ All pages with dark hero sections use:
 - [x] Non-Indian timezone (e.g., America/New_York) blocks INR pricing when combined with other checks
 - [x] All 17/17 tests passed (iteration_66)
 
+### Post-Payment Fraud Detection & Admin Dashboard (Mar 2026) - COMPLETED
+- [x] Layer 1 — Stripe billing address: `billing_address_collection: 'required'` added to checkout sessions, customer email pre-filled
+- [x] Layer 2 — Card country extraction: After payment, Stripe session expanded with `payment_intent.payment_method` to get `card.country` and `billing_details.address.country`
+- [x] Layer 2 — Post-payment fraud check: `_run_post_payment_fraud_check` compares card/billing country vs claimed country with 5 severity checks
+- [x] Layer 2 — Auto-blocklist: Critical fraud (INR with non-Indian card) auto-blocks email from future INR pricing via `fraud_blocklist` collection
+- [x] Layer 3 — Fraud Alerts API: GET /api/fraud/alerts, GET /api/fraud/stats, PATCH /api/fraud/alerts/{id}, GET /api/fraud/blocklist, DELETE /api/fraud/blocklist/{email}
+- [x] Layer 3 — Admin Fraud Detection tab: Stats cards, severity badges, filter buttons (All/New/Reviewed/Confirmed/Legitimate), search, expandable alert details with signals grid
+- [x] Layer 3 — Admin review actions: Confirm Fraud (blocks email), Mark Legitimate (unblocks email), Mark Reviewed
+- [x] Layer 3 — Blocklist panel: View/unblock blocked emails directly from admin
+- [x] Enrollment pricing upgraded to 6-factor check: added `not_blocklisted` check
+- [x] All 30/30 tests passed (iteration_67)
+
 ### Enrollment Form Enhancements + Excel Export (Mar 15, 2026) - COMPLETED
 - [x] Added 7 new relationships: Son, Daughter, Grandmother, Grandfather, Grandson, Granddaughter, Relative
 - [x] Online mode forces notify mandatory (golden message, no checkbox)
