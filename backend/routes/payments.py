@@ -15,6 +15,73 @@ from emergentintegrations.payments.stripe.checkout import (
 from routes.emails import send_email, enrollment_confirmation_email, participant_notification_email
 from utils.uid_generator import generate_uid
 import stripe as stripe_lib
+import re
+
+# Timezone offsets for conversion
+COUNTRY_TZ = {
+    'IN': (5.5, 'IST'), 'AE': (4, 'GST'), 'US': (-5, 'EST'), 'GB': (0, 'GMT'),
+    'CA': (-5, 'EST'), 'AU': (10, 'AEST'), 'SG': (8, 'SGT'), 'DE': (1, 'CET'),
+    'SA': (3, 'AST'), 'QA': (3, 'AST'), 'PK': (5, 'PKT'), 'BD': (6, 'BST'),
+    'MY': (8, 'MYT'), 'JP': (9, 'JST'), 'FR': (1, 'CET'), 'LK': (5.5, 'IST'),
+    'ZA': (2, 'SAST'), 'NP': (5.75, 'NPT'), 'KW': (3, 'AST'), 'OM': (4, 'GST'),
+    'BH': (3, 'AST'), 'PH': (8, 'PHT'), 'ID': (7, 'WIB'), 'TH': (7, 'ICT'),
+    'KE': (3, 'EAT'), 'NG': (1, 'WAT'), 'EG': (2, 'EET'), 'TR': (3, 'TRT'),
+    'IT': (1, 'CET'), 'ES': (1, 'CET'), 'NL': (1, 'CET'), 'NZ': (12, 'NZST'),
+}
+TZ_OFFSETS = {
+    'GST': 4, 'Dubai': 4, 'UAE': 4, 'IST': 5.5, 'India': 5.5,
+    'EST': -5, 'EDT': -4, 'CST': -6, 'CDT': -5, 'PST': -8, 'PDT': -7,
+    'GMT': 0, 'UTC': 0, 'BST': 1, 'CET': 1, 'CEST': 2,
+    'AEST': 10, 'AEDT': 11, 'JST': 9, 'SGT': 8, 'AST': 3, 'PKT': 5,
+}
+
+def convert_timing_for_country(timing: str, src_tz: str, country_code: str) -> tuple:
+    """Convert timing string from source timezone to viewer's country timezone.
+    Returns (converted_timing, tz_abbr) or (original_timing, src_tz) if same or can't convert."""
+    if not timing or not src_tz or not country_code:
+        return timing or "", src_tz or ""
+    
+    viewer = COUNTRY_TZ.get(country_code)
+    if not viewer:
+        return timing, src_tz
+    viewer_offset, viewer_abbr = viewer
+    
+    # Find source timezone offset
+    src_offset = None
+    for key, val in TZ_OFFSETS.items():
+        if key.upper() in src_tz.upper():
+            src_offset = val
+            break
+    if src_offset is None:
+        return timing, src_tz
+    
+    # Same timezone — return as-is
+    if abs(viewer_offset - src_offset) < 0.1:
+        return timing, viewer_abbr
+    
+    # Convert each time part
+    parts = re.split(r'\s*[-–—]\s*|\s+to\s+', timing, flags=re.IGNORECASE)
+    converted = []
+    for p in parts:
+        m = re.match(r'(\d{1,2})(?::(\d{2}))?\s*(AM|PM)', p.strip(), re.IGNORECASE)
+        if not m:
+            continue
+        h = int(m.group(1))
+        mins = int(m.group(2) or 0)
+        ap = m.group(3).upper()
+        if ap == 'PM' and h != 12: h += 12
+        if ap == 'AM' and h == 12: h = 0
+        total_min = (h * 60 + mins) - int(src_offset * 60) + int(viewer_offset * 60)
+        total_min = total_min % 1440
+        lh = total_min // 60
+        lm = total_min % 60
+        period = 'PM' if lh >= 12 else 'AM'
+        dh = lh % 12 or 12
+        converted.append(f"{dh}:{lm:02d} {period}" if lm else f"{dh} {period}")
+    
+    if converted:
+        return " - ".join(converted), viewer_abbr
+    return timing, src_tz
 
 async def create_checkout_no_adaptive(stripe_checkout: StripeCheckout, request: CheckoutSessionRequest) -> CheckoutSessionResponse:
     """Create a Stripe checkout session with Adaptive Pricing DISABLED and billing address collection REQUIRED."""
@@ -362,6 +429,13 @@ async def send_enrollment_emails(session_id: str):
         # Get community WhatsApp link (global from site settings)
         community_whatsapp = settings.get("community_whatsapp_link", "")
 
+        # Convert timing to booker's timezone (IP-detected country)
+        if program_timing and program_timezone:
+            ip_country = enrollment.get("ip_info", {}).get("country", "") or enrollment.get("booker_country", "")
+            converted_timing, converted_tz = convert_timing_for_country(program_timing, program_timezone, ip_country)
+            program_timing = converted_timing
+            program_timezone = converted_tz
+
         html = enrollment_confirmation_email(
             booker_name=booker_name,
             item_title=item_title,
@@ -391,8 +465,18 @@ async def send_enrollment_emails(session_id: str):
         await send_email(booker_email, f"Payment Receipt — {item_title} — Divine Iris Healing", html, from_email=receipt_sender)
 
     # 2. Send participant notifications (everything except receipt)
+    # Get original timing for per-participant conversion
+    orig_program = await db.programs.find_one({"id": item_id}, {"_id": 0}) if item_id and item_type == "program" else None
+    orig_timing = (orig_program.get("timing", "") if orig_program else "") or ""
+    orig_tz = (orig_program.get("time_zone", "") if orig_program else "") or ""
     for p in participants:
         if p.get("notify") and p.get("email"):
+            # Convert timing to participant's country
+            p_timing = program_timing
+            p_tz = program_timezone
+            p_country = p.get("country", "")
+            if p_country and orig_timing and orig_tz:
+                p_timing, p_tz = convert_timing_for_country(orig_timing, orig_tz, p_country)
             p_html = participant_notification_email(
                 participant_name=p["name"],
                 item_title=item_title,
@@ -403,8 +487,8 @@ async def send_enrollment_emails(session_id: str):
                 program_start_date=program_start_date,
                 program_duration=program_duration,
                 program_end_date=program_end_date,
-                program_timing=program_timing,
-                program_timezone=program_timezone,
+                program_timing=p_timing,
+                program_timezone=p_tz,
                 logo_url=logo_url,
                 social_links=social_links,
                 community_whatsapp=community_whatsapp,
