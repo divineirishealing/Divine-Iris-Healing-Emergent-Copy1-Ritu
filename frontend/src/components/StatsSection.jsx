@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { stats as mockStats } from '../mockData';
+import { safeArray } from '../lib/safe';// Map common timezone abbreviations to UTC offset in hours
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -122,7 +123,7 @@ const StatsSection = ({ sectionConfig }) => {
         pointerEvents: 'none',
       }}>
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', gap: '80px' }}>
-          {stats.map((stat, index) => {
+          {safeArray(stats).map((stat, index) => {
             const icons = ['fa-users', 'fa-calendar-alt', 'fa-infinity', 'fa-award'];
             const iconClass = stat.icon || icons[index] || 'fa-star';
             const valueStyle = stat.value_style || {};
