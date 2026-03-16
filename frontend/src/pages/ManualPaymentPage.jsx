@@ -27,6 +27,7 @@ const ManualPaymentPage = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [selectedBank, setSelectedBank] = useState(0);
 
   // Form fields
   const [screenshot, setScreenshot] = useState(null);
@@ -99,7 +100,7 @@ const ManualPaymentPage = () => {
       formData.append('enrollment_id', enrollmentId || 'MANUAL');
       formData.append('payer_name', payerName);
       formData.append('payment_date', paymentDate);
-      formData.append('bank_name', bankName);
+      formData.append('bank_name', bankName || currentBank.label || currentBank.bank_name || '');
       formData.append('transaction_id', transactionId);
       formData.append('amount', amount);
       formData.append('city', city);
@@ -153,8 +154,11 @@ const ManualPaymentPage = () => {
     </>
   );
 
-  const bankDetails = settings.india_bank_details || {};
-  const hasBank = !!bankDetails.account_number;
+  const bankAccounts = settings.india_bank_accounts || [];
+  const singleBank = settings.india_bank_details || {};
+  const banks = bankAccounts.length > 0 ? bankAccounts : (singleBank.account_number ? [singleBank] : []);
+  const hasBank = banks.length > 0;
+  const currentBank = banks[selectedBank] || {};
   const programTitle = enrollment?.item_title || itemDetails?.title || '';
 
   return (
@@ -180,33 +184,49 @@ const ManualPaymentPage = () => {
                       <Building2 size={16} className="text-blue-600" />
                       <h3 className="text-sm font-semibold text-gray-900">Divine Iris Bank Details</h3>
                     </div>
+
+                    {banks.length > 1 && (
+                      <div className="mb-3">
+                        <label className="text-[10px] font-semibold text-gray-700 block mb-1">Select Bank Account</label>
+                        <select value={selectedBank} onChange={e => setSelectedBank(parseInt(e.target.value))}
+                          className="w-full border rounded-lg text-xs h-9 px-3 text-gray-700 focus:ring-1 focus:ring-[#D4AF37]"
+                          data-testid="manual-bank-select">
+                          {banks.map((b, i) => (
+                            <option key={i} value={i}>{b.label || b.bank_name || `Account ${i + 1}`}</option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
                     <div className="bg-gray-50 border rounded-lg p-4 space-y-2">
-                      {bankDetails.account_name && (
+                      {currentBank.account_name && (
                         <div className="flex justify-between text-xs">
                           <span className="text-gray-500">Account Name</span>
-                          <span className="font-semibold text-gray-900 select-all">{bankDetails.account_name}</span>
+                          <span className="font-semibold text-gray-900 select-all">{currentBank.account_name}</span>
                         </div>
                       )}
-                      <div className="flex justify-between text-xs">
-                        <span className="text-gray-500">Account Number</span>
-                        <span className="font-mono font-semibold text-gray-900 select-all">{bankDetails.account_number}</span>
-                      </div>
-                      {bankDetails.ifsc && (
+                      {currentBank.account_number && (
+                        <div className="flex justify-between text-xs">
+                          <span className="text-gray-500">Account Number</span>
+                          <span className="font-mono font-semibold text-gray-900 select-all">{currentBank.account_number}</span>
+                        </div>
+                      )}
+                      {currentBank.ifsc && (
                         <div className="flex justify-between text-xs">
                           <span className="text-gray-500">IFSC Code</span>
-                          <span className="font-mono font-semibold text-gray-900 select-all">{bankDetails.ifsc}</span>
+                          <span className="font-mono font-semibold text-gray-900 select-all">{currentBank.ifsc}</span>
                         </div>
                       )}
-                      {bankDetails.bank_name && (
+                      {currentBank.bank_name && (
                         <div className="flex justify-between text-xs">
                           <span className="text-gray-500">Bank</span>
-                          <span className="font-semibold text-gray-900">{bankDetails.bank_name}</span>
+                          <span className="font-semibold text-gray-900">{currentBank.bank_name}</span>
                         </div>
                       )}
-                      {bankDetails.branch && (
+                      {currentBank.branch && (
                         <div className="flex justify-between text-xs">
                           <span className="text-gray-500">Branch</span>
-                          <span className="font-semibold text-gray-900">{bankDetails.branch}</span>
+                          <span className="font-semibold text-gray-900">{currentBank.branch}</span>
                         </div>
                       )}
                     </div>
