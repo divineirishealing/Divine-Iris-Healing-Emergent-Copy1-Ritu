@@ -85,9 +85,12 @@ async def detect_country_from_ip(request: Request) -> str:
 
 
 @router.get("/detect")
-async def detect_currency(request: Request):
+async def detect_currency(request: Request, preview_country: str = None):
     """Detect user's currency from IP, return currency + exchange rate + country"""
-    country = await detect_country_from_ip(request)
+    if preview_country:
+        country = preview_country.upper()
+    else:
+        country = await detect_country_from_ip(request)
     currency = get_currency_for_country(country)
     symbol = CURRENCY_SYMBOLS.get(currency, currency.upper())
     rates = await get_exchange_rates()

@@ -22,7 +22,10 @@ export const CurrencyProvider = ({ children }) => {
 
   const detectCurrency = async () => {
     try {
-      const response = await axios.get(`${API}/currency/detect`);
+      const urlParams = new URLSearchParams(window.location.search);
+      const previewCountry = urlParams.get('preview_country');
+      const url = previewCountry ? `${API}/currency/detect?preview_country=${previewCountry}` : `${API}/currency/detect`;
+      const response = await axios.get(url);
       const d = response.data;
       setCurrency(d.currency);
       setSymbol(d.symbol);
