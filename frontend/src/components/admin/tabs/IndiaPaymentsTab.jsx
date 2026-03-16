@@ -3,10 +3,10 @@ import axios from 'axios';
 import { IndianRupee, Check, X, Eye, Loader2, Clock, AlertCircle, Link2, Copy } from 'lucide-react';
 import { Button } from '../../ui/button';
 import { useToast } from '../../../hooks/use-toast';
-
+import { safeArray, safeString, safeObject, normalizeListResponse } from '../lib/safe';
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const BACKEND = process.env.REACT_APP_BACKEND_URL;
-const SITE_URL = BACKEND.replace('/api', '').replace('api/', '');
+const SITE_URL = safeString(BACKEND).replace('/api', '').replace('api/', '');
 
 const IndiaPaymentsTab = () => {
   const { toast } = useToast();
@@ -50,7 +50,7 @@ const IndiaPaymentsTab = () => {
     } finally { setActionLoading(''); }
   };
 
-  const filtered = proofs.filter(p => filter === 'all' || p.status === filter);
+  const filtered = safeArray(proofs).filter(p => filter === 'all' || p.status === filter);
 
   if (loading) return <div className="text-center py-12 text-gray-400 text-sm">Loading...</div>;
 
