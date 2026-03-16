@@ -8,6 +8,7 @@ import { useSiteSettings } from '../context/SiteSettingsContext';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../hooks/use-toast';
 import { renderMarkdown } from '../lib/renderMarkdown';
+
 import { safeArray } from '../lib/safe';// Map common timezone abbreviations to UTC offset in hours
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
