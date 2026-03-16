@@ -514,12 +514,17 @@ async def enrollment_checkout(enrollment_id: str, data: EnrollmentSubmit, reques
 
     final_total = max(0, total - promo_discount - auto_discount)
 
+    # Store item info in enrollment for reference
+    collection = "programs" if data.item_type == "program" else "sessions"
+    item = await db[collection].find_one({"id": data.item_id}, {"_id": 0})
+    await db.enrollments.update_one({"id": enrollment_id}, {"$set": {
+        "item_type": data.item_type, "item_id": data.item_id,
+        "item_title": item.get("title", "") if item else "",
+    }})
+
     if final_total <= 0:
         # Free enrollment — skip Stripe, complete directly
         fake_session_id = f"free_{uuid.uuid4().hex[:12]}"
-        
-        collection = "programs" if data.item_type == "program" else "sessions"
-        item = await db[collection].find_one({"id": data.item_id})
 
         transaction = {
             "id": str(uuid.uuid4()),

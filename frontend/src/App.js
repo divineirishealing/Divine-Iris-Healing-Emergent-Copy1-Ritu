@@ -22,6 +22,7 @@ import AboutPage from './pages/AboutPage';
 import BlogPage from './pages/BlogPage';
 import SponsorPage from './pages/SponsorPage';
 import IndiaPaymentPage from './pages/IndiaPaymentPage';
+import ManualPaymentPage from './pages/ManualPaymentPage';
 import { Toaster } from './components/ui/toaster';
 import { SiteSettingsProvider } from './context/SiteSettingsContext';
 import { CurrencyProvider } from './context/CurrencyContext';
@@ -51,6 +52,7 @@ function App() {
                 <Route path="/payment/success" element={<PaymentSuccessPage />} />
                 <Route path="/payment/cancel" element={<PaymentCancelPage />} />
                 <Route path="/india-payment/:enrollmentId" element={<IndiaPaymentPage />} />
+                <Route path="/manual-payment/:enrollmentId" element={<ManualPaymentPage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/terms" element={<TermsPage />} />
                 <Route path="/privacy" element={<PrivacyPage />} />
