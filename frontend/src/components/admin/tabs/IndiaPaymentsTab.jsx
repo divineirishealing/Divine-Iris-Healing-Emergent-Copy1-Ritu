@@ -3,7 +3,7 @@ import axios from 'axios';
 import { IndianRupee, Check, X, Eye, Loader2, Clock, AlertCircle, Link2, Copy } from 'lucide-react';
 import { Button } from '../../ui/button';
 import { useToast } from '../../../hooks/use-toast';
-import { safeArray, safeString, safeObject, normalizeListResponse } from '../lib/safe';
+import { safeArray, safeString, safeObject, normalizeListResponse } from '../../../lib/safe';
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const BACKEND = process.env.REACT_APP_BACKEND_URL;
 const SITE_URL = safeString(BACKEND).replace('/api', '').replace('api/', '');
