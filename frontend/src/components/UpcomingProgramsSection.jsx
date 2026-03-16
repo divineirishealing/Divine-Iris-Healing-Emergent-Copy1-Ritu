@@ -425,39 +425,47 @@ const SponsorCard = ({ sponsorData }) => {
 const UpcomingProgramsSection = ({ sectionConfig, inline }) => {
   const [programs, setPrograms] = useState([]);
   const [sponsorData, setSponsorData] = useState(null);
+  const [sponsorConfig, setSponsorConfig] = useState(null);
 
   useEffect(() => {
     axios.get(`${API}/programs?visible_only=true&upcoming_only=true`)
       .then(r => setPrograms(r.data))
       .catch(err => console.error('Error loading upcoming programs:', err));
-    axios.get(`${API}/settings`).then(r => setSponsorData(r.data?.sponsor_home)).catch(() => {});
+    axios.get(`${API}/settings`).then(r => {
+      setSponsorData(r.data?.sponsor_home);
+      const sc = (r.data?.homepage_sections || []).find(s => s.id === 'sponsor');
+      if (sc) setSponsorConfig(sc);
+    }).catch(() => {});
   }, []);
 
   if (programs.length === 0) return null;
 
+  const applyTitleStyle = (styleObj, defaults) => {
+    if (!styleObj) return defaults;
+    return { ...defaults, ...(styleObj.font_family && { fontFamily: styleObj.font_family }), ...(styleObj.font_size && !inline && { fontSize: styleObj.font_size }), ...(styleObj.font_color && { color: styleObj.font_color }), ...(styleObj.font_weight && { fontWeight: styleObj.font_weight }), ...(styleObj.font_style && { fontStyle: styleObj.font_style }) };
+  };
+
   const content = (
-    <div className={inline ? "" : "max-w-7xl mx-auto flex flex-col lg:flex-row gap-10"}>
-      {/* Left: Upcoming Programs */}
-      <div className="flex-1 min-w-0">
-        <div className={inline ? "text-center mb-8" : "mb-10"}>
-          <h2 className={inline ? "text-xl md:text-2xl text-gray-900" : "text-3xl md:text-4xl text-gray-900"} style={sectionConfig?.title_style ? { ...(sectionConfig.title_style.font_family && { fontFamily: sectionConfig.title_style.font_family }), ...(sectionConfig.title_style.font_size && !inline && { fontSize: sectionConfig.title_style.font_size }), ...(sectionConfig.title_style.font_color && { color: sectionConfig.title_style.font_color }), ...(sectionConfig.title_style.font_weight && { fontWeight: sectionConfig.title_style.font_weight }), ...(sectionConfig.title_style.font_style && { fontStyle: sectionConfig.title_style.font_style }) } : {}}>{sectionConfig?.title || 'Upcoming Programs'}</h2>
+    <div className={inline ? "" : "max-w-7xl mx-auto"}>
+      {/* Title row — 3-column grid matching card grid */}
+      <div className={inline ? "text-center mb-8" : "grid lg:grid-cols-3 gap-8 mb-10"}>
+        <div className={inline ? "" : "lg:col-span-2"}>
+          <h2 className={inline ? "text-xl md:text-2xl text-gray-900" : "text-3xl md:text-4xl text-gray-900"} style={applyTitleStyle(sectionConfig?.title_style, {})}>{sectionConfig?.title || 'Upcoming Programs'}</h2>
           {!inline && (sectionConfig?.subtitle || (!programs.some(p => p.enable_in_person) && !sectionConfig)) && (
             <p className="text-xs text-gray-400 mt-3" style={sectionConfig?.subtitle_style ? { ...(sectionConfig.subtitle_style.font_color && { color: sectionConfig.subtitle_style.font_color }), ...(sectionConfig.subtitle_style.font_size && { fontSize: sectionConfig.subtitle_style.font_size }), ...(sectionConfig.subtitle_style.font_family && { fontFamily: sectionConfig.subtitle_style.font_family }) } : {}}>{sectionConfig?.subtitle || 'All sessions are conducted online via Zoom or through remote distance healing — no in-person sessions at this time.'}</p>
           )}
         </div>
-        <div className={inline ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" : "grid sm:grid-cols-2 gap-8"}>
-          {programs.map(program => <UpcomingCard key={program.id} program={program} />)}
-        </div>
-      </div>
-      {/* Right: Sponsor Card with its own title */}
-      {!inline && (
-        <div className="lg:w-[320px] flex-shrink-0" data-testid="sponsor-column">
-          <div className="mb-10">
-            <h2 className="text-3xl md:text-4xl text-gray-900" style={{ fontFamily: "'Cinzel', serif" }}>Become a Sponsor</h2>
+        {!inline && (
+          <div data-testid="sponsor-title-column">
+            <h2 className="text-3xl md:text-4xl text-gray-900" style={applyTitleStyle(sponsorConfig?.title_style, {})}>{sponsorConfig?.title || 'Become a Sponsor'}</h2>
           </div>
-          <SponsorCard sponsorData={sponsorData} />
-        </div>
-      )}
+        )}
+      </div>
+      {/* Cards row — unified 3-column grid, all cards same width */}
+      <div className={inline ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" : "grid sm:grid-cols-2 lg:grid-cols-3 gap-8"}>
+        {programs.map(program => <UpcomingCard key={program.id} program={program} />)}
+        {!inline && <SponsorCard sponsorData={sponsorData} />}
+      </div>
     </div>
   );
 
