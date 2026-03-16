@@ -239,6 +239,20 @@ function EnrollmentPage() {
   const selectedTier = tierParam !== null ? parseInt(tierParam) : null;
   const resumeId = searchParams.get('resume');
 
+  // Auto-fill country as India if detected from India
+  useEffect(() => {
+    if (detectedCountry === 'IN' && !resumeId) {
+      setParticipants(prev => {
+        if (prev[0] && !prev[0].country) {
+          const updated = [...prev];
+          updated[0] = { ...updated[0], country: 'IN', phone_code: '+91', wa_code: '+91' };
+          return updated;
+        }
+        return prev;
+      });
+    }
+  }, [detectedCountry]);
+
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [item, setItem] = useState(null);
@@ -277,8 +291,12 @@ function EnrollmentPage() {
 
   let activeCurrencyInfo;
   if (allCountries.length === 0) {
-    // No country selected yet — use detected currency
-    activeCurrencyInfo = { currency: detectedCurrency || 'usd', symbol: detectedSymbol || 'USD' };
+    // No country selected yet — if detected as India show INR, otherwise USD
+    if (detectedCountry === 'IN') {
+      activeCurrencyInfo = { currency: 'inr', symbol: 'INR' };
+    } else {
+      activeCurrencyInfo = { currency: 'usd', symbol: 'USD' };
+    }
   } else if (hasNonIndia) {
     // Any non-India country → use that country's currency (never INR)
     const nonIndiaCountry = allCountries.find(c => c !== 'IN') || allCountries[0];
