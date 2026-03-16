@@ -183,10 +183,6 @@ const HeroSection = ({ sectionConfig }) => {
           )}
         </div>
       )}
-      {/* Bottom fade: blends hero into the flowing lavender below */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 z-20" style={{
-        background: 'linear-gradient(180deg, transparent 0%, rgba(232,218,245,0.3) 40%, rgba(232,218,245,0.7) 70%, #e8daf5 100%)',
-      }} />
     </section>
   );
 };
