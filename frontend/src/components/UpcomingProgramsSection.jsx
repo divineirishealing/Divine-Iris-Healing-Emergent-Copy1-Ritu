@@ -400,7 +400,7 @@ const SponsorCard = ({ sponsorData }) => {
   const imgUrl = h.image ? resolveImageUrl(h.image) : '';
   return (
     <div data-testid="sponsor-card-upcoming"
-      className="group bg-white rounded-xl overflow-hidden shadow-lg transition-all duration-300 border border-gray-100 flex flex-col hover:shadow-2xl h-full">
+      className="group bg-white rounded-xl overflow-hidden shadow-lg transition-all duration-300 border border-gray-100 flex flex-col hover:shadow-2xl">
       <div className="relative h-48 overflow-hidden cursor-pointer" onClick={() => navigate('/sponsor')}>
         <img src={imgUrl || 'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=600&h=400&fit=crop'} alt={h.title || 'Become a Sponsor'} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=600&h=400&fit=crop'; }} />
@@ -480,16 +480,14 @@ const UpcomingProgramsSection = ({ sectionConfig, inline }) => {
             </div>
           </div>
           {/* RIGHT: Sponsor A Life — 1 column wide */}
-          <div className="lg:col-span-1 flex flex-col">
+          <div className="lg:col-span-1">
             <div data-testid="sponsor-title-column" className="text-center mb-10">
               <h2 className="text-3xl md:text-4xl text-gray-900" style={applyTitleStyle(sponsorConfig?.title_style, {})}>{sponsorConfig?.title || 'Become a Sponsor'}</h2>
               {sponsorConfig?.subtitle && (
                 <p className="text-sm text-gray-900 mt-3" style={applyTitleStyle(sponsorConfig?.subtitle_style, {})}>{sponsorConfig.subtitle}</p>
               )}
             </div>
-            <div className="flex-1">
-              <SponsorCard sponsorData={sponsorData} />
-            </div>
+            <SponsorCard sponsorData={sponsorData} />
           </div>
         </div>
       )}
