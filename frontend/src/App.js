@@ -53,6 +53,7 @@ function App() {
                 <Route path="/payment/cancel" element={<PaymentCancelPage />} />
                 <Route path="/india-payment/:enrollmentId" element={<IndiaPaymentPage />} />
                 <Route path="/manual-payment/:enrollmentId" element={<ManualPaymentPage />} />
+                <Route path="/manual-payment" element={<ManualPaymentPage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/terms" element={<TermsPage />} />
                 <Route path="/privacy" element={<PrivacyPage />} />

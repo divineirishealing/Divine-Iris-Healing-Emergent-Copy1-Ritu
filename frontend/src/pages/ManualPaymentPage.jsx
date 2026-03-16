@@ -7,11 +7,14 @@ import { useToast } from '../hooks/use-toast';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import {
-  Building2, Upload, User, FileText, Check,
+  Building2, Upload, FileText, Check,
   Loader2, Calendar, Clock, AlertCircle
 } from 'lucide-react';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+
+const PROGRAM_TYPES = ['Personal Session', 'Flagship Program', 'Home Coming Circle'];
+const EMI_MONTHS = Array.from({ length: 12 }, (_, i) => i + 1);
 
 const ManualPaymentPage = () => {
   const { enrollmentId } = useParams();
@@ -25,6 +28,7 @@ const ManualPaymentPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
+  // Form fields
   const [screenshot, setScreenshot] = useState(null);
   const [screenshotPreview, setScreenshotPreview] = useState('');
   const [payerName, setPayerName] = useState('');
@@ -37,26 +41,37 @@ const ManualPaymentPage = () => {
   const [paymentMethod, setPaymentMethod] = useState('bank_transfer');
   const [notes, setNotes] = useState('');
 
+  // New dropdown fields
+  const [programType, setProgramType] = useState('');
+  const [isEmi, setIsEmi] = useState(false);
+  const [emiMonths, setEmiMonths] = useState('');
+  const [emiMonthsCovered, setEmiMonthsCovered] = useState('');
+
   useEffect(() => {
     const load = async () => {
       try {
-        const [settingsRes, enrollRes] = await Promise.all([
-          axios.get(`${API}/settings`),
-          axios.get(`${API}/enrollment/${enrollmentId}`)
-        ]);
+        const settingsRes = await axios.get(`${API}/settings`);
         setSettings(settingsRes.data);
-        const e = enrollRes.data;
-        setEnrollment(e);
-        setPayerName(e.booker_name || '');
 
-        // Fetch program/session details for dates
-        const ep = e.item_type === 'program' ? 'programs' : 'sessions';
-        try {
-          const itemRes = await axios.get(`${API}/${ep}/${e.item_id}`);
-          setItemDetails(itemRes.data);
-        } catch {}
+        if (enrollmentId) {
+          try {
+            const enrollRes = await axios.get(`${API}/enrollment/${enrollmentId}`);
+            const e = enrollRes.data;
+            setEnrollment(e);
+            setPayerName(e.booker_name || '');
+
+            const ep = e.item_type === 'program' ? 'programs' : 'sessions';
+            try {
+              const itemRes = await axios.get(`${API}/${ep}/${e.item_id}`);
+              setItemDetails(itemRes.data);
+              // Auto-detect program type
+              if (e.item_type === 'session') setProgramType('Personal Session');
+              else if (itemRes.data?.is_flagship) setProgramType('Flagship Program');
+            } catch {}
+          } catch {}
+        }
       } catch {
-        toast({ title: 'Could not load enrollment details', variant: 'destructive' });
+        toast({ title: 'Could not load settings', variant: 'destructive' });
       } finally {
         setLoading(false);
       }
@@ -73,7 +88,7 @@ const ManualPaymentPage = () => {
   };
 
   const handleSubmit = async () => {
-    if (!screenshot || !payerName || !paymentDate || !transactionId || !amount) {
+    if (!screenshot || !payerName || !paymentDate || !transactionId || !amount || !programType) {
       toast({ title: 'Please fill all required fields', variant: 'destructive' });
       return;
     }
@@ -81,7 +96,7 @@ const ManualPaymentPage = () => {
     try {
       const formData = new FormData();
       formData.append('screenshot', screenshot);
-      formData.append('enrollment_id', enrollmentId);
+      formData.append('enrollment_id', enrollmentId || 'MANUAL');
       formData.append('payer_name', payerName);
       formData.append('payment_date', paymentDate);
       formData.append('bank_name', bankName);
@@ -90,6 +105,12 @@ const ManualPaymentPage = () => {
       formData.append('city', city);
       formData.append('state', state);
       formData.append('payment_method', paymentMethod);
+      formData.append('program_type', programType);
+      formData.append('is_emi', isEmi ? 'true' : 'false');
+      if (isEmi) {
+        formData.append('emi_total_months', emiMonths);
+        formData.append('emi_months_covered', emiMonthsCovered);
+      }
       formData.append('notes', notes);
       await axios.post(`${API}/india-payments/submit-proof`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
@@ -134,15 +155,15 @@ const ManualPaymentPage = () => {
 
   const bankDetails = settings.india_bank_details || {};
   const hasBank = !!bankDetails.account_number;
-  const programTitle = enrollment?.item_title || itemDetails?.title || 'Unknown Program';
+  const programTitle = enrollment?.item_title || itemDetails?.title || '';
 
   return (
     <>
       <Header />
       <div className="min-h-screen bg-gray-50 pt-28 pb-16 px-4" data-testid="manual-payment-page">
         <div className="max-w-4xl mx-auto">
-
           <div className="grid lg:grid-cols-5 gap-6">
+
             {/* Left: Form */}
             <div className="lg:col-span-3 space-y-4">
               <div className="bg-white rounded-xl shadow-sm border p-6">
@@ -191,6 +212,55 @@ const ManualPaymentPage = () => {
                     </div>
                   </div>
                 )}
+
+                {/* Program Type & EMI */}
+                <div className="space-y-3 mb-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-[10px] font-semibold text-gray-700 block mb-1">Program Type *</label>
+                      <select value={programType} onChange={e => setProgramType(e.target.value)}
+                        className="w-full border rounded-lg text-xs h-9 px-3 text-gray-700 focus:ring-1 focus:ring-[#D4AF37]"
+                        data-testid="manual-program-type">
+                        <option value="">Select type</option>
+                        {PROGRAM_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-semibold text-gray-700 block mb-1">Is this EMI payment?</label>
+                      <select value={isEmi ? 'yes' : 'no'} onChange={e => setIsEmi(e.target.value === 'yes')}
+                        className="w-full border rounded-lg text-xs h-9 px-3 text-gray-700 focus:ring-1 focus:ring-[#D4AF37]"
+                        data-testid="manual-is-emi">
+                        <option value="no">No — Full Payment</option>
+                        <option value="yes">Yes — EMI / Installment</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {isEmi && (
+                    <div className="grid grid-cols-2 gap-3 bg-purple-50/50 border border-purple-100 rounded-lg p-3">
+                      <div>
+                        <label className="text-[10px] font-semibold text-gray-700 block mb-1">Total EMI Months *</label>
+                        <select value={emiMonths} onChange={e => setEmiMonths(e.target.value)}
+                          className="w-full border rounded-lg text-xs h-9 px-3 text-gray-700 focus:ring-1 focus:ring-[#D4AF37]"
+                          data-testid="manual-emi-months">
+                          <option value="">Select</option>
+                          {EMI_MONTHS.map(m => <option key={m} value={m}>{m} month{m > 1 ? 's' : ''}</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-semibold text-gray-700 block mb-1">Months Covered (Paid) *</label>
+                        <select value={emiMonthsCovered} onChange={e => setEmiMonthsCovered(e.target.value)}
+                          className="w-full border rounded-lg text-xs h-9 px-3 text-gray-700 focus:ring-1 focus:ring-[#D4AF37]"
+                          data-testid="manual-emi-covered">
+                          <option value="">Select</option>
+                          {EMI_MONTHS.filter(m => !emiMonths || m <= parseInt(emiMonths)).map(m => (
+                            <option key={m} value={m}>{m} of {emiMonths || '?'} month{m > 1 ? 's' : ''}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                 {/* Payment Proof Form */}
                 <div className="space-y-3">
@@ -279,24 +349,28 @@ const ManualPaymentPage = () => {
               </div>
             </div>
 
-            {/* Right: Program Details */}
+            {/* Right: Enrollment Details */}
             <div className="lg:col-span-2">
               <div className="bg-white rounded-xl shadow-sm border p-5 sticky top-28">
                 <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
                   <FileText size={14} className="text-[#D4AF37]" />
-                  Enrollment Details
+                  {enrollment ? 'Enrollment Details' : 'Payment Info'}
                 </h3>
 
                 <div className="space-y-3">
-                  <div>
-                    <p className="text-[10px] text-gray-400 uppercase tracking-wider">Program</p>
-                    <p className="text-sm font-semibold text-gray-900">{programTitle}</p>
-                  </div>
+                  {programTitle && (
+                    <div>
+                      <p className="text-[10px] text-gray-400 uppercase tracking-wider">Program</p>
+                      <p className="text-sm font-semibold text-gray-900">{programTitle}</p>
+                    </div>
+                  )}
 
-                  <div>
-                    <p className="text-[10px] text-gray-400 uppercase tracking-wider">Enrollment ID</p>
-                    <p className="text-xs font-mono text-purple-700">{enrollmentId}</p>
-                  </div>
+                  {enrollmentId && (
+                    <div>
+                      <p className="text-[10px] text-gray-400 uppercase tracking-wider">Enrollment ID</p>
+                      <p className="text-xs font-mono text-purple-700">{enrollmentId}</p>
+                    </div>
+                  )}
 
                   {enrollment?.booker_name && (
                     <div>
@@ -311,14 +385,14 @@ const ManualPaymentPage = () => {
                       {itemDetails.start_date && (
                         <div className="flex items-center gap-2 text-xs">
                           <Calendar size={12} className="text-purple-400" />
-                          <span className="text-gray-500">Start Date:</span>
+                          <span className="text-gray-500">Start:</span>
                           <span className="font-medium text-gray-900">{new Date(itemDetails.start_date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                         </div>
                       )}
                       {itemDetails.end_date && (
                         <div className="flex items-center gap-2 text-xs">
                           <Calendar size={12} className="text-purple-400" />
-                          <span className="text-gray-500">End Date:</span>
+                          <span className="text-gray-500">End:</span>
                           <span className="font-medium text-gray-900">{new Date(itemDetails.end_date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                         </div>
                       )}
@@ -348,6 +422,12 @@ const ManualPaymentPage = () => {
                           <span>{p.name}</span>
                         </div>
                       ))}
+                    </div>
+                  )}
+
+                  {!enrollment && (
+                    <div className="bg-purple-50/50 border border-purple-100 rounded-lg p-3 mt-2">
+                      <p className="text-[10px] text-purple-600">This is a standalone payment form. Fill in the details on the left and submit your proof.</p>
                     </div>
                   )}
                 </div>
