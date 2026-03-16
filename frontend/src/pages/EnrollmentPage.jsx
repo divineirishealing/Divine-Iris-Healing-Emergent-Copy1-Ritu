@@ -616,6 +616,12 @@ function EnrollmentPage() {
             <div className="lg:w-3/5">
               <StepBar current={step} steps={['Participants', 'Review', 'Billing', 'Pay']} />
 
+              {paymentSettings.disclaimer_enabled && paymentSettings.disclaimer && (
+                <div className="bg-amber-50 border-l-4 border-amber-400 rounded-r-lg p-3 mb-4" data-testid="payment-disclaimer-persistent">
+                  <p className="text-xs text-amber-800 font-medium leading-relaxed">{paymentSettings.disclaimer}</p>
+                </div>
+              )}
+
               <div className="bg-white rounded-xl border shadow-sm p-5 md:p-6">
                 {/* Step 0: Participants */}
                 {step === 0 && (
@@ -630,11 +636,6 @@ function EnrollmentPage() {
                       className="w-full border-2 border-dashed border-[#D4AF37]/40 rounded-lg py-2.5 flex items-center justify-center gap-1 text-xs text-[#D4AF37] hover:bg-[#D4AF37]/5 transition-colors mb-4">
                       <Plus size={14} /> Add Participant
                     </button>
-                    {paymentSettings.disclaimer_enabled && paymentSettings.disclaimer && (
-                      <div className="bg-amber-50 border-l-4 border-amber-400 rounded-r-lg p-3 mb-4" data-testid="payment-disclaimer-step0">
-                        <p className="text-xs text-amber-800 font-medium leading-relaxed">{paymentSettings.disclaimer}</p>
-                      </div>
-                    )}
                     <Button data-testid="step0-next" onClick={goToReview} className="w-full bg-[#D4AF37] hover:bg-[#b8962e] text-white py-3 rounded-full">
                       Review Cart <ChevronRight size={16} className="ml-1" />
                     </Button>
@@ -720,12 +721,6 @@ function EnrollmentPage() {
                           <Input data-testid="enroll-phone" type="tel" value={phone} onChange={e => setPhone(e.target.value.replace(/\D/g, ''))} placeholder="Phone number" className="text-sm flex-1" />
                         </div></div>
                     </div>
-
-                    {paymentSettings.disclaimer_enabled && paymentSettings.disclaimer && (
-                      <div className="bg-amber-50/60 border border-amber-100 rounded-lg p-3 mb-3" data-testid="payment-disclaimer">
-                        <p className="text-[10px] text-amber-800 italic leading-relaxed">{paymentSettings.disclaimer}</p>
-                      </div>
-                    )}
 
                     {!otpSent && !emailVerified && (
                       <Button data-testid="send-otp-btn" onClick={submitAndSendOtp} disabled={loading} className="w-full bg-[#D4AF37] hover:bg-[#b8962e] text-white py-3 rounded-full mb-3">
@@ -872,11 +867,6 @@ function EnrollmentPage() {
                       </Button>
                     </div>
 
-                    {paymentSettings.disclaimer_enabled && paymentSettings.disclaimer && (
-                      <div className="mt-3 bg-amber-50/60 border border-amber-100 rounded-lg p-3" data-testid="payment-disclaimer-pay">
-                        <p className="text-[10px] text-amber-800 italic leading-relaxed">{paymentSettings.disclaimer}</p>
-                      </div>
-                    )}
                     <p className="text-[10px] text-gray-400 mt-3 text-center flex items-center justify-center gap-1"><Lock size={10} /> Secure payment via Stripe</p>
                       </>
                     )}
