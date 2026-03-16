@@ -31,19 +31,6 @@ const COMPONENT_MAP = {
   custom: CustomSection,
 };
 
-// Sections that have their own dark/themed backgrounds — no flow gradient needed
-const DARK_SECTIONS = new Set(['HeroSection', 'SessionsSection', 'StatsSection']);
-
-/*
-  Alternating flow logic:
-  - Page wrapper provides the base lavender (#f3edff)
-  - Light sections are transparent at edges (showing page lavender through)
-  - Center alternates between pure white and soft lavender
-  - Result: NO visible boundary at any transition point
-*/
-const GRADIENT_WHITE = 'linear-gradient(180deg, transparent 0%, #faf8ff 5%, #ffffff 15%, #ffffff 85%, #faf8ff 95%, transparent 100%)';
-const GRADIENT_LAVENDER = 'linear-gradient(180deg, transparent 0%, #f0eaf8 10%, #ebe4f5 35%, #ebe4f5 65%, #f0eaf8 90%, transparent 100%)';
-
 const DEFAULT_ORDER = [
   { id: 'hero', component: 'HeroSection', visible: true },
   { id: 'about', component: 'AboutSection', visible: true },
@@ -89,55 +76,14 @@ function HomePage() {
 
   const visibleSections = sections.filter(s => s.visible !== false);
 
-  // Count light section index (skip dark sections) for alternating
-  let lightIndex = 0;
-
   return (
     <>
       <Header />
-      <div style={{ position: 'relative', background: '#f3edff' }}>
-        {/* Gold dust particles along edges */}
-        {[
-          { left: '3%', top: '8%', size: 4, delay: '0s' },
-          { left: '6%', top: '22%', size: 3, delay: '1.2s' },
-          { left: '2%', top: '38%', size: 5, delay: '0.5s' },
-          { left: '7%', top: '52%', size: 3, delay: '2.1s' },
-          { left: '4%', top: '68%', size: 4, delay: '1.8s' },
-          { left: '5%', top: '82%', size: 3, delay: '0.8s' },
-          { right: '3%', top: '12%', size: 4, delay: '0.3s' },
-          { right: '6%', top: '28%', size: 3, delay: '1.5s' },
-          { right: '2%', top: '42%', size: 5, delay: '2.5s' },
-          { right: '5%', top: '58%', size: 3, delay: '0.7s' },
-          { right: '4%', top: '72%', size: 4, delay: '1.1s' },
-          { right: '7%', top: '88%', size: 3, delay: '2.8s' },
-        ].map((d, i) => (
-          <div key={i} className="gold-dust-dot" style={{
-            left: d.left, right: d.right, top: d.top,
-            width: d.size, height: d.size,
-            animationDelay: d.delay,
-            animationDuration: `${3 + (i % 3)}s`,
-          }} />
-        ))}
-        {visibleSections.map((sec, index) => {
+      <div style={{ background: '#f3edff' }}>
+        {visibleSections.map((sec) => {
           const Component = COMPONENT_MAP[sec.component];
           if (!Component) return null;
-
-          // Dark sections render directly — they have their own backgrounds
-          if (DARK_SECTIONS.has(sec.component)) {
-            if (sec.component === 'HeroSection') {
-              return <Component key={sec.id} sectionConfig={sec} />;
-            }
-            return <Component key={sec.id} sectionConfig={sec} />;
-          }
-
-          // Light sections get alternating gradient wrapper
-          const isWhite = lightIndex % 2 === 0;
-          lightIndex++;
-          return (
-            <div key={sec.id} style={{ background: isWhite ? GRADIENT_WHITE : GRADIENT_LAVENDER }}>
-              <Component sectionConfig={sec} />
-            </div>
-          );
+          return <Component key={sec.id} sectionConfig={sec} />;
         })}
       </div>
       <Footer />
