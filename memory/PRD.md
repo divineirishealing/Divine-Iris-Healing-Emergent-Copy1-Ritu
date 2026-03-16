@@ -272,8 +272,27 @@ All pages with dark hero sections use:
 - [x] All 7/7 tests passed (iteration_64)
 
 ### Enrollment Flow Bug Fixes (Feb 2026) - COMPLETED
-- [x] Fixed NameError: 'footer_email' not defined in enrollment_confirmation_email — emails now send correctly for free enrollments
-- [x] Fixed back button on payment step (step 3→2): verified email badge + "Continue to Payment" button shown when email already verified
-- [x] Auto-prefill booker name/email/phone/country from first participant when moving to billing step
-- [x] Receipt ID pattern changed from REC-XXXXXXXX to DIH-YYYY-NNNN (e.g., DIH-2026-0001) — sequential per year
+- [x] Fixed NameError: 'footer_email' not defined — emails now send correctly for free enrollments
+- [x] Fixed back button on payment step: verified badge + "Continue to Payment" button
+- [x] Auto-prefill booker info from first participant
+- [x] Receipt ID: DIH-{month}{seq*3:02d}-{seq:03d} (e.g., DIH-303-001) — yearly sequence + mystery number
+- [x] Browser autofill: autocomplete attributes on participant & billing fields
+- [x] "Friend / Family" referral shows "Referred by" name field side by side
+- [x] Stripe cancel → redirects back to enrollment with all info restored
 - [x] All 13/13 tests passed (iteration_65)
+
+### Currency & Pricing Fixes (Mar 2026) - COMPLETED
+- [x] Strict 3-currency rule: India=INR, Gulf=AED, everyone else=USD
+- [x] Removed 30+ country→currency mappings — no more homepage vs enrollment mismatch
+- [x] Added preview_country param for admin testing
+- [x] India pricing note: "may result in 12-15% higher" (removed GST mention, removed "Save 9%")
+- [x] GST & Platform charges calculated on taxable amount (after alt discount)
+- [x] Platform Charges % editable in admin alongside GST % and Alt Discount %
+
+### Manual Payment Standalone Page (Mar 2026) - COMPLETED
+- [x] Standalone shareable link: /manual-payment (no enrollment needed)
+- [x] With enrollment: /manual-payment/{enrollmentId} (pre-fills booker info, shows program details)
+- [x] Bank transfer details shown (editable from admin)
+- [x] Program type dropdown: Personal Session, Flagship Program, Home Coming Circle
+- [x] EMI support: toggle, 1-12 months, months covered/paid tracker
+- [x] Full proof form: screenshot, name, date, bank, txn ID, amount, method, city, state
