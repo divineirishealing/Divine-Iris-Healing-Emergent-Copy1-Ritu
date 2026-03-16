@@ -286,11 +286,18 @@ All pages with dark hero sections use:
 - [x] Bug fixed by testing agent: GlobalSearch navigation routes corrected (singular /program/:id, /session/:id)
 - [x] 22/22 tests passed (iteration_63)
 
-### Seamless Section Flow (Mar 2026) - COMPLETED
-- [x] All homepage sections use alternating purple→white→purple→white gradient flow
-- [x] Sessions → About → Newsletter merge seamlessly with matched gradient colors
-- [x] Programs → Testimonials merge seamlessly
-- [x] No visible section boundaries between adjacent sections
+### Seamless Section Flow v2 — Reorder-Robust (Mar 16, 2026) - COMPLETED
+- [x] Centralized alternating gradient system in HomePage.jsx (replaces per-section hardcoded backgrounds)
+- [x] Two chaining gradients: lavender→white (A) and white→lavender (B), where A's end matches B's start and vice versa
+- [x] Light sections get alternating A/B based on position; dark sections (Hero, Sessions, Stats) keep own backgrounds and reset counter
+- [x] Gradient flow remains seamless even after admin reorders sections — tested with reorder and 16/16 tests passed (iteration_68)
+- [x] Removed hardcoded backgrounds from 7 section components (About, TextTestimonials, Upcoming, Sponsor, Programs, Testimonials, Newsletter)
+
+### Footer Anchor Link Scrolling Fix (Mar 16, 2026) - COMPLETED
+- [x] Replaced old anchor click event listeners with useEffect that watches sections state + URL hash
+- [x] Scrolls to target section with -60px offset after sections render (100ms debounce)
+- [x] Works both on homepage (smooth scroll) and from other pages (navigate + scroll)
+- [x] Tested: footer "Upcoming Programs" link works from both homepage and /about page (iteration_68)
 
 ### Session Enrollment Purple Header & Testimonials (Feb 2026) - COMPLETED
 - [x] Removed flower/session image from session enrollment page left sidebar
