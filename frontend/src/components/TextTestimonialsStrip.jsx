@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { CONTAINER } from '../lib/designTokens';
-import { safeArray, safeString, safeObject, normalizeListResponse } from '../../../lib/safe';
-
+import { safeArray } from '../lib/safe';
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 const TextTestimonialsStrip = ({ sectionConfig }) => {
