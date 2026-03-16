@@ -430,20 +430,22 @@ function ProgramDetailPage() {
       {testimonials.filter(t => t.image).length > 0 && (
         <section className="py-16" data-testid="testimonials-section"
           style={{ background: 'linear-gradient(180deg, #f5f4f8 0%, #eceaf1 40%, #f5f4f8 100%)' }}>
+          <style>{`
+            .tcard { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+            .tcard:hover { transform-origin: center center; }
+          `}</style>
           <h2 className="text-center mb-10" style={applyStyle(template.testimonial_title_style, { ...HEADING, color: heroAccent, fontStyle: 'italic', fontSize: '1.6rem' })}>Testimonials</h2>
-          {/* 5-card landscape carousel — flat, 20% overlap, center above */}
+          {/* 5-card landscape carousel */}
           {(() => {
             const imgTestimonials = testimonials.filter(t => t.image);
             const total = imgTestimonials.length;
             if (total === 0) return null;
 
-            // Landscape cards — wider than tall
             const CARD_W = 340;
             const CARD_H = 250;
             const OVERLAP = CARD_W * 0.2;
             const STEP = CARD_W - OVERLAP;
 
-            // Sliding window dots: max 10
             const MAX_DOTS = 10;
             const dotStart = Math.max(0, Math.min(currentTestimonial - Math.floor(MAX_DOTS / 2), total - MAX_DOTS));
             const dotEnd = Math.min(total, dotStart + MAX_DOTS);
@@ -464,7 +466,7 @@ function ProgramDetailPage() {
 
                     return (
                       <div key={`${offset}-${idx}`}
-                        className="absolute cursor-pointer"
+                        className="absolute tcard cursor-pointer group"
                         data-testid={isCenter ? 'carousel-center-card' : `carousel-card-${offset}`}
                         onClick={() => { if (offset !== 0) { offset < 0 ? prevT() : nextT(); } else { setLightboxImg(imgSrc); } }}
                         style={{
@@ -472,16 +474,15 @@ function ProgramDetailPage() {
                           height: `${CARD_H}px`,
                           left: '50%',
                           top: '50%',
-                          transform: `translate(-50%, ${isCenter ? '-55%' : '-48%'}) translateX(${offset * STEP}px)`,
-                          transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                          transform: `translate(-50%, ${isCenter ? '-55%' : '-48%'}) translateX(${offset * STEP}px) scale(${isCenter ? 1.08 : 1})`,
                           zIndex: isCenter ? 50 : isAdj ? 40 : 30,
                         }}>
-                        <div className="w-full h-full overflow-hidden bg-white"
+                        <div className="w-full h-full overflow-hidden bg-white transition-transform duration-300 group-hover:scale-[1.04]"
                           style={{
                             borderRadius: '16px',
                             boxShadow: isCenter
-                              ? '0 12px 35px rgba(0,0,0,0.15), 0 4px 12px rgba(0,0,0,0.08)'
-                              : '0 6px 20px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)',
+                              ? '0 15px 40px rgba(0,0,0,0.18), 0 5px 15px rgba(0,0,0,0.1)'
+                              : '0 8px 25px rgba(0,0,0,0.08), 0 3px 10px rgba(0,0,0,0.04)',
                           }}>
                           <img src={imgSrc} alt={t.name || 'Testimonial'}
                             className="w-full h-full object-cover object-top"
