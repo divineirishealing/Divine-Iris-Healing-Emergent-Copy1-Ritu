@@ -6,7 +6,7 @@ import { useCurrency } from '../context/CurrencyContext';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../hooks/use-toast';
 import { Monitor, Calendar, Clock, AlertTriangle, Wifi, ShoppingCart, Check, Bell, Heart } from 'lucide-react';
-
+import { safeArray, safeString, safeObject, normalizeListResponse } from '../../../lib/safe';
 // Map common timezone abbreviations to UTC offset in hours
 const TZ_OFFSETS = {
   'GST': 4, 'GST Dubai': 4, 'UAE': 4, 'Gulf': 4,
@@ -500,7 +500,7 @@ const UpcomingProgramsSection = ({ sectionConfig, inline }) => {
               {/* Title row */}
               <div className={`${titleSpan} text-center`}>
                 <h2 className="text-3xl md:text-4xl text-gray-900" style={applyTitleStyle(sectionConfig?.title_style, {})}>{sectionConfig?.title || 'Upcoming Programs'}</h2>
-                {(sectionConfig?.subtitle || (!programs.some(p => p.enable_in_person) && !sectionConfig)) && (
+                {(sectionConfig?.subtitle || (!safeArray(programs).some(p => p.enable_in_person) && !sectionConfig)) && (
                   <p className="text-sm text-gray-900 mt-3" style={sectionConfig?.subtitle_style ? { ...(sectionConfig.subtitle_style.font_color && { color: sectionConfig.subtitle_style.font_color }), ...(sectionConfig.subtitle_style.font_size && { fontSize: sectionConfig.subtitle_style.font_size }), ...(sectionConfig.subtitle_style.font_family && { fontFamily: sectionConfig.subtitle_style.font_family }), ...(sectionConfig.subtitle_style.font_weight && { fontWeight: sectionConfig.subtitle_style.font_weight }) } : {}}>{sectionConfig?.subtitle}</p>
                 )}
               </div>
