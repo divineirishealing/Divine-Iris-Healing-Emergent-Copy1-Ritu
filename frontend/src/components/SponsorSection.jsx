@@ -54,7 +54,7 @@ const SponsorSection = ({ sectionConfig, inline }) => {
   if (inline) return <div data-testid="sponsor-section">{content}</div>;
 
   return (
-    <section id="sponsor" data-testid="sponsor-section" className="py-12 relative">
+    <section id="sponsor" data-testid="sponsor-section" className="py-12 relative" style={{ background: 'linear-gradient(180deg, #f3edff 0%, #ffffff 10%, #ffffff 90%, #f3edff 100%)' }}>
       <div className={CONTAINER}>
         <div className="grid md:grid-cols-2 gap-12 items-center max-w-7xl mx-auto">
           {content}

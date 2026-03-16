@@ -32,7 +32,7 @@ const AboutSection = ({ sectionConfig }) => {
   const aboutImage = s.about_image ? resolveUrl(s.about_image) : '';
 
   return (
-    <section id="about" data-testid="about-section" className="py-12 relative">
+    <section id="about" data-testid="about-section" className="py-12 relative" style={{ background: 'linear-gradient(180deg, #f3edff 0%, #ffffff 10%, #ffffff 90%, #f3edff 100%)' }}>
       <div className={CONTAINER}>
         <div className="grid md:grid-cols-12 gap-12 items-start max-w-5xl mx-auto">
           <div className="md:col-span-5 order-2 md:order-1">
