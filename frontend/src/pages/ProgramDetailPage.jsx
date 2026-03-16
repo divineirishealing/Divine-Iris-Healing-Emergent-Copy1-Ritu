@@ -431,84 +431,80 @@ function ProgramDetailPage() {
       {testimonials.length > 0 && (
         <section className="py-16 bg-white" data-testid="testimonials-section">
           <div className={CONTAINER}>
-            <h2 className="text-center mb-10" style={applyStyle(template.testimonial_title_style, { ...HEADING, color: heroAccent, fontStyle: 'italic', fontSize: '1.6rem' })}>Testimonials</h2>
-            {/* 3D Carousel */}
-            <div className="relative max-w-7xl mx-auto" style={{ perspective: '1200px' }}>
-              <div className="flex items-center justify-center" style={{ minHeight: '520px' }}>
+            <h2 className="text-center mb-12" style={applyStyle(template.testimonial_title_style, { ...HEADING, color: heroAccent, fontStyle: 'italic', fontSize: '1.6rem' })}>Testimonials</h2>
+            {/* Carousel */}
+            <div className="relative max-w-5xl mx-auto overflow-hidden" style={{ minHeight: '620px' }}>
+              <div className="flex items-center justify-center" style={{ height: '600px' }}>
                 {[-2, -1, 0, 1, 2].map(offset => {
                   const idx = ((currentTestimonial + offset) % testimonials.length + testimonials.length) % testimonials.length;
                   const t = testimonials[idx];
                   if (!t) return null;
                   const isCenter = offset === 0;
-                  const isAdjacent = Math.abs(offset) === 1;
+                  const isAdj = Math.abs(offset) === 1;
                   const imgSrc = t.type === 'graphic' ? resolveImageUrl(t.image) : `https://img.youtube.com/vi/${t.videoId}/hqdefault.jpg`;
-                  const cardStyle = {
-                    position: 'absolute',
-                    width: '300px',
-                    transition: 'all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-                    transform: isCenter
-                      ? 'translateX(-50%) scale(1.08) rotateY(0deg)'
-                      : isAdjacent
-                        ? `translateX(calc(-50% + ${offset * 310}px)) scale(0.9) rotateY(${offset * -8}deg)`
-                        : `translateX(calc(-50% + ${offset * 580}px)) scale(0.78) rotateY(${offset * -14}deg)`,
-                    left: '50%',
-                    zIndex: isCenter ? 30 : isAdjacent ? 20 : 10,
-                    opacity: isCenter ? 1 : isAdjacent ? 0.75 : 0.45,
-                    filter: isCenter ? 'none' : `blur(${isAdjacent ? 0 : 1}px)`,
-                  };
+                  const w = isCenter ? 340 : isAdj ? 280 : 240;
+                  const h = isCenter ? 560 : isAdj ? 480 : 420;
+                  const xOff = isCenter ? 0 : isAdj ? offset * 300 : offset * 520;
                   return (
-                    <div key={`${offset}-${idx}`} style={cardStyle}
-                      className="cursor-pointer"
-                      onClick={() => { if (!isCenter) { isAdjacent && offset < 0 ? prevT() : isAdjacent && offset > 0 ? nextT() : offset < 0 ? (prevT(), setTimeout(prevT, 100)) : (nextT(), setTimeout(nextT, 100)); } else { setLightboxImg(imgSrc); } }}>
-                      <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden" style={{ boxShadow: isCenter ? '0 20px 60px rgba(0,0,0,0.15)' : '0 8px 24px rgba(0,0,0,0.08)' }}>
-                        {/* Stars */}
-                        <div className="flex justify-center pt-5 pb-2 gap-0.5">
+                    <div key={`${offset}-${idx}`}
+                      className="absolute cursor-pointer"
+                      onClick={() => { if (offset === -1 || offset === -2) prevT(); else if (offset === 1 || offset === 2) nextT(); else setLightboxImg(imgSrc); }}
+                      style={{
+                        width: `${w}px`, height: `${h}px`,
+                        left: '50%',
+                        top: '50%',
+                        transform: `translate(calc(-50% + ${xOff}px), -50%)`,
+                        transition: 'all 0.6s cubic-bezier(0.25, 0.1, 0.25, 1)',
+                        zIndex: isCenter ? 30 : isAdj ? 20 : 10,
+                        opacity: isCenter ? 1 : isAdj ? 0.85 : 0.4,
+                      }}>
+                      <div className="w-full h-full rounded-3xl bg-white flex flex-col items-center overflow-hidden"
+                        style={{ boxShadow: isCenter ? '0 10px 50px rgba(0,0,0,0.12)' : '0 4px 20px rgba(0,0,0,0.06)', border: '1px solid #f0f0f0' }}>
+                        {/* Purple Stars */}
+                        <div className="flex justify-center pt-7 pb-3 gap-1">
                           {[1,2,3,4,5].map(s => (
-                            <span key={s} style={{ color: s <= (t.rating || 5) ? '#7c3aed' : '#d1d5db', fontSize: '16px' }}>&#9733;</span>
+                            <span key={s} style={{ color: s <= (t.rating || 5) ? '#7c3aed' : '#e5e7eb', fontSize: isCenter ? '22px' : '16px' }}>&#9733;</span>
                           ))}
                         </div>
-                        {/* Image */}
-                        {imgSrc && (
-                          <div className="flex justify-center py-2">
-                            <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-purple-100 shadow-md">
-                              <img src={imgSrc} alt={t.name || ''} className="w-full h-full object-cover" onError={(e) => { e.target.parentElement.style.display='none'; }} />
-                            </div>
+                        {/* Oval Image Frame */}
+                        <div className="flex justify-center py-2 flex-1 min-h-0">
+                          <div style={{
+                            width: isCenter ? '200px' : '150px',
+                            height: isCenter ? '260px' : '200px',
+                            borderRadius: '50%',
+                            overflow: 'hidden',
+                            border: '3px solid #f3edff',
+                            boxShadow: '0 4px 16px rgba(124,58,237,0.08)',
+                            flexShrink: 0,
+                          }}>
+                            <img src={imgSrc} alt={t.name || ''} className="w-full h-full object-cover"
+                              onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=500&fit=crop'; }} />
                           </div>
-                        )}
-                        {/* Text */}
-                        <div className="px-5 pb-2 pt-1">
-                          <p className="text-xs text-gray-600 leading-relaxed text-center" style={{ display: '-webkit-box', WebkitLineClamp: isCenter ? 10 : 6, WebkitBoxOrient: 'vertical', overflow: 'hidden', minHeight: isCenter ? '160px' : '100px' }}>
-                            {t.text || 'A beautiful healing experience that transformed my life.'}
+                        </div>
+                        {/* Title Text */}
+                        <div className="px-5 pb-1 text-center">
+                          <p className="text-gray-700 leading-relaxed" style={{ fontSize: isCenter ? '15px' : '12px' }}>
+                            {t.text || t.name || 'Healing experience'}
                           </p>
                         </div>
-                        {/* Name & Footer */}
-                        <div className="text-center pb-5 px-4">
-                          <p className="text-sm font-bold text-gray-900">{t.name || 'Client'}</p>
-                          {t.role && <p className="text-[10px] text-gray-400 mt-0.5">{t.role}</p>}
+                        {/* Client Name */}
+                        <div className="text-center pb-7 pt-3 mt-auto">
+                          <p className="font-bold text-gray-900" style={{ fontSize: isCenter ? '16px' : '13px' }}>{t.name || 'Client'}</p>
                         </div>
                       </div>
                     </div>
                   );
                 })}
               </div>
-              {/* Navigation Arrows */}
+              {/* Navigation Arrows — pill shaped */}
               <button onClick={prevT} data-testid="prev-testimonial"
-                className="absolute left-2 top-1/2 -translate-y-1/2 z-40 w-10 h-10 rounded-full bg-white/80 hover:bg-white shadow-lg flex items-center justify-center transition-all"
-                style={{ backdropFilter: 'blur(8px)' }}>
-                <ChevronLeft size={20} className="text-gray-600" />
+                className="absolute left-2 top-1/2 -translate-y-1/2 z-40 w-10 h-16 rounded-full bg-white shadow-md hover:shadow-lg flex items-center justify-center transition-all border border-gray-100">
+                <ChevronLeft size={20} className="text-gray-400" />
               </button>
               <button onClick={nextT} data-testid="next-testimonial"
-                className="absolute right-2 top-1/2 -translate-y-1/2 z-40 w-10 h-10 rounded-full bg-white/80 hover:bg-white shadow-lg flex items-center justify-center transition-all"
-                style={{ backdropFilter: 'blur(8px)' }}>
-                <ChevronRight size={20} className="text-gray-600" />
+                className="absolute right-2 top-1/2 -translate-y-1/2 z-40 w-10 h-16 rounded-full bg-white shadow-md hover:shadow-lg flex items-center justify-center transition-all border border-gray-100">
+                <ChevronRight size={20} className="text-gray-400" />
               </button>
-              {/* Dots */}
-              <div className="flex justify-center gap-2 mt-4">
-                {testimonials.map((_, i) => (
-                  <button key={i} onClick={() => setCurrentTestimonial(i)}
-                    className={`w-2.5 h-2.5 rounded-full transition-all ${i === currentTestimonial ? 'bg-[#D4AF37] scale-125' : 'bg-gray-300 hover:bg-gray-400'}`} />
-                ))}
-              </div>
             </div>
           </div>
         </section>
