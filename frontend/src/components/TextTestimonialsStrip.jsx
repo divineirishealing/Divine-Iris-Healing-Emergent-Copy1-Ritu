@@ -55,7 +55,7 @@ const TextTestimonialsStrip = ({ sectionConfig }) => {
       data-testid="text-testimonials-section"
       className="relative overflow-hidden"
       style={{
-        background: 'linear-gradient(180deg, #f3edff 0%, #ece4ff 18%, #f5f0ff 38%, #faf7ff 55%, #ffffff 80%, #ffffff 100%)',
+        background: 'linear-gradient(180deg, #f3edff 0%, #f8f5ff 15%, #ffffff 35%, #ffffff 65%, #f8f5ff 85%, #f3edff 100%)',
         padding: '68px 0 48px',
         marginBottom: 0,
       }}
