@@ -121,12 +121,15 @@ function HomePage() {
             animationDuration: `${3 + (i % 3)}s`,
           }} />
         ))}
-        {visibleSections.map((sec) => {
+        {visibleSections.map((sec, index) => {
           const Component = COMPONENT_MAP[sec.component];
           if (!Component) return null;
 
           // Dark sections render directly — they have their own backgrounds
           if (DARK_SECTIONS.has(sec.component)) {
+            if (sec.component === 'HeroSection') {
+              return <Component key={sec.id} sectionConfig={sec} />;
+            }
             return <Component key={sec.id} sectionConfig={sec} />;
           }
 
