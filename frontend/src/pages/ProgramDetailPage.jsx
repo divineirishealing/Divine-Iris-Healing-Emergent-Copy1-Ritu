@@ -429,28 +429,17 @@ function ProgramDetailPage() {
 
       {testimonials.filter(t => t.image).length > 0 && (
         <section className="py-16" data-testid="testimonials-section"
-          style={{ background: 'linear-gradient(180deg, #faf9fc 0%, #f0eef4 50%, #e8e5ee 80%, #faf9fc 100%)' }}>
+          style={{ background: 'linear-gradient(180deg, #f3f1f6 0%, #eae7f0 50%, #e5e2ec 80%, #f3f1f6 100%)' }}>
           <div className={CONTAINER}>
             <h2 className="text-center mb-10" style={applyStyle(template.testimonial_title_style, { ...HEADING, color: heroAccent, fontStyle: 'italic', fontSize: '1.6rem' })}>Testimonials</h2>
-            {/* 3D Carousel — portrait cards, center bigger + rises above */}
+            {/* Simple 3-card carousel — center overlaps, sides tilt gently */}
             {(() => {
               const imgTestimonials = testimonials.filter(t => t.image);
               const total = imgTestimonials.length;
               if (total === 0) return null;
 
-              // Portrait cards — taller than wide (ratio ~1.35:1)
               const CARD_W = 300;
-              const CARD_H = 410;
-
-              const getCardStyle = (offset) => {
-                const abs = Math.abs(offset);
-                // Center: bigger (scaled up), rises above adjacent
-                if (abs === 0) return { tx: 0, ty: -25, tz: 100, ry: 0, z: 50, op: 1, sc: 1.1 };
-                // Adjacent: behind center, gentle rotation, ~25-30% hidden
-                if (abs === 1) return { tx: offset * 230, ty: 5, tz: -20, ry: offset * -15, z: 40, op: 0.9, sc: 0.95 };
-                // Outer: far behind, mostly hidden at edges
-                return { tx: offset * 410, ty: 10, tz: -80, ry: offset * -25, z: 30, op: 0.6, sc: 0.88 };
-              };
+              const CARD_H = 500;
 
               // Sliding window dots: max 10
               const MAX_DOTS = 10;
@@ -458,45 +447,43 @@ function ProgramDetailPage() {
               const dotEnd = Math.min(total, dotStart + MAX_DOTS);
 
               return (
-                <div className="relative mx-auto" style={{ perspective: '1200px', maxWidth: '1100px' }}>
-                  <div className="relative flex items-center justify-center" style={{ height: `${CARD_H + 80}px` }}>
-                    {[-2, -1, 0, 1, 2].map(offset => {
+                <div className="relative mx-auto" style={{ maxWidth: '900px' }}>
+                  <div className="relative flex items-center justify-center" style={{ height: `${CARD_H + 40}px` }}>
+                    {[-1, 0, 1].map(offset => {
                       if (total === 1 && offset !== 0) return null;
-                      if (total < 3 && Math.abs(offset) > 1) return null;
-                      if (total < 5 && Math.abs(offset) > 1) return null;
+                      if (total < 3 && Math.abs(offset) > 0 && total === 1) return null;
                       const idx = ((currentTestimonial + offset) % total + total) % total;
                       const t = imgTestimonials[idx];
                       if (!t) return null;
                       const imgSrc = resolveImageUrl(t.image);
-                      const { tx, ty, tz, ry, z, op, sc } = getCardStyle(offset);
                       const isCenter = offset === 0;
 
                       return (
                         <div key={`${offset}-${idx}`}
                           className="absolute cursor-pointer"
                           data-testid={isCenter ? 'carousel-center-card' : `carousel-card-${offset}`}
-                          onClick={() => { if (offset < 0) prevT(); else if (offset > 0) nextT(); else setLightboxImg(imgSrc); }}
+                          onClick={() => { if (offset !== 0) { offset < 0 ? prevT() : nextT(); } else { setLightboxImg(imgSrc); } }}
                           style={{
                             width: `${CARD_W}px`,
                             height: `${CARD_H}px`,
                             left: '50%',
                             top: '50%',
-                            transformStyle: 'preserve-3d',
-                            transform: `translate(-50%, -50%) translateX(${tx}px) translateY(${ty}px) translateZ(${tz}px) rotateY(${ry}deg) scale(${sc})`,
+                            transform: isCenter
+                              ? `translate(-50%, -54%)`
+                              : `translate(-50%, -46%) translateX(${offset * 190}px) rotate(${offset * 5}deg)`,
                             transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
-                            zIndex: z,
-                            opacity: op,
+                            zIndex: isCenter ? 30 : 20,
                           }}>
                           <div className="w-full h-full overflow-hidden bg-white"
                             style={{
-                              borderRadius: '22px',
+                              borderRadius: '28px',
                               boxShadow: isCenter
-                                ? '0 20px 50px rgba(0,0,0,0.22), 0 8px 20px rgba(0,0,0,0.12)'
-                                : '0 10px 30px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.05)',
+                                ? '0 15px 40px rgba(0,0,0,0.15), 0 5px 15px rgba(0,0,0,0.08)'
+                                : '0 10px 30px rgba(0,0,0,0.08), 0 4px 10px rgba(0,0,0,0.04)',
                             }}>
                             <img src={imgSrc} alt={t.name || 'Testimonial'}
                               className="w-full h-full object-cover object-top"
-                              onError={(e) => { e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="410"><rect fill="%23f3f4f6" width="300" height="410"/></svg>'; }} />
+                              onError={(e) => { e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="320" height="560"><rect fill="%23f3f4f6" width="320" height="560"/></svg>'; }} />
                           </div>
                         </div>
                       );
