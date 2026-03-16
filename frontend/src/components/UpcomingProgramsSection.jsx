@@ -410,7 +410,7 @@ const SponsorCard = ({ sponsorData }) => {
       </div>
       <div className="p-4 flex-1 flex flex-col">
         <p className="text-[#D4AF37] text-[10px] tracking-wider mb-0.5 uppercase">{h.subtitle || 'Conscious Support'}</p>
-        <h3 className="font-semibold text-sm text-gray-900 mb-1.5 cursor-pointer hover:text-[#D4AF37] transition-colors" onClick={() => navigate('/sponsor')}>{h.title || 'Sponsor A Life'}</h3>
+        <h3 className="text-base font-semibold text-gray-900 mb-1.5 leading-tight cursor-pointer hover:text-[#D4AF37] transition-colors" onClick={() => navigate('/sponsor')}>{h.title || 'Sponsor A Life'}</h3>
         <p className="text-xs text-gray-500 leading-relaxed mb-3 flex-1">{h.body_1 || 'Contribute towards someone\'s healing journey — anonymously or intentionally. When one heals, the collective heals.'}</p>
         <div className="mt-auto pt-2">
           <button onClick={() => navigate('/sponsor')} data-testid="sponsor-card-cta"
