@@ -192,6 +192,47 @@ async def _run_post_payment_fraud_check(enrollment_id: str, session_id: str, tx:
 
     logger.warning(f"[FRAUD ALERT] enrollment={enrollment_id} severity={severity} reasons={fraud_reasons}")
 
+    # Send email notification to admin for critical/high severity
+    if severity in ("critical", "high"):
+        try:
+            settings = await db.site_settings.find_one({"id": "site_settings"}, {"_id": 0})
+            alert_email = (settings or {}).get("fraud_alert_email", "support@divineirishealing.com")
+            if alert_email:
+                from routes.emails import send_email as _send_email
+                severity_label = severity.upper()
+                html = f"""
+                <div style="font-family: 'Lato', Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <div style="background: {'#dc2626' if severity == 'critical' else '#ea580c'}; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
+                        <h1 style="margin: 0; font-size: 20px;">Fraud Alert — {severity_label}</h1>
+                        <p style="margin: 4px 0 0; opacity: 0.9; font-size: 13px;">Enrollment {enrollment_id}</p>
+                    </div>
+                    <div style="background: #fff; border: 1px solid #e5e7eb; border-top: none; padding: 24px; border-radius: 0 0 8px 8px;">
+                        <table style="width: 100%; font-size: 13px; border-collapse: collapse;">
+                            <tr><td style="padding: 6px 0; color: #6b7280;">Name</td><td style="padding: 6px 0; font-weight: 600;">{enrollment.get('booker_name', 'N/A')}</td></tr>
+                            <tr><td style="padding: 6px 0; color: #6b7280;">Email</td><td style="padding: 6px 0; font-weight: 600;">{enrollment.get('booker_email', 'N/A')}</td></tr>
+                            <tr><td style="padding: 6px 0; color: #6b7280;">Claimed Country</td><td style="padding: 6px 0; font-weight: 600;">{claimed_country}</td></tr>
+                            <tr><td style="padding: 6px 0; color: #6b7280;">IP Country</td><td style="padding: 6px 0; font-weight: 600;">{ip_country}</td></tr>
+                            <tr><td style="padding: 6px 0; color: #6b7280;">Card Country</td><td style="padding: 6px 0; font-weight: 600; color: #dc2626;">{card_country or 'N/A'}</td></tr>
+                            <tr><td style="padding: 6px 0; color: #6b7280;">Billing Country</td><td style="padding: 6px 0; font-weight: 600;">{billing_country or 'N/A'}</td></tr>
+                            <tr><td style="padding: 6px 0; color: #6b7280;">Currency Charged</td><td style="padding: 6px 0; font-weight: 600;">{currency.upper()}</td></tr>
+                            <tr><td style="padding: 6px 0; color: #6b7280;">Amount</td><td style="padding: 6px 0; font-weight: 600;">{amount}</td></tr>
+                            <tr><td style="padding: 6px 0; color: #6b7280;">Phone</td><td style="padding: 6px 0;">{phone or 'N/A'}</td></tr>
+                            <tr><td style="padding: 6px 0; color: #6b7280;">Timezone</td><td style="padding: 6px 0;">{browser_tz or 'N/A'}</td></tr>
+                        </table>
+                        <div style="margin-top: 16px; padding: 12px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px;">
+                            <p style="margin: 0 0 8px; font-weight: 600; color: #991b1b; font-size: 13px;">Reasons:</p>
+                            {''.join(f'<p style="margin: 2px 0; font-size: 12px; color: #b91c1c;">• {r}</p>' for r in fraud_reasons)}
+                        </div>
+                        {f'<p style="margin-top: 12px; font-size: 12px; color: #dc2626; font-weight: 600;">This email has been auto-blocked from INR pricing.</p>' if severity == 'critical' else ''}
+                        <p style="margin-top: 16px; font-size: 11px; color: #9ca3af;">Review this alert in Admin Panel → Fraud Detection</p>
+                    </div>
+                </div>
+                """
+                import asyncio
+                asyncio.create_task(_send_email(alert_email, f"[{severity_label}] Fraud Alert — {enrollment.get('booker_name', 'Unknown')} — {enrollment_id}", html))
+        except Exception as e:
+            logger.warning(f"Failed to send fraud alert email: {e}")
+
 
 async def generate_participant_uids(session_id: str):
     """Generate UIDs for all participants in an enrollment linked to this payment."""

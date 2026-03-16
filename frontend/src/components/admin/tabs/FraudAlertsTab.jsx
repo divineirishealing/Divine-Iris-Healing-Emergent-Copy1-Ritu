@@ -6,7 +6,7 @@ import { Input } from '../../ui/input';
 import { Textarea } from '../../ui/textarea';
 import {
   ShieldAlert, ShieldCheck, Shield, Eye, AlertTriangle,
-  ChevronDown, ChevronUp, Search, RefreshCw, Ban, CheckCircle, X
+  ChevronDown, ChevronUp, Search, RefreshCw, Ban, CheckCircle, X, Mail
 } from 'lucide-react';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -36,18 +36,22 @@ const FraudAlertsTab = () => {
   const [expandedId, setExpandedId] = useState(null);
   const [reviewNotes, setReviewNotes] = useState('');
   const [showBlocklist, setShowBlocklist] = useState(false);
+  const [alertEmail, setAlertEmail] = useState('');
+  const [emailSaving, setEmailSaving] = useState(false);
 
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const [alertsRes, statsRes, blockRes] = await Promise.all([
+      const [alertsRes, statsRes, blockRes, settingsRes] = await Promise.all([
         axios.get(`${API}/fraud/alerts`),
         axios.get(`${API}/fraud/stats`),
         axios.get(`${API}/fraud/blocklist`),
+        axios.get(`${API}/settings`),
       ]);
       setAlerts(alertsRes.data);
       setStats(statsRes.data);
       setBlocklist(blockRes.data);
+      setAlertEmail(settingsRes.data?.fraud_alert_email || 'support@divineirishealing.com');
     } catch (err) {
       console.error('Failed to load fraud data:', err);
     } finally {
@@ -80,6 +84,18 @@ const FraudAlertsTab = () => {
     }
   };
 
+  const saveAlertEmail = async () => {
+    setEmailSaving(true);
+    try {
+      await axios.put(`${API}/settings`, { fraud_alert_email: alertEmail });
+      toast({ title: 'Alert email saved' });
+    } catch (err) {
+      toast({ title: 'Error saving email', variant: 'destructive' });
+    } finally {
+      setEmailSaving(false);
+    }
+  };
+
   const filtered = alerts.filter(a => {
     if (filter !== 'all' && a.status !== filter) return false;
     if (search) {
@@ -102,7 +118,7 @@ const FraudAlertsTab = () => {
 
       {/* Stats Cards */}
       {stats && (
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6" data-testid="fraud-stats">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4" data-testid="fraud-stats">
           <div className="bg-white rounded-lg border p-3 text-center">
             <p className="text-2xl font-bold text-gray-900">{stats.total_alerts}</p>
             <p className="text-[10px] text-gray-500 uppercase tracking-wider">Total Alerts</p>
@@ -125,6 +141,20 @@ const FraudAlertsTab = () => {
           </div>
         </div>
       )}
+
+      {/* Alert Email Config */}
+      <div className="bg-white rounded-lg border p-3 mb-4 flex items-center gap-3" data-testid="fraud-email-config">
+        <Mail size={14} className="text-gray-400 flex-shrink-0" />
+        <div className="flex-1">
+          <label className="text-[9px] text-gray-500 uppercase tracking-wider block mb-0.5">Fraud Alert Notifications (Critical + High)</label>
+          <div className="flex gap-2">
+            <Input value={alertEmail} onChange={e => setAlertEmail(e.target.value)} placeholder="support@divineirishealing.com" className="text-xs h-8 flex-1" data-testid="fraud-alert-email-input" />
+            <Button size="sm" onClick={saveAlertEmail} disabled={emailSaving} className="bg-[#D4AF37] hover:bg-[#b8962e] text-white text-xs h-8" data-testid="fraud-alert-email-save">
+              {emailSaving ? <RefreshCw size={12} className="animate-spin" /> : 'Save'}
+            </Button>
+          </div>
+        </div>
+      </div>
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-2 mb-4">

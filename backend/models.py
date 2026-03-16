@@ -483,6 +483,7 @@ class SiteSettings(BaseModel):
     exclusive_offer: Optional[Dict] = None
     community_whatsapp_link: str = ""
     text_testimonials_style: Optional[Dict] = None
+    fraud_alert_email: str = "support@divineirishealing.com"
 
 class SiteSettingsUpdate(BaseModel):
     heading_font: Optional[str] = None
@@ -607,6 +608,7 @@ class SiteSettingsUpdate(BaseModel):
     exclusive_offer: Optional[Dict] = None
     community_whatsapp_link: Optional[str] = None
     text_testimonials_style: Optional[Dict] = None
+    fraud_alert_email: Optional[str] = None
 
 class PaymentTransaction(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))

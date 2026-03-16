@@ -50,6 +50,8 @@ All pages with dark hero sections use:
 - [x] Layer 3 — Blocklist panel: View/unblock blocked emails directly from admin
 - [x] Enrollment pricing upgraded to 6-factor check: added `not_blocklisted` check
 - [x] All 30/30 tests passed (iteration_67)
+- [x] Admin-configurable fraud alert email (default: support@divineirishealing.com) stored in site_settings
+- [x] Auto email notification to admin on Critical/High severity fraud alerts with full signal details
 
 ### Enrollment Form Enhancements + Excel Export (Mar 15, 2026) - COMPLETED
 - [x] Added 7 new relationships: Son, Daughter, Grandmother, Grandfather, Grandson, Granddaughter, Relative
