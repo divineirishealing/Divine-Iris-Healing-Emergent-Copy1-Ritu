@@ -56,7 +56,7 @@ const emptyParticipant = (mode = 'online') => ({
   is_first_time: true, referral_source: '',
 });
 
-const CartItemCard = ({ item, onRemove, onUpdateParticipants, symbol, getItemPrice, getItemOfferPrice, showReferral }) => {
+const CartItemCard = ({ item, onRemove, onUpdateParticipants, symbol, getItemPrice, getItemOfferPrice, showReferral, detectedCountry }) => {
   const [expanded, setExpanded] = useState(true);
   const tier = item.durationTiers?.[item.tierIndex];
   const price = getItemPrice(item);
@@ -77,7 +77,13 @@ const CartItemCard = ({ item, onRemove, onUpdateParticipants, symbol, getItemPri
   };
 
   const addParticipant = () => {
-    onUpdateParticipants([...item.participants, emptyParticipant(item.sessionMode === 'remote' ? 'offline' : 'online')]);
+    const p = emptyParticipant(item.sessionMode === 'remote' ? 'offline' : 'online');
+    if (detectedCountry) {
+      p.country = detectedCountry;
+      const c = COUNTRIES.find(c => c.code === detectedCountry);
+      if (c) { p.phone_code = c.phone; p.wa_code = c.phone; }
+    }
+    onUpdateParticipants([...item.participants, p]);
   };
 
   const removeParticipant = (idx) => {
@@ -323,9 +329,23 @@ const CartItemCard = ({ item, onRemove, onUpdateParticipants, symbol, getItemPri
 function CartPage() {
   const navigate = useNavigate();
   const { items, removeItem, updateItemParticipants, clearCart } = useCart();
-  const { getPrice, getOfferPrice, symbol } = useCurrency();
+  const { getPrice, getOfferPrice, symbol, country: detectedCountry } = useCurrency();
   const { toast } = useToast();
   const [discountSettings, setDiscountSettings] = useState({ enable_referral: true });
+
+  // Auto-fill detected country into participants on first load
+  useEffect(() => {
+    if (!detectedCountry) return;
+    const c = COUNTRIES.find(c => c.code === detectedCountry);
+    const phoneCode = c ? c.phone : '+971';
+    items.forEach(item => {
+      const needsUpdate = item.participants.some(p => !p.country);
+      if (needsUpdate) {
+        const updated = item.participants.map(p => p.country ? p : { ...p, country: detectedCountry, phone_code: phoneCode, wa_code: phoneCode });
+        updateItemParticipants(item.id, updated);
+      }
+    });
+  }, [detectedCountry]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     axios.get(`${API}/discounts/settings`).then(r => setDiscountSettings(r.data)).catch(() => {});
@@ -428,7 +448,7 @@ function CartPage() {
               onRemove={() => removeItem(item.id)}
               onUpdateParticipants={(p) => updateItemParticipants(item.id, p)}
               symbol={symbol} getItemPrice={getItemPrice} getItemOfferPrice={getItemOfferPrice}
-              showReferral={discountSettings.enable_referral} />
+              showReferral={discountSettings.enable_referral} detectedCountry={detectedCountry} />
           ))}
 
           {/* Summary & Checkout */}

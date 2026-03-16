@@ -67,31 +67,15 @@ function CartCheckoutPage() {
   const [processing, setProcessing] = useState(false);
   const [paymentSettings, setPaymentSettings] = useState({ disclaimer: '', disclaimer_enabled: true, india_links: [], india_exly_link: '', india_bank_details: {}, india_enabled: false, manual_form_enabled: true });
 
-  // Multi-factor currency detection (matching EnrollmentPage)
+  // Currency is LOCKED to IP-detected country — never changes based on participant/billing input
   const AED_COUNTRIES = new Set(['AE', 'SA', 'QA', 'KW', 'OM', 'BH']);
-  const allParticipantCountries = items.flatMap(i => i.participants.map(p => p.country)).filter(Boolean);
-  const allCountries = [bookerCountry, ...allParticipantCountries].filter(Boolean);
-  const allPhoneCodes = [countryCode, ...items.flatMap(i => i.participants.map(p => p.phone_code))].filter(Boolean);
-  const hasAnyNonIndia = allCountries.some(c => c !== 'IN') || allPhoneCodes.some(c => c && c !== '+91');
-
   let activeCurrencyInfo;
-  if (allCountries.length === 0) {
-    if (detectedCountry === 'IN') activeCurrencyInfo = { currency: 'inr', symbol: 'INR' };
-    else if (AED_COUNTRIES.has(detectedCountry)) activeCurrencyInfo = { currency: 'aed', symbol: 'AED' };
-    else activeCurrencyInfo = { currency: 'usd', symbol: 'USD' };
-  } else if (hasAnyNonIndia) {
-    const nonIndiaCountry = allCountries.find(c => c !== 'IN') || allCountries[0];
-    if (AED_COUNTRIES.has(nonIndiaCountry)) activeCurrencyInfo = { currency: 'aed', symbol: 'AED' };
-    else if (nonIndiaCountry === 'IN') {
-      const foreignCode = allPhoneCodes.find(c => c !== '+91');
-      const gulfCodes = ['+971', '+966', '+974', '+965', '+968', '+973'];
-      activeCurrencyInfo = gulfCodes.includes(foreignCode) ? { currency: 'aed', symbol: 'AED' } : { currency: 'usd', symbol: 'USD' };
-    } else {
-      if (AED_COUNTRIES.has(nonIndiaCountry)) activeCurrencyInfo = { currency: 'aed', symbol: 'AED' };
-      else activeCurrencyInfo = { currency: 'usd', symbol: 'USD' };
-    }
-  } else {
+  if (detectedCountry === 'IN') {
     activeCurrencyInfo = { currency: 'inr', symbol: 'INR' };
+  } else if (AED_COUNTRIES.has(detectedCountry)) {
+    activeCurrencyInfo = { currency: 'aed', symbol: 'AED' };
+  } else {
+    activeCurrencyInfo = { currency: 'usd', symbol: 'USD' };
   }
   const currency = activeCurrencyInfo.currency;
   const symbol = activeCurrencyInfo.symbol;

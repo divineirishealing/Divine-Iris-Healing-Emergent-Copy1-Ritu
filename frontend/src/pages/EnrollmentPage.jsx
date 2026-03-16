@@ -233,7 +233,7 @@ function EnrollmentPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { getPrice, getOfferPrice, symbol: detectedSymbol, currency: detectedCurrency, country: detectedCountry } = useCurrency();
+  const { getPrice, getOfferPrice, country: detectedCountry } = useCurrency();
 
   const tierParam = searchParams.get('tier');
   const selectedTier = tierParam !== null ? parseInt(tierParam) : null;
@@ -278,50 +278,16 @@ function EnrollmentPage() {
   const [paymentSettings, setPaymentSettings] = useState({ disclaimer: '', disclaimer_enabled: true, india_links: [], india_exly_link: '', india_bank_details: {}, india_enabled: false, manual_form_enabled: true });
   const [sessionTestimonials, setSessionTestimonials] = useState([]);
 
-  // Country → currency mapping: India=INR, Gulf=AED, everyone else=USD
+  // Currency is LOCKED to IP-detected country — never changes based on participant/billing input
+  // This prevents confusing currency switches during the enrollment flow
   const AED_COUNTRIES = new Set(['AE', 'SA', 'QA', 'KW', 'OM', 'BH']);
-  const getCurrencyForCountry = (cc) => {
-    if (cc === 'IN') return { currency: 'inr', symbol: 'INR' };
-    if (AED_COUNTRIES.has(cc)) return { currency: 'aed', symbol: 'AED' };
-    if (cc) return { currency: 'usd', symbol: 'USD' };
-    return null;
-  };
-
-  // Multi-factor check: countries + phone codes + IP detection
-  // ALL must be India for INR. Any single non-India signal → AED/USD
-  const allCountries = [bookerCountry, ...participants.map(p => p.country)].filter(Boolean);
-  const allPhoneCodes = [countryCode, ...participants.map(p => p.phone_code)].filter(Boolean);
-  const hasNonIndiaCountry = allCountries.some(c => c !== 'IN');
-  const hasNonIndiaPhone = allPhoneCodes.some(c => c && c !== '+91');
-  const hasNonIndiaIP = detectedCountry && detectedCountry !== 'IN';
-  const hasAnyNonIndia = hasNonIndiaCountry || hasNonIndiaPhone;
-
   let activeCurrencyInfo;
-  if (allCountries.length === 0) {
-    // No country selected — auto-detect: India=INR, Gulf=AED, else USD
-    if (detectedCountry === 'IN') {
-      activeCurrencyInfo = { currency: 'inr', symbol: 'INR' };
-    } else if (AED_COUNTRIES.has(detectedCountry)) {
-      activeCurrencyInfo = { currency: 'aed', symbol: 'AED' };
-    } else {
-      activeCurrencyInfo = { currency: 'usd', symbol: 'USD' };
-    }
-  } else if (hasAnyNonIndia) {
-    // Any non-India signal (country OR phone code) → never INR
-    const nonIndiaCountry = allCountries.find(c => c !== 'IN') || allCountries[0];
-    if (AED_COUNTRIES.has(nonIndiaCountry)) {
-      activeCurrencyInfo = { currency: 'aed', symbol: 'AED' };
-    } else if (nonIndiaCountry === 'IN' && hasNonIndiaPhone) {
-      // Country says India but phone is not +91 — someone from abroad visiting India
-      const foreignCode = allPhoneCodes.find(c => c !== '+91');
-      const gulfCodes = ['+971', '+966', '+974', '+965', '+968', '+973'];
-      activeCurrencyInfo = gulfCodes.includes(foreignCode) ? { currency: 'aed', symbol: 'AED' } : { currency: 'usd', symbol: 'USD' };
-    } else {
-      activeCurrencyInfo = getCurrencyForCountry(nonIndiaCountry);
-    }
-  } else {
-    // All India countries AND all +91 phones
+  if (detectedCountry === 'IN') {
     activeCurrencyInfo = { currency: 'inr', symbol: 'INR' };
+  } else if (AED_COUNTRIES.has(detectedCountry)) {
+    activeCurrencyInfo = { currency: 'aed', symbol: 'AED' };
+  } else {
+    activeCurrencyInfo = { currency: 'usd', symbol: 'USD' };
   }
   const currency = activeCurrencyInfo.currency;
   const symbol = activeCurrencyInfo.symbol;
