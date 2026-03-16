@@ -17,7 +17,7 @@ from utils.uid_generator import generate_uid
 import stripe as stripe_lib
 
 async def create_checkout_no_adaptive(stripe_checkout: StripeCheckout, request: CheckoutSessionRequest) -> CheckoutSessionResponse:
-    """Create a Stripe checkout session with Adaptive Pricing DISABLED."""
+    """Create a Stripe checkout session with Adaptive Pricing DISABLED and billing address collection REQUIRED."""
     stripe_lib.api_key = stripe_checkout.api_key
     product_name = request.metadata.get("item_title", "Payment") if request.metadata else "Payment"
     line_items = [{
@@ -35,9 +35,14 @@ async def create_checkout_no_adaptive(stripe_checkout: StripeCheckout, request: 
         "cancel_url": request.cancel_url,
         "metadata": request.metadata or {},
         "adaptive_pricing": {"enabled": False},
+        "billing_address_collection": "required",
     }
     if request.payment_methods:
         session_params["payment_method_types"] = request.payment_methods
+    # Pre-fill customer email if available
+    customer_email = (request.metadata or {}).get("email")
+    if customer_email:
+        session_params["customer_email"] = customer_email
     session = stripe_lib.checkout.Session.create(**session_params)
     return CheckoutSessionResponse(session_id=session.id, url=session.url)
 
@@ -67,6 +72,125 @@ async def _get_stripe_key():
 CURRENCY_SYMBOLS = {
     'aed': 'AED ', 'usd': '$', 'inr': '₹', 'eur': '€', 'gbp': '£'
 }
+
+# Gulf countries for AED pricing
+AED_COUNTRIES = {"AE", "SA", "QA", "KW", "OM", "BH"}
+
+
+async def _run_post_payment_fraud_check(enrollment_id: str, session_id: str, tx: dict, card_country: str = None, billing_country: str = None):
+    """Post-payment fraud detection: compare card/billing country vs claimed country.
+    Creates a fraud alert if mismatch detected on INR transactions."""
+    enrollment = await db.enrollments.find_one({"id": enrollment_id}, {"_id": 0})
+    if not enrollment:
+        return
+
+    claimed_country = enrollment.get("booker_country", "")
+    ip_country = enrollment.get("ip_info", {}).get("country", "")
+    currency = tx.get("currency", "")
+    amount = tx.get("amount", 0)
+    phone = enrollment.get("phone", "")
+    browser_tz = enrollment.get("browser_timezone", "")
+
+    # Build fraud signals
+    signals = {
+        "claimed_country": claimed_country,
+        "ip_country": ip_country,
+        "card_country": card_country,
+        "billing_country": billing_country,
+        "phone": phone,
+        "browser_timezone": browser_tz,
+        "currency_charged": currency,
+        "amount_charged": amount,
+    }
+
+    # Determine fraud severity
+    fraud_reasons = []
+    severity = "none"
+
+    # Check 1: Card country mismatch (strongest signal)
+    if card_country and claimed_country:
+        if claimed_country == "IN" and card_country != "IN":
+            fraud_reasons.append(f"Card issued in {card_country}, not India")
+            severity = "high"
+        elif claimed_country in AED_COUNTRIES and card_country not in AED_COUNTRIES and card_country != "IN":
+            fraud_reasons.append(f"Card issued in {card_country}, not Gulf region")
+            severity = "medium"
+
+    # Check 2: Billing country mismatch
+    if billing_country and claimed_country and billing_country != claimed_country:
+        fraud_reasons.append(f"Billing address country ({billing_country}) differs from claimed ({claimed_country})")
+        if severity == "none":
+            severity = "medium"
+
+    # Check 3: INR payment with non-Indian card (critical)
+    if currency == "inr" and card_country and card_country != "IN":
+        fraud_reasons.append(f"Paid in INR but card is from {card_country}")
+        severity = "critical"
+
+    # Check 4: VPN was detected during enrollment
+    if enrollment.get("vpn_blocked"):
+        fraud_reasons.append("VPN/Proxy was detected during enrollment")
+        if severity in ("none", "low"):
+            severity = "medium"
+
+    # Check 5: IP vs card country mismatch
+    if card_country and ip_country and card_country != ip_country:
+        fraud_reasons.append(f"IP country ({ip_country}) differs from card country ({card_country})")
+        if severity == "none":
+            severity = "low"
+
+    if not fraud_reasons:
+        # No fraud detected — store clean record
+        await db.enrollments.update_one(
+            {"id": enrollment_id},
+            {"$set": {"fraud_status": "clean", "card_country": card_country, "billing_country": billing_country}}
+        )
+        return
+
+    # Create fraud alert
+    alert = {
+        "id": str(uuid.uuid4()),
+        "enrollment_id": enrollment_id,
+        "stripe_session_id": session_id,
+        "booker_name": enrollment.get("booker_name", ""),
+        "booker_email": enrollment.get("booker_email", ""),
+        "severity": severity,
+        "reasons": fraud_reasons,
+        "signals": signals,
+        "status": "new",  # new → reviewed → confirmed_fraud → legitimate
+        "admin_notes": "",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.fraud_alerts.insert_one(alert)
+
+    # Update enrollment with fraud flag
+    await db.enrollments.update_one(
+        {"id": enrollment_id},
+        {"$set": {
+            "fraud_status": "flagged",
+            "fraud_severity": severity,
+            "card_country": card_country,
+            "billing_country": billing_country,
+        }}
+    )
+
+    # If critical (INR with non-Indian card), block this email from future INR
+    if severity == "critical":
+        email = enrollment.get("booker_email", "").lower()
+        if email:
+            await db.fraud_blocklist.update_one(
+                {"email": email},
+                {"$set": {
+                    "email": email,
+                    "reason": "; ".join(fraud_reasons),
+                    "enrollment_id": enrollment_id,
+                    "blocked_at": datetime.now(timezone.utc).isoformat(),
+                }},
+                upsert=True,
+            )
+
+    logger.warning(f"[FRAUD ALERT] enrollment={enrollment_id} severity={severity} reasons={fraud_reasons}")
 
 
 async def generate_participant_uids(session_id: str):
@@ -482,6 +606,43 @@ async def check_payment_status(session_id: str, http_request: Request, backgroun
 
         # Send confirmation emails when payment is newly confirmed
         if new_status == "paid" and not tx.get("emails_sent"):
+            # Extract card country from Stripe for fraud detection
+            try:
+                stripe_lib.api_key = await _get_stripe_key()
+                stripe_session = stripe_lib.checkout.Session.retrieve(
+                    session_id, expand=["payment_intent.payment_method"]
+                )
+                card_country = None
+                billing_country = None
+                if stripe_session.payment_intent and stripe_session.payment_intent.payment_method:
+                    pm = stripe_session.payment_intent.payment_method
+                    if hasattr(pm, 'card') and pm.card:
+                        card_country = pm.card.country
+                    if hasattr(pm, 'billing_details') and pm.billing_details and pm.billing_details.address:
+                        billing_country = pm.billing_details.address.country
+
+                # Store card info in transaction
+                card_info = {}
+                if card_country:
+                    card_info["card_country"] = card_country
+                if billing_country:
+                    card_info["billing_country"] = billing_country
+                if card_info:
+                    await db.payment_transactions.update_one(
+                        {"stripe_session_id": session_id},
+                        {"$set": card_info}
+                    )
+
+                # Run post-payment fraud check
+                if enrollment_id and (card_country or billing_country):
+                    await _run_post_payment_fraud_check(
+                        enrollment_id, session_id, tx,
+                        card_country=card_country,
+                        billing_country=billing_country,
+                    )
+            except Exception as e:
+                logger.warning(f"Card country extraction failed for {session_id}: {e}")
+
             # Generate UIDs for all participants
             await generate_participant_uids(session_id)
             background_tasks.add_task(send_enrollment_emails, session_id)

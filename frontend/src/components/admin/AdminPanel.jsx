@@ -12,7 +12,7 @@ import { resolveImageUrl } from '../../lib/imageUtils';
 import {
   Settings, Package, Calendar, MessageSquare, BarChart3, Mail, Inbox,
   Trash2, Edit, Plus, X, Eye, EyeOff, Save, ArrowUp, ArrowDown,
-  Globe, Layout, Image, Users, Palette, Gift, Monitor, Wifi, Tag, ChevronLeft, ChevronRight, Upload, FileText, DollarSign, Quote, Star
+  Globe, Layout, Image, Users, Palette, Gift, Monitor, Wifi, Tag, ChevronLeft, ChevronRight, Upload, FileText, DollarSign, Quote, Star, ShieldAlert
 } from 'lucide-react';
 
 import HeroSettingsTab from './tabs/HeroSettingsTab';
@@ -38,6 +38,7 @@ import UpcomingHubTab from './tabs/UpcomingHubTab';
 import InboxTab from './tabs/InboxTab';
 import ClientsTab from './tabs/ClientsTab';
 import TextTestimonialsTab from './tabs/TextTestimonialsTab';
+import FraudAlertsTab from './tabs/FraudAlertsTab';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -200,6 +201,7 @@ const AdminPanel = () => {
     { key: 'styles', label: 'Global Styles', icon: Palette },
     { key: 'payment_settings', label: 'Payments', icon: Tag },
     { key: 'india_payments', label: 'India Proofs', icon: Tag },
+    { key: 'fraud_alerts', label: 'Fraud Detection', icon: ShieldAlert },
     { key: 'receipt_template', label: 'Receipt Template', icon: FileText },
     { key: 'api_keys', label: 'API Keys', icon: Settings },
   ];
@@ -306,6 +308,7 @@ const AdminPanel = () => {
           {activeTab === 'api_keys' && <ApiKeysTab />}
           {activeTab === 'payment_settings' && <PaymentSettingsTab />}
           {activeTab === 'india_payments' && <IndiaPaymentsTab />}
+          {activeTab === 'fraud_alerts' && <FraudAlertsTab />}
           {activeTab === 'receipt_template' && <ReceiptTemplateTab />}
           {activeTab === 'pricing_hub' && <PricingHubTab />}
           {activeTab === 'upcoming_hub' && <UpcomingHubTab />}

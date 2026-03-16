@@ -364,12 +364,20 @@ async def get_enrollment_pricing(enrollment_id: str, item_type: str, item_id: st
     browser_tz = browser_timezone or ""
     timezone_is_india = browser_tz in ("Asia/Kolkata", "Asia/Calcutta", "")  # empty = not sent, pass
 
+    # Blocklist check: if email is on fraud blocklist, block INR
+    booker_email = enrollment.get("booker_email", "").lower()
+    is_blocklisted = False
+    if booker_email:
+        blocked = await db.fraud_blocklist.find_one({"email": booker_email})
+        is_blocklisted = blocked is not None
+
     checks = {
         "ip_is_india": ip_country == "IN",
         "claimed_india": claimed_country == "IN",
         "no_vpn": not vpn_blocked,
         "phone_consistent": not phone_contradicts_india,
         "timezone_india": timezone_is_india,
+        "not_blocklisted": not is_blocklisted,
     }
     all_india_checks_pass = all(checks.values())
 
@@ -399,6 +407,8 @@ async def get_enrollment_pricing(enrollment_id: str, item_type: str, item_id: st
             reasons.append("Phone number is not Indian")
         if not checks["timezone_india"]:
             reasons.append(f"Browser timezone is {browser_tz}, not India")
+        if is_blocklisted:
+            reasons.append("Email is on fraud blocklist")
         fraud_warning = f"Using {allowed_currency.upper()} pricing." if reasons else None
 
     # ─── GET PRICE FROM TIER OR ITEM ───
