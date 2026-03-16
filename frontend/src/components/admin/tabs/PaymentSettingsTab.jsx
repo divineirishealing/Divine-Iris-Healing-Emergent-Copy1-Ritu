@@ -90,6 +90,7 @@ const PaymentSettingsTab = () => {
           </label>
         </div>
         {disclaimerEnabled && (
+          <>
           <textarea
             data-testid="payment-disclaimer-input"
             value={disclaimer}
@@ -140,6 +141,7 @@ const PaymentSettingsTab = () => {
               {disclaimer || 'Preview text will appear here...'}
             </p>
           </div>
+          </>
         )}
       </div>
 
