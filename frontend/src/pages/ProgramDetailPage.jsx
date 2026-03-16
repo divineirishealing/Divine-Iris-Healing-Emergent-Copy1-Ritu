@@ -430,19 +430,16 @@ function ProgramDetailPage() {
       {testimonials.filter(t => t.image).length > 0 && (
         <section className="py-16" data-testid="testimonials-section"
           style={{ background: 'linear-gradient(180deg, #f5f4f8 0%, #eceaf1 40%, #f5f4f8 100%)' }}>
-          <style>{`
-            .tcard { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-            .tcard:hover { transform-origin: center center; }
-          `}</style>
           <h2 className="text-center mb-10" style={applyStyle(template.testimonial_title_style, { ...HEADING, color: heroAccent, fontStyle: 'italic', fontSize: '1.6rem' })}>Testimonials</h2>
-          {/* 5-card landscape carousel */}
+          {/* 5-card carousel — full graphic, center above, 20% overlap */}
           {(() => {
             const imgTestimonials = testimonials.filter(t => t.image);
             const total = imgTestimonials.length;
             if (total === 0) return null;
 
-            const CARD_W = 340;
-            const CARD_H = 250;
+            // Match 16:9 image ratio — full graphic, no cropping
+            const CARD_W = 400;
+            const CARD_H = 225;
             const OVERLAP = CARD_W * 0.2;
             const STEP = CARD_W - OVERLAP;
 
@@ -451,7 +448,7 @@ function ProgramDetailPage() {
             const dotEnd = Math.min(total, dotStart + MAX_DOTS);
 
             return (
-              <div className="relative mx-auto" style={{ maxWidth: '1500px', overflow: 'hidden' }}>
+              <div className="relative mx-auto px-4" style={{ maxWidth: '1600px' }}>
                 <div className="relative flex items-center justify-center" style={{ height: `${CARD_H + 80}px` }}>
                   {[-2, -1, 0, 1, 2].map(offset => {
                     if (total === 1 && offset !== 0) return null;
@@ -466,7 +463,7 @@ function ProgramDetailPage() {
 
                     return (
                       <div key={`${offset}-${idx}`}
-                        className="absolute tcard cursor-pointer group"
+                        className="absolute cursor-pointer group"
                         data-testid={isCenter ? 'carousel-center-card' : `carousel-card-${offset}`}
                         onClick={() => { if (offset !== 0) { offset < 0 ? prevT() : nextT(); } else { setLightboxImg(imgSrc); } }}
                         style={{
@@ -474,19 +471,21 @@ function ProgramDetailPage() {
                           height: `${CARD_H}px`,
                           left: '50%',
                           top: '50%',
-                          transform: `translate(-50%, ${isCenter ? '-55%' : '-48%'}) translateX(${offset * STEP}px) scale(${isCenter ? 1.08 : 1})`,
+                          transform: `translate(-50%, ${isCenter ? '-56%' : '-47%'}) translateX(${offset * STEP}px) scale(${isCenter ? 1.08 : 1})`,
+                          transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
                           zIndex: isCenter ? 50 : isAdj ? 40 : 30,
                         }}>
                         <div className="w-full h-full overflow-hidden bg-white transition-transform duration-300 group-hover:scale-[1.04]"
                           style={{
-                            borderRadius: '16px',
+                            borderRadius: '14px',
                             boxShadow: isCenter
                               ? '0 15px 40px rgba(0,0,0,0.18), 0 5px 15px rgba(0,0,0,0.1)'
                               : '0 8px 25px rgba(0,0,0,0.08), 0 3px 10px rgba(0,0,0,0.04)',
                           }}>
                           <img src={imgSrc} alt={t.name || 'Testimonial'}
-                            className="w-full h-full object-cover object-top"
-                            onError={(e) => { e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="340" height="250"><rect fill="%23f3f4f6" width="340" height="250"/></svg>'; }} />
+                            className="w-full h-full"
+                            style={{ objectFit: 'contain', objectPosition: 'center' }}
+                            onError={(e) => { e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="225"><rect fill="%23f3f4f6" width="400" height="225"/></svg>'; }} />
                         </div>
                       </div>
                     );
