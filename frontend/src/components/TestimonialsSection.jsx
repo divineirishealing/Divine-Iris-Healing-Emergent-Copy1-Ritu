@@ -76,54 +76,16 @@ const TestimonialsSection = ({ sectionConfig, inline }) => {
         </div>
       )}
 
-      {/* Carousel / 5-Card Layout */}
-      {activeTab === 'graphic' && graphicTestimonials.length > 0 ? (
+      {/* 5-Card Carousel for both tabs */}
+      {activeTab === 'graphic' && graphicTestimonials.length > 0 && (
         <div style={{ background: 'linear-gradient(180deg, #f5f4f8 0%, #eceaf1 40%, #f5f4f8 100%)', borderRadius: '16px', padding: '24px 0' }}>
           <TestimonialCarousel5Card testimonials={graphicTestimonials} onClickImage={(src) => setSelectedImage(src)} />
         </div>
-      ) : (
-      <div className="relative">
-        {!inline && displayList.length > 3 && (
-          <button onClick={() => scroll(-1)} data-testid="testimonial-prev"
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white shadow-lg rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors -ml-5">
-            <ChevronLeft size={20} />
-          </button>
-        )}
-        <div ref={scrollRef}
-          className={`flex gap-4 overflow-x-auto scroll-smooth pb-4 ${inline ? '' : 'px-2'}`}
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-          {displayList.map((testimonial) => (
-            <div key={testimonial.id} data-testid={`testimonial-card-${testimonial.id}`}
-              className={`flex-shrink-0 ${cardWidth} relative group cursor-pointer overflow-hidden rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300`}
-              onClick={() => {
-                if (testimonial.type === 'video') setSelectedVideo(testimonial.videoId);
-                else if (testimonial.type === 'graphic') setSelectedImage(getThumbnail(testimonial));
-              }}>
-              <img src={getThumbnail(testimonial)} alt={testimonial.name || 'Testimonial'}
-                className={`w-full ${cardHeight} object-cover transition-transform duration-500 group-hover:scale-105`}
-                onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=300&fit=crop'; }} />
-              {testimonial.type === 'video' && (
-                <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-all duration-300 flex items-center justify-center">
-                  <div className="w-12 h-12 bg-[#D4AF37] rounded-full flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300 shadow-xl">
-                    <Play size={18} className="text-white ml-0.5" fill="white" />
-                  </div>
-                </div>
-              )}
-              {testimonial.name && (
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3">
-                  <p className="text-white text-xs font-medium">{testimonial.name}</p>
-                </div>
-              )}
-            </div>
-          ))}
+      )}
+      {activeTab === 'video' && videoTestimonials.length > 0 && (
+        <div style={{ background: 'linear-gradient(180deg, #f5f4f8 0%, #eceaf1 40%, #f5f4f8 100%)', borderRadius: '16px', padding: '24px 0' }}>
+          <TestimonialCarousel5Card testimonials={videoTestimonials} onClickVideo={(id) => setSelectedVideo(id)} />
         </div>
-        {!inline && displayList.length > 3 && (
-          <button onClick={() => scroll(1)} data-testid="testimonial-next"
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white shadow-lg rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors -mr-5">
-            <ChevronRight size={20} />
-          </button>
-        )}
-      </div>
       )}
 
       {/* Video Modal */}

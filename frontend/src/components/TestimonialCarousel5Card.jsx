@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { Play } from 'lucide-react';
 import { resolveImageUrl } from '../lib/imageUtils';
 
-const TestimonialCarousel5Card = ({ testimonials = [], accentColor = '#D4AF37', onClickImage }) => {
+const TestimonialCarousel5Card = ({ testimonials = [], accentColor = '#D4AF37', onClickImage, onClickVideo }) => {
   const [current, setCurrent] = useState(0);
   const [hovered, setHovered] = useState(null);
-  const items = testimonials.filter(t => t.image);
+
+  // Filter to items with displayable content
+  const items = testimonials.filter(t => t.image || (t.type === 'video' && t.videoId));
   const total = items.length;
 
   // Auto-play
@@ -24,6 +27,21 @@ const TestimonialCarousel5Card = ({ testimonials = [], accentColor = '#D4AF37', 
   const dotStart = Math.max(0, Math.min(current - Math.floor(MAX_DOTS / 2), total - MAX_DOTS));
   const dotEnd = Math.min(total, dotStart + MAX_DOTS);
 
+  const getImgSrc = (t) => {
+    if (t.type === 'video' && t.videoId) {
+      return t.thumbnail || `https://img.youtube.com/vi/${t.videoId}/hqdefault.jpg`;
+    }
+    return resolveImageUrl(t.image);
+  };
+
+  const handleClick = (t) => {
+    if (t.type === 'video' && t.videoId && onClickVideo) {
+      onClickVideo(t.videoId);
+    } else if (t.image && onClickImage) {
+      onClickImage(resolveImageUrl(t.image));
+    }
+  };
+
   return (
     <div className="relative mx-auto px-6" style={{ maxWidth: '1500px' }}>
       <div className="relative flex items-center justify-center" style={{ height: `${CARD_H + 60}px` }}>
@@ -34,16 +52,17 @@ const TestimonialCarousel5Card = ({ testimonials = [], accentColor = '#D4AF37', 
           const idx = ((current + offset) % total + total) % total;
           const t = items[idx];
           if (!t) return null;
-          const imgSrc = resolveImageUrl(t.image);
+          const imgSrc = getImgSrc(t);
           const isCenter = offset === 0;
           const isAdj = Math.abs(offset) === 1;
           const isHov = hovered === offset;
+          const isVideo = t.type === 'video';
 
           return (
             <div key={`${offset}-${idx}`}
               className="absolute cursor-pointer"
               data-testid={isCenter ? 'carousel-center-card' : `carousel-card-${offset}`}
-              onClick={() => onClickImage ? onClickImage(imgSrc) : null}
+              onClick={() => handleClick(t)}
               onMouseEnter={() => setHovered(offset)}
               onMouseLeave={() => setHovered(null)}
               style={{
@@ -55,7 +74,7 @@ const TestimonialCarousel5Card = ({ testimonials = [], accentColor = '#D4AF37', 
                 transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                 zIndex: isCenter ? 50 : isAdj ? 40 : 30,
               }}>
-              <div className="w-full h-full overflow-hidden bg-white"
+              <div className="w-full h-full overflow-hidden bg-white relative"
                 style={{
                   borderRadius: '14px',
                   boxShadow: isHov
@@ -66,8 +85,15 @@ const TestimonialCarousel5Card = ({ testimonials = [], accentColor = '#D4AF37', 
                 }}>
                 <img src={imgSrc} alt={t.name || 'Testimonial'}
                   className="w-full h-full"
-                  style={{ objectFit: 'contain', objectPosition: 'center' }}
+                  style={{ objectFit: isVideo ? 'cover' : 'contain', objectPosition: 'center' }}
                   onError={(e) => { e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="340" height="191"><rect fill="%23f3f4f6" width="340" height="191"/></svg>'; }} />
+                {isVideo && (
+                  <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                    <div className="w-12 h-12 bg-[#D4AF37] rounded-full flex items-center justify-center shadow-xl">
+                      <Play size={18} className="text-white ml-0.5" fill="white" />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           );

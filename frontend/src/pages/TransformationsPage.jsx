@@ -230,53 +230,39 @@ function TransformationsPage() {
         </section>
       )}
 
-      {/* Graphic Testimonials — 5-card carousel */}
-      {(activeType === 'all' || activeType === 'graphic') && graphicTestimonials.length > 0 && (
-        <section data-testid="graphic-testimonials" className="py-10"
-          style={{ background: 'linear-gradient(180deg, #f5f4f8 0%, #eceaf1 40%, #f5f4f8 100%)' }}>
-          {activeType === 'all' && (
-            <h2 className="text-center mb-8" style={{ ...HEADING, fontSize: 'clamp(1.2rem, 2.5vw, 1.6rem)', color: '#4c1d95', fontStyle: 'italic' }}>
-              Graphic Testimonials
-            </h2>
-          )}
-          <TestimonialCarousel5Card testimonials={graphicTestimonials} onClickImage={(src) => setSelectedImage(src)} />
-        </section>
-      )}
-
-      {/* Video Testimonials */}
-      {(activeType === 'all' || activeType === 'video') && videoTestimonials.length > 0 && (
-        <section data-testid="video-testimonials" className="py-10" style={{ background: 'linear-gradient(180deg, #1a1a2e 0%, #0f0f1a 100%)' }}>
+      {/* ALL Testimonials — 3-column grid (graphic + video mixed) */}
+      {(graphicTestimonials.length > 0 || videoTestimonials.length > 0) && (
+        <section data-testid="all-testimonials-grid" className="py-10">
           <div className="container mx-auto px-4">
-            {activeType === 'all' && (
-              <h2 className="text-center mb-8 text-white" style={{ ...HEADING, fontSize: 'clamp(1.2rem, 2.5vw, 1.6rem)', fontStyle: 'italic' }}>
-                Video Testimonials
-              </h2>
-            )}
             <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {videoTestimonials.map(t => (
-                <div
-                  key={t.id}
-                  data-testid={`video-card-${t.id}`}
-                  className="relative group cursor-pointer overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300"
-                  onClick={() => setSelectedVideo(t.videoId)}
-                >
-                  <img
-                    src={t.thumbnail || `https://img.youtube.com/vi/${t.videoId}/maxresdefault.jpg`}
-                    alt={t.name || 'Video'}
-                    className="w-full h-52 object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-all duration-300 flex items-center justify-center">
-                    <div className="w-14 h-14 bg-[#D4AF37] rounded-full flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300 shadow-xl">
-                      <Play size={20} className="text-white ml-0.5" fill="white" />
-                    </div>
+              {[...graphicTestimonials, ...videoTestimonials].map(t => {
+                const isVideo = t.type === 'video';
+                const imgSrc = isVideo
+                  ? (t.thumbnail || `https://img.youtube.com/vi/${t.videoId}/hqdefault.jpg`)
+                  : resolveImageUrl(t.image);
+                return (
+                  <div key={t.id}
+                    data-testid={`testimonial-grid-${t.id}`}
+                    className="relative group cursor-pointer overflow-hidden rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 bg-white"
+                    onClick={() => {
+                      if (isVideo) setSelectedVideo(t.videoId);
+                      else setSelectedImage(resolveImageUrl(t.image));
+                    }}>
+                    <img src={imgSrc} alt={t.name || 'Testimonial'}
+                      className="w-full h-auto"
+                      style={{ objectFit: 'contain' }}
+                      loading="lazy"
+                      onError={(e) => { e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="225"><rect fill="%23f3f4f6" width="400" height="225"/></svg>'; }} />
+                    {isVideo && (
+                      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center">
+                        <div className="w-14 h-14 bg-[#D4AF37] rounded-full flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300 shadow-xl">
+                          <Play size={20} className="text-white ml-0.5" fill="white" />
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  {t.name && (
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
-                      <p className="text-white text-sm font-medium">{t.name}</p>
-                    </div>
-                  )}
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>
