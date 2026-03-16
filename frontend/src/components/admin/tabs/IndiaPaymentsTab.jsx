@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { IndianRupee, Check, X, Eye, Loader2, Clock, AlertCircle } from 'lucide-react';
+import { IndianRupee, Check, X, Eye, Loader2, Clock, AlertCircle, Link2, Copy } from 'lucide-react';
 import { Button } from '../../ui/button';
 import { useToast } from '../../../hooks/use-toast';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const BACKEND = process.env.REACT_APP_BACKEND_URL;
+const SITE_URL = BACKEND.replace('/api', '').replace('api/', '');
 
 const IndiaPaymentsTab = () => {
   const { toast } = useToast();
@@ -63,13 +64,24 @@ const IndiaPaymentsTab = () => {
             {proofs.filter(p => p.status === 'pending').length} pending
           </span>
         </div>
-        <div className="flex gap-1">
-          {['pending', 'approved', 'rejected', 'all'].map(f => (
-            <button key={f} onClick={() => setFilter(f)}
-              className={`text-[10px] px-3 py-1 rounded-full capitalize transition-colors ${filter === f ? 'bg-[#D4AF37] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
-              {f}
-            </button>
-          ))}
+        <div className="flex items-center gap-3">
+          <button onClick={() => {
+            const link = `${BACKEND}/manual-payment`;
+            navigator.clipboard.writeText(link);
+            toast({ title: 'Link copied!', description: link });
+          }}
+            className="flex items-center gap-1.5 text-[10px] px-3 py-1.5 rounded-full bg-purple-100 text-purple-700 hover:bg-purple-200 transition-colors"
+            data-testid="copy-manual-link">
+            <Link2 size={10} /> Copy Shareable Link
+          </button>
+          <div className="flex gap-1">
+            {['pending', 'approved', 'rejected', 'all'].map(f => (
+              <button key={f} onClick={() => setFilter(f)}
+                className={`text-[10px] px-3 py-1 rounded-full capitalize transition-colors ${filter === f ? 'bg-[#D4AF37] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+                {f}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
