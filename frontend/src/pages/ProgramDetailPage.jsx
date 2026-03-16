@@ -430,65 +430,85 @@ function ProgramDetailPage() {
       </section>
 
       {testimonials.filter(t => t.image).length > 0 && (
-        <section className="py-16 bg-white" data-testid="testimonials-section">
+        <section className="py-16 bg-gradient-to-b from-gray-50 to-white" data-testid="testimonials-section">
           <div className={CONTAINER}>
             <h2 className="text-center mb-12" style={applyStyle(template.testimonial_title_style, { ...HEADING, color: heroAccent, fontStyle: 'italic', fontSize: '1.6rem' })}>Testimonials</h2>
-            {/* 3D Rotating Carousel — image only */}
+            {/* 3D Carousel — overlapping cards, center zooms forward */}
             {(() => {
               const imgTestimonials = testimonials.filter(t => t.image);
               const total = imgTestimonials.length;
               if (total === 0) return null;
+              const offsets = [-3, -2, -1, 0, 1, 2, 3];
               return (
-                <div className="relative max-w-5xl mx-auto overflow-hidden" style={{ perspective: '1200px', minHeight: '540px' }}>
-                  <div className="flex items-center justify-center" style={{ height: '500px' }}>
-                    {[-2, -1, 0, 1, 2].map(offset => {
+                <div className="relative mx-auto" style={{ perspective: '1200px', maxWidth: '1100px' }}>
+                  <div className="relative flex items-center justify-center" style={{ height: '560px' }}>
+                    {offsets.map(offset => {
                       if (total === 1 && offset !== 0) return null;
-                      if (total < 3 && Math.abs(offset) === 2) return null;
-                      if (total < 5 && Math.abs(offset) === 2) return null;
+                      if (total < 3 && Math.abs(offset) > 1) return null;
+                      if (total < 5 && Math.abs(offset) > 2) return null;
+                      if (total < 7 && Math.abs(offset) > 2) return null;
                       const idx = ((currentTestimonial + offset) % total + total) % total;
                       const t = imgTestimonials[idx];
                       if (!t) return null;
                       const isCenter = offset === 0;
                       const isAdj = Math.abs(offset) === 1;
+                      const isOuter = Math.abs(offset) === 2;
                       const imgSrc = resolveImageUrl(t.image);
+
+                      // Card dimensions — center is largest, all portrait
+                      const cardW = isCenter ? 320 : isAdj ? 280 : isOuter ? 250 : 230;
+                      const cardH = isCenter ? 500 : isAdj ? 460 : isOuter ? 430 : 410;
+
+                      // Position — tight spacing so cards overlap
+                      const tx = isCenter ? 0 : isAdj ? offset * 170 : isOuter ? offset * 310 : offset * 420;
+                      const tz = isCenter ? 120 : isAdj ? 20 : isOuter ? -60 : -120;
+                      const ry = isCenter ? 0 : isAdj ? offset * -12 : isOuter ? offset * -18 : offset * -22;
+                      const z = isCenter ? 50 : isAdj ? 40 : isOuter ? 30 : 20;
+                      const op = isCenter ? 1 : isAdj ? 0.92 : isOuter ? 0.7 : 0.45;
+
                       return (
                         <div key={`${offset}-${idx}`}
                           className="absolute cursor-pointer"
+                          data-testid={isCenter ? 'carousel-center-card' : `carousel-card-${offset}`}
                           onClick={() => { if (offset < 0) prevT(); else if (offset > 0) nextT(); else setLightboxImg(imgSrc); }}
                           style={{
-                            width: isCenter ? '300px' : isAdj ? '250px' : '220px',
-                            height: isCenter ? '440px' : isAdj ? '390px' : '360px',
+                            width: `${cardW}px`,
+                            height: `${cardH}px`,
                             left: '50%',
                             top: '50%',
                             transformStyle: 'preserve-3d',
-                            transform: `translate(-50%, -50%) translateX(${isCenter ? 0 : isAdj ? offset * 220 : offset * 380}px) translateZ(${isCenter ? 80 : isAdj ? -20 : -80}px) rotateY(${isCenter ? 0 : isAdj ? offset * -20 : offset * -35}deg)`,
-                            transition: 'all 0.6s cubic-bezier(0.25, 0.1, 0.25, 1)',
-                            zIndex: isCenter ? 30 : isAdj ? 20 : 10,
-                            opacity: isCenter ? 1 : isAdj ? 0.8 : 0.45,
-                            filter: isCenter ? 'none' : isAdj ? 'brightness(0.92)' : 'brightness(0.8)',
+                            transform: `translate(-50%, -50%) translateX(${tx}px) translateZ(${tz}px) rotateY(${ry}deg)`,
+                            transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                            zIndex: z,
+                            opacity: op,
                           }}>
-                          <img src={imgSrc} alt={t.name || 'Testimonial'}
-                            className="w-full h-full object-cover rounded-xl"
-                            style={{ boxShadow: isCenter ? '0 25px 60px rgba(0,0,0,0.25)' : '0 10px 30px rgba(0,0,0,0.12)' }}
-                            onError={(e) => { e.target.style.display = 'none'; }} />
+                          <div className="w-full h-full rounded-2xl overflow-hidden"
+                            style={{
+                              boxShadow: isCenter
+                                ? '0 30px 60px rgba(0,0,0,0.3), 0 10px 20px rgba(0,0,0,0.15)'
+                                : isAdj ? '0 15px 40px rgba(0,0,0,0.15)' : '0 8px 25px rgba(0,0,0,0.1)',
+                              border: '1px solid rgba(255,255,255,0.6)',
+                            }}>
+                            <img src={imgSrc} alt={t.name || 'Testimonial'}
+                              className="w-full h-full object-cover"
+                              onError={(e) => { e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400"><rect fill="%23f3f4f6" width="300" height="400"/></svg>'; }} />
+                          </div>
                         </div>
                       );
                     })}
                   </div>
-                  {/* Navigation Arrows */}
-                  <button onClick={prevT} data-testid="prev-testimonial"
-                    className="absolute left-4 top-1/2 -translate-y-1/2 z-40 w-10 h-10 rounded-full bg-white/90 shadow-lg hover:shadow-xl flex items-center justify-center transition-all border border-gray-100">
-                    <ChevronLeft size={18} className="text-gray-500" />
-                  </button>
-                  <button onClick={nextT} data-testid="next-testimonial"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 z-40 w-10 h-10 rounded-full bg-white/90 shadow-lg hover:shadow-xl flex items-center justify-center transition-all border border-gray-100">
-                    <ChevronRight size={18} className="text-gray-500" />
-                  </button>
-                  {/* Counter instead of dots for many items */}
-                  <div className="flex justify-center items-center gap-3 mt-6">
-                    <span className="text-sm text-gray-500" style={{ fontFamily: "'Lato', sans-serif" }}>
-                      {currentTestimonial + 1} / {total}
-                    </span>
+                  {/* Dot Indicators */}
+                  <div className="flex justify-center items-center gap-2.5 mt-4">
+                    {imgTestimonials.map((_, i) => (
+                      <button key={i} onClick={() => setCurrentTestimonial(i)} data-testid={`carousel-dot-${i}`}
+                        className="rounded-full transition-all duration-300"
+                        style={{
+                          width: i === currentTestimonial ? '14px' : '10px',
+                          height: i === currentTestimonial ? '14px' : '10px',
+                          background: i === currentTestimonial ? heroAccent : '#d1d5db',
+                          opacity: i === currentTestimonial ? 1 : 0.6,
+                        }} />
+                    ))}
                   </div>
                 </div>
               );
