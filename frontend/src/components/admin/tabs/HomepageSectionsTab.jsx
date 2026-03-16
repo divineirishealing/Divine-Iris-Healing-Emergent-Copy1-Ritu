@@ -52,6 +52,7 @@ const StyleCell = ({ style = {}, onStyleChange, label }) => {
 const DEFAULT_SECTIONS = [
   { id: 'hero', title: 'Divine Iris Healing', subtitle: 'ETERNAL HAPPINESS', component: 'HeroSection', removable: false },
   { id: 'about', title: 'Meet the Healer', subtitle: 'Dimple Ranawat', component: 'AboutSection', removable: false },
+  { id: 'text_testimonials', title: 'Testimonial Quotes', subtitle: '', component: 'TextTestimonialsStrip', removable: false },
   { id: 'upcoming', title: 'Upcoming Programs', subtitle: '', component: 'UpcomingProgramsSection', removable: false },
   { id: 'sponsor', title: 'Shine a Light in a Life', subtitle: 'Healing flows when we support each other.', component: 'SponsorSection', removable: false },
   { id: 'programs', title: 'Flagship Programs', subtitle: 'Our signature healing journeys', component: 'ProgramsSection', removable: false },
@@ -60,9 +61,13 @@ const DEFAULT_SECTIONS = [
   { id: 'testimonials', title: 'Transformations', subtitle: '', component: 'TestimonialsSection', removable: false },
   { id: 'newsletter', title: 'Join Our Community', subtitle: '', component: 'NewsletterSection', removable: false },
 ];
+const DEFAULTS_BY_ID = Object.fromEntries(DEFAULT_SECTIONS.map(s => [s.id, s]));
 
 const HomepageSectionsTab = ({ settings, onChange }) => {
-  const sections = settings.homepage_sections || DEFAULT_SECTIONS.map(s => ({ ...s, visible: true, title_style: {}, subtitle_style: {} }));
+  const sections = (settings.homepage_sections || DEFAULT_SECTIONS).map(s => {
+    const def = DEFAULTS_BY_ID[s.id] || {};
+    return { visible: true, title_style: {}, subtitle_style: {}, removable: s.component === 'custom', ...def, ...s, title: s.title || def.title || '', subtitle: s.subtitle || def.subtitle || '' };
+  });
 
   const update = (newSections) => {
     onChange({ ...settings, homepage_sections: newSections });
