@@ -440,6 +440,13 @@ const UpcomingProgramsSection = ({ sectionConfig, inline }) => {
 
   if (programs.length === 0) return null;
 
+  const statusOrder = { open: 0, coming_soon: 1, closed: 2 };
+  const sorted = [...programs].sort((a, b) => {
+    const sa = statusOrder[a.enrollment_status || (a.enrollment_open !== false ? 'open' : 'closed')] ?? 1;
+    const sb = statusOrder[b.enrollment_status || (b.enrollment_open !== false ? 'open' : 'closed')] ?? 1;
+    return sa - sb;
+  });
+
   const applyTitleStyle = (styleObj, defaults) => {
     if (!styleObj) return defaults;
     return { ...defaults, ...(styleObj.font_family && { fontFamily: styleObj.font_family }), ...(styleObj.font_size && !inline && { fontSize: styleObj.font_size }), ...(styleObj.font_color && { color: styleObj.font_color }), ...(styleObj.font_weight && { fontWeight: styleObj.font_weight }), ...(styleObj.font_style && { fontStyle: styleObj.font_style }) };
@@ -463,7 +470,7 @@ const UpcomingProgramsSection = ({ sectionConfig, inline }) => {
       </div>
       {/* Cards row — unified 3-column grid, all cards same width */}
       <div className={inline ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" : "grid sm:grid-cols-2 lg:grid-cols-3 gap-8"}>
-        {programs.map(program => <UpcomingCard key={program.id} program={program} />)}
+        {sorted.map(program => <UpcomingCard key={program.id} program={program} />)}
         {!inline && <SponsorCard sponsorData={sponsorData} />}
       </div>
     </div>
