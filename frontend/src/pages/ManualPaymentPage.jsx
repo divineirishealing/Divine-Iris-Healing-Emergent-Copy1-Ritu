@@ -44,15 +44,27 @@ const ManualPaymentPage = () => {
 
   // New dropdown fields
   const [programType, setProgramType] = useState('');
+  const [selectedItem, setSelectedItem] = useState('');
   const [isEmi, setIsEmi] = useState(false);
   const [emiMonths, setEmiMonths] = useState('');
   const [emiMonthsCovered, setEmiMonthsCovered] = useState('');
+  const [payerEmail, setPayerEmail] = useState('');
+  const [payerPhone, setPayerPhone] = useState('');
+  const [phoneCode, setPhoneCode] = useState('+91');
+  const [sessions, setSessions] = useState([]);
+  const [programs, setPrograms] = useState([]);
 
   useEffect(() => {
     const load = async () => {
       try {
-        const settingsRes = await axios.get(`${API}/settings`);
+        const [settingsRes, sessionsRes, programsRes] = await Promise.all([
+          axios.get(`${API}/settings`),
+          axios.get(`${API}/sessions?visible_only=true`),
+          axios.get(`${API}/programs?visible_only=true`),
+        ]);
         setSettings(settingsRes.data);
+        setSessions(sessionsRes.data || []);
+        setPrograms(programsRes.data || []);
 
         if (enrollmentId) {
           try {
@@ -60,6 +72,8 @@ const ManualPaymentPage = () => {
             const e = enrollRes.data;
             setEnrollment(e);
             setPayerName(e.booker_name || '');
+            setPayerEmail(e.booker_email || '');
+            if (e.phone) setPayerPhone(e.phone.replace(/^\+\d+/, ''));
 
             const ep = e.item_type === 'program' ? 'programs' : 'sessions';
             try {
@@ -99,6 +113,8 @@ const ManualPaymentPage = () => {
       formData.append('screenshot', screenshot);
       formData.append('enrollment_id', enrollmentId || 'MANUAL');
       formData.append('payer_name', payerName);
+      formData.append('payer_email', payerEmail);
+      formData.append('payer_phone', `${phoneCode}${payerPhone}`);
       formData.append('payment_date', paymentDate);
       formData.append('bank_name', bankName || currentBank.label || currentBank.bank_name || '');
       formData.append('transaction_id', transactionId);
@@ -107,6 +123,7 @@ const ManualPaymentPage = () => {
       formData.append('state', state);
       formData.append('payment_method', paymentMethod);
       formData.append('program_type', programType);
+      formData.append('selected_item', selectedItem);
       formData.append('is_emi', isEmi ? 'true' : 'false');
       if (isEmi) {
         formData.append('emi_total_months', emiMonths);
@@ -233,28 +250,96 @@ const ManualPaymentPage = () => {
                   </div>
                 )}
 
-                {/* Program Type & EMI */}
+                {/* Email & Phone */}
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                  <div>
+                    <label className="text-[10px] font-semibold text-gray-700 block mb-1">Email *</label>
+                    <Input type="email" value={payerEmail} onChange={e => setPayerEmail(e.target.value)}
+                      placeholder="your@email.com" className="text-xs h-9" autoComplete="email" data-testid="manual-email" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-semibold text-gray-700 block mb-1">Phone *</label>
+                    <div className="flex gap-1">
+                      <select value={phoneCode} onChange={e => setPhoneCode(e.target.value)}
+                        className="border rounded-lg text-xs h-9 px-1.5 w-20 text-gray-700" data-testid="manual-phone-code">
+                        <option value="+91">+91</option>
+                        <option value="+971">+971</option>
+                        <option value="+1">+1</option>
+                        <option value="+44">+44</option>
+                        <option value="+966">+966</option>
+                        <option value="+974">+974</option>
+                        <option value="+965">+965</option>
+                        <option value="+968">+968</option>
+                        <option value="+973">+973</option>
+                        <option value="+61">+61</option>
+                        <option value="+65">+65</option>
+                      </select>
+                      <Input type="tel" value={payerPhone} onChange={e => setPayerPhone(e.target.value.replace(/\D/g, ''))}
+                        placeholder="Phone number" className="text-xs h-9 flex-1" autoComplete="tel-national" data-testid="manual-phone" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Program Type & Item Selection */}
                 <div className="space-y-3 mb-4">
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="text-[10px] font-semibold text-gray-700 block mb-1">Program Type *</label>
-                      <select value={programType} onChange={e => setProgramType(e.target.value)}
+                      <select value={programType} onChange={e => { setProgramType(e.target.value); setSelectedItem(''); }}
                         className="w-full border rounded-lg text-xs h-9 px-3 text-gray-700 focus:ring-1 focus:ring-[#D4AF37]"
                         data-testid="manual-program-type">
                         <option value="">Select type</option>
                         {PROGRAM_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
                       </select>
                     </div>
-                    <div>
-                      <label className="text-[10px] font-semibold text-gray-700 block mb-1">Is this EMI payment?</label>
-                      <select value={isEmi ? 'yes' : 'no'} onChange={e => setIsEmi(e.target.value === 'yes')}
-                        className="w-full border rounded-lg text-xs h-9 px-3 text-gray-700 focus:ring-1 focus:ring-[#D4AF37]"
-                        data-testid="manual-is-emi">
-                        <option value="no">No — Full Payment</option>
-                        <option value="yes">Yes — EMI / Installment</option>
-                      </select>
-                    </div>
+                    {programType === 'Personal Session' && sessions.length > 0 && (
+                      <div>
+                        <label className="text-[10px] font-semibold text-gray-700 block mb-1">Select Session *</label>
+                        <select value={selectedItem} onChange={e => setSelectedItem(e.target.value)}
+                          className="w-full border rounded-lg text-xs h-9 px-3 text-gray-700 focus:ring-1 focus:ring-[#D4AF37]"
+                          data-testid="manual-select-session">
+                          <option value="">Choose a session</option>
+                          {sessions.map(s => <option key={s.id} value={s.title}>{s.title}</option>)}
+                        </select>
+                      </div>
+                    )}
+                    {programType === 'Flagship Program' && programs.length > 0 && (
+                      <div>
+                        <label className="text-[10px] font-semibold text-gray-700 block mb-1">Select Program *</label>
+                        <select value={selectedItem} onChange={e => setSelectedItem(e.target.value)}
+                          className="w-full border rounded-lg text-xs h-9 px-3 text-gray-700 focus:ring-1 focus:ring-[#D4AF37]"
+                          data-testid="manual-select-program">
+                          <option value="">Choose a program</option>
+                          {programs.map(p => <option key={p.id} value={p.title}>{p.title}</option>)}
+                        </select>
+                      </div>
+                    )}
+                    {programType === 'Home Coming Circle' && (
+                      <div>
+                        <label className="text-[10px] font-semibold text-gray-700 block mb-1">Is this EMI payment?</label>
+                        <select value={isEmi ? 'yes' : 'no'} onChange={e => setIsEmi(e.target.value === 'yes')}
+                          className="w-full border rounded-lg text-xs h-9 px-3 text-gray-700 focus:ring-1 focus:ring-[#D4AF37]"
+                          data-testid="manual-is-emi">
+                          <option value="no">No — Full Payment</option>
+                          <option value="yes">Yes — EMI / Installment</option>
+                        </select>
+                      </div>
+                    )}
                   </div>
+
+                  {(programType === 'Personal Session' || programType === 'Flagship Program') && (
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-[10px] font-semibold text-gray-700 block mb-1">Is this EMI payment?</label>
+                        <select value={isEmi ? 'yes' : 'no'} onChange={e => setIsEmi(e.target.value === 'yes')}
+                          className="w-full border rounded-lg text-xs h-9 px-3 text-gray-700 focus:ring-1 focus:ring-[#D4AF37]"
+                          data-testid="manual-is-emi-2">
+                          <option value="no">No — Full Payment</option>
+                          <option value="yes">Yes — EMI / Installment</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
 
                   {isEmi && (
                     <div className="grid grid-cols-2 gap-3 bg-purple-50/50 border border-purple-100 rounded-lg p-3">
