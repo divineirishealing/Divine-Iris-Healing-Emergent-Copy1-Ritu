@@ -43,7 +43,7 @@ const REFERRAL_SOURCES = ["Instagram", "Facebook", "YouTube", "LinkedIn", "Spoti
 
 const emptyParticipant = () => ({
   name: '', relationship: '', age: '', gender: '',
-  country: 'AE', attendance_mode: 'online', notify: true, email: '', phone: '', whatsapp: '',
+  country: '', attendance_mode: 'online', notify: true, email: '', phone: '', whatsapp: '',
   phone_code: '+971', wa_code: '+971',
   is_first_time: true, referral_source: '',
 });
@@ -103,6 +103,7 @@ const ParticipantRow = ({ index, data, onChange, onRemove, canRemove, showReferr
             const c = COUNTRIES.find(c => c.code === code);
             onChange({ ...data, country: code, phone_code: c ? c.phone : data.phone_code, wa_code: c ? c.phone : data.wa_code });
           }} className="w-full border rounded-md px-2 py-1.5 text-xs bg-white h-8">
+            <option value="">Select country</option>
             {COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
           </select></div>
       </div>
@@ -249,7 +250,7 @@ function EnrollmentPage() {
   const [promoLoading, setPromoLoading] = useState(false);
   const [bookerName, setBookerName] = useState('');
   const [bookerEmail, setBookerEmail] = useState('');
-  const [bookerCountry, setBookerCountry] = useState(detectedCountry || 'AE');
+  const [bookerCountry, setBookerCountry] = useState('');
   const [phone, setPhone] = useState('');
   const [countryCode, setCountryCode] = useState('+971');
   const [otpSent, setOtpSent] = useState(false);
@@ -260,18 +261,32 @@ function EnrollmentPage() {
   const [paymentSettings, setPaymentSettings] = useState({ disclaimer: '', disclaimer_enabled: true, india_links: [], india_exly_link: '', india_bank_details: {}, india_enabled: false, manual_form_enabled: true });
   const [sessionTestimonials, setSessionTestimonials] = useState([]);
 
-  // Country → currency mapping for real-time pricing updates
-  const CURRENCY_MAP = {
-    AE: { currency: 'aed', symbol: 'AED' }, SA: { currency: 'aed', symbol: 'AED' },
-    QA: { currency: 'aed', symbol: 'AED' }, KW: { currency: 'aed', symbol: 'AED' },
-    OM: { currency: 'aed', symbol: 'AED' }, BH: { currency: 'aed', symbol: 'AED' },
-    IN: { currency: 'inr', symbol: 'INR' },
-    US: { currency: 'usd', symbol: 'USD' }, GB: { currency: 'usd', symbol: 'USD' },
-    AU: { currency: 'usd', symbol: 'USD' }, NZ: { currency: 'usd', symbol: 'USD' },
-    CA: { currency: 'usd', symbol: 'USD' }, SG: { currency: 'usd', symbol: 'USD' },
-    DE: { currency: 'usd', symbol: 'USD' }, FR: { currency: 'usd', symbol: 'USD' },
+  // Country → currency mapping: India=INR, Gulf=AED, everyone else=USD
+  const AED_COUNTRIES = new Set(['AE', 'SA', 'QA', 'KW', 'OM', 'BH']);
+  const getCurrencyForCountry = (cc) => {
+    if (cc === 'IN') return { currency: 'inr', symbol: 'INR' };
+    if (AED_COUNTRIES.has(cc)) return { currency: 'aed', symbol: 'AED' };
+    if (cc) return { currency: 'usd', symbol: 'USD' };
+    return null;
   };
-  const activeCurrencyInfo = CURRENCY_MAP[bookerCountry] || { currency: detectedCurrency, symbol: detectedSymbol };
+
+  // Check ALL countries: booker + all participants. If any single one is non-India, force non-INR
+  const allCountries = [bookerCountry, ...participants.map(p => p.country)].filter(Boolean);
+  const hasNonIndia = allCountries.some(c => c !== 'IN');
+  const hasIndia = allCountries.some(c => c === 'IN');
+
+  let activeCurrencyInfo;
+  if (allCountries.length === 0) {
+    // No country selected yet — use detected currency
+    activeCurrencyInfo = { currency: detectedCurrency || 'usd', symbol: detectedSymbol || 'USD' };
+  } else if (hasNonIndia) {
+    // Any non-India country → use that country's currency (never INR)
+    const nonIndiaCountry = allCountries.find(c => c !== 'IN') || allCountries[0];
+    activeCurrencyInfo = getCurrencyForCountry(nonIndiaCountry);
+  } else {
+    // All India
+    activeCurrencyInfo = { currency: 'inr', symbol: 'INR' };
+  }
   const currency = activeCurrencyInfo.currency;
   const symbol = activeCurrencyInfo.symbol;
 
@@ -681,6 +696,7 @@ function EnrollmentPage() {
                           const c = COUNTRIES.find(c => c.code === e.target.value);
                           if (c) setCountryCode(c.phone);
                         }} className="w-full border rounded-md px-2 py-2 text-sm bg-white">
+                          <option value="">Select country</option>
                           {COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}</select></div>
                       <div><label className="text-[9px] text-gray-500">Phone</label>
                         <div className="flex gap-1">
