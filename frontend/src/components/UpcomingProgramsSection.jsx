@@ -6,8 +6,7 @@ import { useCurrency } from '../context/CurrencyContext';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../hooks/use-toast';
 import { Monitor, Calendar, Clock, AlertTriangle, Wifi, ShoppingCart, Check, Bell, Heart } from 'lucide-react';
-import { safeArray, safeString, safeObject, normalizeListResponse } from '../../../lib/safe';
-// Map common timezone abbreviations to UTC offset in hours
+import { safeArray } from '../lib/safe';// Map common timezone abbreviations to UTC offset in hours
 const TZ_OFFSETS = {
   'GST': 4, 'GST Dubai': 4, 'UAE': 4, 'Gulf': 4,
   'IST': 5.5, 'India': 5.5,
