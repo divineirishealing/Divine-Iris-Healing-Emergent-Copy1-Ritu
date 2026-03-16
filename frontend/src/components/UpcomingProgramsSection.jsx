@@ -465,22 +465,22 @@ const UpcomingProgramsSection = ({ sectionConfig, inline }) => {
           </div>
         </>
       ) : (
-        /* Two equal columns: Upcoming Programs (left) + Sponsor (right) */
-        <div className="grid lg:grid-cols-2 gap-10">
-          {/* LEFT: Upcoming Programs */}
-          <div className="flex flex-col">
+        /* Upcoming Programs (3/4) + Sponsor (1/4) */
+        <div className="grid lg:grid-cols-4 gap-8">
+          {/* LEFT: Upcoming Programs — 3 columns wide */}
+          <div className="lg:col-span-3 flex flex-col">
             <div className="text-center mb-10">
               <h2 className="text-3xl md:text-4xl text-gray-900" style={applyTitleStyle(sectionConfig?.title_style, {})}>{sectionConfig?.title || 'Upcoming Programs'}</h2>
               {(sectionConfig?.subtitle || (!programs.some(p => p.enable_in_person) && !sectionConfig)) && (
                 <p className="text-sm text-gray-900 mt-3" style={sectionConfig?.subtitle_style ? { ...(sectionConfig.subtitle_style.font_color && { color: sectionConfig.subtitle_style.font_color }), ...(sectionConfig.subtitle_style.font_size && { fontSize: sectionConfig.subtitle_style.font_size }), ...(sectionConfig.subtitle_style.font_family && { fontFamily: sectionConfig.subtitle_style.font_family }), ...(sectionConfig.subtitle_style.font_weight && { fontWeight: sectionConfig.subtitle_style.font_weight }) } : {}}>{sectionConfig?.subtitle}</p>
               )}
             </div>
-            <div className={`grid gap-6 ${sorted.length >= 2 ? 'sm:grid-cols-2' : 'grid-cols-1'}`}>
+            <div className={`grid gap-6 ${sorted.length >= 3 ? 'sm:grid-cols-2 lg:grid-cols-3' : sorted.length === 2 ? 'sm:grid-cols-2' : 'grid-cols-1 max-w-sm mx-auto'}`}>
               {sorted.map(program => <UpcomingCard key={program.id} program={program} />)}
             </div>
           </div>
-          {/* RIGHT: Sponsor A Life — always in its own column */}
-          <div className="flex flex-col">
+          {/* RIGHT: Sponsor A Life — 1 column wide */}
+          <div className="lg:col-span-1 flex flex-col">
             <div data-testid="sponsor-title-column" className="text-center mb-10">
               <h2 className="text-3xl md:text-4xl text-gray-900" style={applyTitleStyle(sponsorConfig?.title_style, {})}>{sponsorConfig?.title || 'Become a Sponsor'}</h2>
               {sponsorConfig?.subtitle && (
