@@ -5,6 +5,7 @@ import { Dialog, DialogContent } from './ui/dialog';
 import { resolveImageUrl } from '../lib/imageUtils';
 import { HEADING, CONTAINER, applySectionStyle } from '../lib/designTokens';
 import TestimonialCarousel5Card from './TestimonialCarousel5Card';
+import { safeArray } from '../lib/safe';// Map common timezone abbreviations to UTC offset in hours
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -31,8 +32,8 @@ const TestimonialsSection = ({ sectionConfig, inline }) => {
     }
   };
 
-  const videoTestimonials = testimonials.filter(t => t.type === 'video' && t.videoId);
-  const graphicTestimonials = testimonials.filter(t => t.type === 'graphic' && t.image);
+  const videoTestimonials = safeArray(testimonials).filter(t => t.type === 'video' && t.videoId);
+  const graphicTestimonials = safeArray(testimonials).filter(t => t.type === 'graphic' && t.image);
   const displayList = activeTab === 'video' ? videoTestimonials : graphicTestimonials;
 
   const scroll = (dir) => {
