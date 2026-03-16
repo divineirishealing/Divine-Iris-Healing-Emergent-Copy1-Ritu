@@ -449,14 +449,14 @@ const UpcomingProgramsSection = ({ sectionConfig, inline }) => {
     <div className={inline ? "" : "max-w-7xl mx-auto"}>
       {/* Title row — 3-column grid matching card grid */}
       <div className={inline ? "text-center mb-8" : "grid lg:grid-cols-3 gap-8 mb-10"}>
-        <div className={inline ? "" : "lg:col-span-2"}>
+        <div className={inline ? "" : "lg:col-span-2 text-center"}>
           <h2 className={inline ? "text-xl md:text-2xl text-gray-900" : "text-3xl md:text-4xl text-gray-900"} style={applyTitleStyle(sectionConfig?.title_style, {})}>{sectionConfig?.title || 'Upcoming Programs'}</h2>
           {!inline && (sectionConfig?.subtitle || (!programs.some(p => p.enable_in_person) && !sectionConfig)) && (
             <p className="text-xs text-gray-400 mt-3" style={sectionConfig?.subtitle_style ? { ...(sectionConfig.subtitle_style.font_color && { color: sectionConfig.subtitle_style.font_color }), ...(sectionConfig.subtitle_style.font_size && { fontSize: sectionConfig.subtitle_style.font_size }), ...(sectionConfig.subtitle_style.font_family && { fontFamily: sectionConfig.subtitle_style.font_family }) } : {}}>{sectionConfig?.subtitle || 'All sessions are conducted online via Zoom or through remote distance healing — no in-person sessions at this time.'}</p>
           )}
         </div>
         {!inline && (
-          <div data-testid="sponsor-title-column">
+          <div data-testid="sponsor-title-column" className="text-center">
             <h2 className="text-3xl md:text-4xl text-gray-900" style={applyTitleStyle(sponsorConfig?.title_style, {})}>{sponsorConfig?.title || 'Become a Sponsor'}</h2>
           </div>
         )}
