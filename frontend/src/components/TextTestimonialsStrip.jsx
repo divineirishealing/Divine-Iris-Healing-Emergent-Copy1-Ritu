@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { CONTAINER } from '../lib/designTokens';
+import { safeArray, safeString, safeObject, normalizeListResponse } from '../../../lib/safe';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -177,7 +178,7 @@ const TextTestimonialsStrip = ({ sectionConfig }) => {
           {/* Dots */}
           {quotes.length > 1 && (
             <div className="flex justify-center gap-2 mt-9" data-testid="testimonial-dots">
-              {quotes.map((_, i) => (
+              {safeArray(quotes).map((_, i) => (
                 <button
                   key={i}
                   onClick={() => { setFade(false); setTimeout(() => { setActive(i); setFade(true); }, 500); }}
