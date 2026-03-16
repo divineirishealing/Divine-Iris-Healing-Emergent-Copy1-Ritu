@@ -1,0 +1,87 @@
+{
+  "summary": "Iteration 66: Browser Timezone and Language Fraud Prevention - ALL TESTS PASSED (17/17). Tested: 1) POST /api/enrollment/{id}/checkout accepts browser_timezone and browser_languages fields, 2) Pricing logic includes timezone_india check in security.checks, 3) Asia/Kolkata and Asia/Calcutta recognized as Indian timezones, 4) Non-Indian timezone blocks INR pricing when combined with other checks, 5) Frontend handleCheckout and verifyOtp send browser_timezone and browser_languages.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iteration66_timezone_fraud.py",
+    "/app/test_reports/pytest/pytest_iteration66.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "enrollment.py lines 99-100: EnrollmentSubmit model correctly has browser_timezone: Optional[str] and browser_languages: Optional[list] fields",
+    "enrollment.py lines 365-366: timezone_is_india check correctly validates browser_tz in ('Asia/Kolkata', 'Asia/Calcutta', '') - empty string passes",
+    "enrollment.py line 373: timezone_india included in checks dict with other fraud prevention fields",
+    "enrollment.py lines 493-498: Checkout correctly stores browser_timezone and browser_languages in MongoDB enrollment document",
+    "enrollment.py lines 500-504: get_enrollment_pricing called with browser_timezone and browser_languages parameters",
+    "EnrollmentPage.jsx lines 517-519: verifyOtp sends browser_timezone (Intl.DateTimeFormat) and browser_languages (navigator.languages) for free enrollment",
+    "EnrollmentPage.jsx lines 539-541: handleCheckout sends browser_timezone and browser_languages in checkout payload"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iteration66_timezone_fraud.py"
+  ],
+  "success_rate": {
+    "backend": "100% (17/17 tests passed)",
+    "frontend": "100% (enrollment page loads, browser detection works)"
+  },
+  "test_credentials": {
+    "admin_url": "/admin",
+    "admin_username": "admin",
+    "admin_password": "divineadmin2024"
+  },
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Browser timezone fraud prevention is fully implemented. The GET /api/enrollment/{id}/pricing endpoint now returns security.checks with 5 fields: ip_is_india, claimed_india, no_vpn, phone_consistent, timezone_india. When browser_timezone is empty or 'Asia/Kolkata' or 'Asia/Calcutta', timezone_india=True. Non-Indian timezones like 'America/New_York' set timezone_india=False which blocks INR. Test environment IP is US-based so ip_is_india will always be False (expected).",
+  "features_tested": {
+    "enrollment_submit_model_fields": {
+      "browser_timezone_field": "PASS - Optional[str] field accepts timezone strings",
+      "browser_languages_field": "PASS - Optional[list] field accepts language arrays"
+    },
+    "pricing_timezone_check": {
+      "timezone_india_in_checks": "PASS - security.checks includes timezone_india boolean",
+      "all_5_checks_present": "PASS - ip_is_india, claimed_india, no_vpn, phone_consistent, timezone_india",
+      "inr_eligible_logic": "PASS - inr_eligible=True only when ALL checks pass"
+    },
+    "timezone_validation_logic": {
+      "asia_kolkata_recognized": "PASS - Asia/Kolkata timezone passes India check",
+      "asia_calcutta_recognized": "PASS - Asia/Calcutta timezone passes India check",
+      "empty_string_passes": "PASS - Empty timezone defaults to True (not penalized if not sent)",
+      "non_indian_timezone_blocks": "PASS - Non-Indian timezones (e.g., America/New_York) set timezone_india=False"
+    },
+    "mongodb_storage": {
+      "browser_fields_stored": "PASS - browser_timezone and browser_languages stored in enrollment document on checkout"
+    },
+    "frontend_integration": {
+      "handleCheckout_sends_timezone": "PASS - Uses Intl.DateTimeFormat().resolvedOptions().timeZone",
+      "handleCheckout_sends_languages": "PASS - Uses navigator.languages || [navigator.language]",
+      "verifyOtp_sends_browser_fields": "PASS - Free enrollment checkout also sends browser fields"
+    }
+  },
+  "tests_executed": [
+    {"id": 1, "name": "checkout_accepts_browser_timezone", "status": "PASS"},
+    {"id": 2, "name": "checkout_accepts_browser_languages", "status": "PASS"},
+    {"id": 3, "name": "pricing_returns_timezone_india_check", "status": "PASS"},
+    {"id": 4, "name": "pricing_inr_eligible_requires_all_checks", "status": "PASS"},
+    {"id": 5, "name": "indian_timezone_asia_kolkata", "status": "PASS"},
+    {"id": 6, "name": "code_review_indian_timezones", "status": "PASS"},
+    {"id": 7, "name": "code_review_timezone_blocks_inr", "status": "PASS"},
+    {"id": 8, "name": "get_enrollment_returns_browser_fields", "status": "PASS"},
+    {"id": 9, "name": "handleCheckout_sends_browser_timezone", "status": "PASS"},
+    {"id": 10, "name": "handleCheckout_sends_browser_languages", "status": "PASS"},
+    {"id": 11, "name": "verifyOtp_sends_browser_fields_for_free_enrollment", "status": "PASS"},
+    {"id": 12, "name": "handleCheckout_function_review", "status": "PASS"},
+    {"id": 13, "name": "all_five_checks_present", "status": "PASS"},
+    {"id": 14, "name": "fraud_warning_on_failed_checks", "status": "PASS"},
+    {"id": 15, "name": "enrollment_submit_model_has_fields", "status": "PASS"},
+    {"id": 16, "name": "checkout_stores_browser_fields", "status": "PASS"},
+    {"id": 17, "name": "get_enrollment_pricing_accepts_timezone", "status": "PASS"}
+  ],
+  "note": "Test environment IP is US-based (Kubernetes cluster), so ip_is_india will always be False and INR pricing will never be fully eligible from tests. This is expected behavior - the fraud prevention is working correctly by blocking INR for non-Indian IPs."
+}

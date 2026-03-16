@@ -96,6 +96,8 @@ class EnrollmentSubmit(BaseModel):
     promo_code: Optional[str] = None
     tier_index: Optional[int] = None
     cart_items: Optional[list] = None
+    browser_timezone: Optional[str] = None
+    browser_languages: Optional[list] = None
 
 
 # ─── HELPERS ───
@@ -331,7 +333,7 @@ async def verify_email_otp(enrollment_id: str, data: EmailOTPVerify):
 
 
 @router.get("/{enrollment_id}/pricing")
-async def get_enrollment_pricing(enrollment_id: str, item_type: str, item_id: str, tier_index: int = None, client_currency: str = None):
+async def get_enrollment_pricing(enrollment_id: str, item_type: str, item_id: str, tier_index: int = None, client_currency: str = None, browser_timezone: str = None, browser_languages: list = None):
     """Step 4: Get pricing with strict India-gating for INR prices.
     
     Supports duration tiers: if tier_index is provided, price comes from that tier.
@@ -358,11 +360,16 @@ async def get_enrollment_pricing(enrollment_id: str, item_type: str, item_id: st
     phone_is_indian = phone.startswith("+91") if phone else True
     phone_contradicts_india = bool(phone) and not phone.startswith("+91")
 
+    # Timezone check: India is always Asia/Kolkata (UTC+5:30)
+    browser_tz = browser_timezone or ""
+    timezone_is_india = browser_tz in ("Asia/Kolkata", "Asia/Calcutta", "")  # empty = not sent, pass
+
     checks = {
         "ip_is_india": ip_country == "IN",
         "claimed_india": claimed_country == "IN",
         "no_vpn": not vpn_blocked,
         "phone_consistent": not phone_contradicts_india,
+        "timezone_india": timezone_is_india,
     }
     all_india_checks_pass = all(checks.values())
 
@@ -390,6 +397,8 @@ async def get_enrollment_pricing(enrollment_id: str, item_type: str, item_id: st
             reasons.append("Country not set to India")
         if phone_contradicts_india:
             reasons.append("Phone number is not Indian")
+        if not checks["timezone_india"]:
+            reasons.append(f"Browser timezone is {browser_tz}, not India")
         fraud_warning = f"Using {allowed_currency.upper()} pricing." if reasons else None
 
     # ─── GET PRICE FROM TIER OR ITEM ───
@@ -480,7 +489,19 @@ async def enrollment_checkout(enrollment_id: str, data: EnrollmentSubmit, reques
         raise HTTPException(status_code=400, detail="Phone not verified")
 
     # Get pricing (server-side, not from client)
-    pricing_resp = await get_enrollment_pricing(enrollment_id, data.item_type, data.item_id, tier_index=data.tier_index, client_currency=data.currency)
+    # Store browser signals for fraud detection audit trail
+    if data.browser_timezone or data.browser_languages:
+        await db.enrollments.update_one({"id": enrollment_id}, {"$set": {
+            "browser_timezone": data.browser_timezone,
+            "browser_languages": data.browser_languages,
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }})
+
+    pricing_resp = await get_enrollment_pricing(
+        enrollment_id, data.item_type, data.item_id,
+        tier_index=data.tier_index, client_currency=data.currency,
+        browser_timezone=data.browser_timezone, browser_languages=data.browser_languages,
+    )
     total = pricing_resp["pricing"]["total"]
     currency = pricing_resp["pricing"]["currency"]
     participant_count = enrollment.get("participant_count", 1)

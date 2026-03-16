@@ -514,6 +514,8 @@ function EnrollmentPage() {
             enrollment_id: enrollmentId, item_type: type, item_id: id, currency,
             origin_url: window.location.origin, promo_code: promoResult?.code || null,
             tier_index: selectedTier,
+            browser_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            browser_languages: navigator.languages ? [...navigator.languages] : [navigator.language],
           });
           toast({ title: 'Registration complete!' });
           navigate(`/payment/success?session_id=${res.data.session_id}`);
@@ -535,6 +537,8 @@ function EnrollmentPage() {
         enrollment_id: enrollmentId, item_type: type, item_id: id, currency,
         origin_url: window.location.origin, promo_code: promoResult?.code || null,
         tier_index: selectedTier,
+        browser_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        browser_languages: navigator.languages ? [...navigator.languages] : [navigator.language],
       });
       if (res.data.url === '__FREE_SUCCESS__') {
         // Free enrollment — go directly to success page
