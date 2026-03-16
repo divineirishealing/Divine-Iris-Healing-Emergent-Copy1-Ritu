@@ -30,7 +30,8 @@ async def get_testimonials(
     if program_id:
         query["$or"] = [
             {"program_id": program_id},
-            {"program_tags": program_id}
+            {"program_tags": program_id},
+            {"program_id": {"$in": [None, ""]}},
         ]
     if session_id:
         query["session_tags"] = session_id

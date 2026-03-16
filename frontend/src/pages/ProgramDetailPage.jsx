@@ -103,8 +103,9 @@ function ProgramDetailPage() {
     setLoading(false);
   };
 
-  const nextT = () => setCurrentTestimonial(p => (p + 1) % Math.max(testimonials.length, 1));
-  const prevT = () => setCurrentTestimonial(p => (p - 1 + testimonials.length) % Math.max(testimonials.length, 1));
+  const imgTestimonialsCount = testimonials.filter(t => t.image).length;
+  const nextT = () => setCurrentTestimonial(p => (p + 1) % Math.max(imgTestimonialsCount, 1));
+  const prevT = () => setCurrentTestimonial(p => (p - 1 + imgTestimonialsCount) % Math.max(imgTestimonialsCount, 1));
 
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#1a1a1a]"><p className="text-gray-400 text-xs" style={BODY}>Loading...</p></div>;
   if (!program) return (
@@ -428,84 +429,70 @@ function ProgramDetailPage() {
         </div>
       </section>
 
-      {testimonials.length > 0 && (
+      {testimonials.filter(t => t.image).length > 0 && (
         <section className="py-16 bg-white" data-testid="testimonials-section">
           <div className={CONTAINER}>
             <h2 className="text-center mb-12" style={applyStyle(template.testimonial_title_style, { ...HEADING, color: heroAccent, fontStyle: 'italic', fontSize: '1.6rem' })}>Testimonials</h2>
-            {/* Carousel */}
-            <div className="relative max-w-5xl mx-auto overflow-hidden" style={{ minHeight: '620px' }}>
-              <div className="flex items-center justify-center" style={{ height: '600px' }}>
-                {[-2, -1, 0, 1, 2].map(offset => {
-                  const idx = ((currentTestimonial + offset) % testimonials.length + testimonials.length) % testimonials.length;
-                  const t = testimonials[idx];
-                  if (!t) return null;
-                  const isCenter = offset === 0;
-                  const isAdj = Math.abs(offset) === 1;
-                  const imgSrc = t.type === 'graphic' ? resolveImageUrl(t.image) : `https://img.youtube.com/vi/${t.videoId}/hqdefault.jpg`;
-                  const w = isCenter ? 340 : isAdj ? 280 : 240;
-                  const h = isCenter ? 560 : isAdj ? 480 : 420;
-                  const xOff = isCenter ? 0 : isAdj ? offset * 300 : offset * 520;
-                  return (
-                    <div key={`${offset}-${idx}`}
-                      className="absolute cursor-pointer"
-                      onClick={() => { if (offset === -1 || offset === -2) prevT(); else if (offset === 1 || offset === 2) nextT(); else setLightboxImg(imgSrc); }}
-                      style={{
-                        width: `${w}px`, height: `${h}px`,
-                        left: '50%',
-                        top: '50%',
-                        transform: `translate(calc(-50% + ${xOff}px), -50%)`,
-                        transition: 'all 0.6s cubic-bezier(0.25, 0.1, 0.25, 1)',
-                        zIndex: isCenter ? 30 : isAdj ? 20 : 10,
-                        opacity: isCenter ? 1 : isAdj ? 0.85 : 0.4,
-                      }}>
-                      <div className="w-full h-full rounded-3xl bg-white flex flex-col items-center overflow-hidden"
-                        style={{ boxShadow: isCenter ? '0 10px 50px rgba(0,0,0,0.12)' : '0 4px 20px rgba(0,0,0,0.06)', border: '1px solid #f0f0f0' }}>
-                        {/* Purple Stars */}
-                        <div className="flex justify-center pt-7 pb-3 gap-1">
-                          {[1,2,3,4,5].map(s => (
-                            <span key={s} style={{ color: s <= (t.rating || 5) ? '#7c3aed' : '#e5e7eb', fontSize: isCenter ? '22px' : '16px' }}>&#9733;</span>
-                          ))}
-                        </div>
-                        {/* Oval Image Frame */}
-                        <div className="flex justify-center py-2 flex-1 min-h-0">
-                          <div style={{
-                            width: isCenter ? '200px' : '150px',
-                            height: isCenter ? '260px' : '200px',
-                            borderRadius: '50%',
-                            overflow: 'hidden',
-                            border: '3px solid #f3edff',
-                            boxShadow: '0 4px 16px rgba(124,58,237,0.08)',
-                            flexShrink: 0,
+            {/* 3D Rotating Carousel — image only */}
+            {(() => {
+              const imgTestimonials = testimonials.filter(t => t.image);
+              const total = imgTestimonials.length;
+              if (total === 0) return null;
+              return (
+                <div className="relative max-w-5xl mx-auto overflow-hidden" style={{ perspective: '1200px', minHeight: '540px' }}>
+                  <div className="flex items-center justify-center" style={{ height: '500px' }}>
+                    {[-2, -1, 0, 1, 2].map(offset => {
+                      if (total === 1 && offset !== 0) return null;
+                      if (total < 3 && Math.abs(offset) === 2) return null;
+                      if (total < 5 && Math.abs(offset) === 2) return null;
+                      const idx = ((currentTestimonial + offset) % total + total) % total;
+                      const t = imgTestimonials[idx];
+                      if (!t) return null;
+                      const isCenter = offset === 0;
+                      const isAdj = Math.abs(offset) === 1;
+                      const imgSrc = resolveImageUrl(t.image);
+                      return (
+                        <div key={`${offset}-${idx}`}
+                          className="absolute cursor-pointer"
+                          onClick={() => { if (offset < 0) prevT(); else if (offset > 0) nextT(); else setLightboxImg(imgSrc); }}
+                          style={{
+                            width: isCenter ? '300px' : isAdj ? '250px' : '220px',
+                            height: isCenter ? '440px' : isAdj ? '390px' : '360px',
+                            left: '50%',
+                            top: '50%',
+                            transformStyle: 'preserve-3d',
+                            transform: `translate(-50%, -50%) translateX(${isCenter ? 0 : isAdj ? offset * 220 : offset * 380}px) translateZ(${isCenter ? 80 : isAdj ? -20 : -80}px) rotateY(${isCenter ? 0 : isAdj ? offset * -20 : offset * -35}deg)`,
+                            transition: 'all 0.6s cubic-bezier(0.25, 0.1, 0.25, 1)',
+                            zIndex: isCenter ? 30 : isAdj ? 20 : 10,
+                            opacity: isCenter ? 1 : isAdj ? 0.8 : 0.45,
+                            filter: isCenter ? 'none' : isAdj ? 'brightness(0.92)' : 'brightness(0.8)',
                           }}>
-                            <img src={imgSrc} alt={t.name || ''} className="w-full h-full object-cover"
-                              onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=500&fit=crop'; }} />
-                          </div>
+                          <img src={imgSrc} alt={t.name || 'Testimonial'}
+                            className="w-full h-full object-cover rounded-xl"
+                            style={{ boxShadow: isCenter ? '0 25px 60px rgba(0,0,0,0.25)' : '0 10px 30px rgba(0,0,0,0.12)' }}
+                            onError={(e) => { e.target.style.display = 'none'; }} />
                         </div>
-                        {/* Title Text */}
-                        <div className="px-5 pb-1 text-center">
-                          <p className="text-gray-700 leading-relaxed" style={{ fontSize: isCenter ? '15px' : '12px' }}>
-                            {t.text || t.name || 'Healing experience'}
-                          </p>
-                        </div>
-                        {/* Client Name */}
-                        <div className="text-center pb-7 pt-3 mt-auto">
-                          <p className="font-bold text-gray-900" style={{ fontSize: isCenter ? '16px' : '13px' }}>{t.name || 'Client'}</p>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              {/* Navigation Arrows — pill shaped */}
-              <button onClick={prevT} data-testid="prev-testimonial"
-                className="absolute left-2 top-1/2 -translate-y-1/2 z-40 w-10 h-16 rounded-full bg-white shadow-md hover:shadow-lg flex items-center justify-center transition-all border border-gray-100">
-                <ChevronLeft size={20} className="text-gray-400" />
-              </button>
-              <button onClick={nextT} data-testid="next-testimonial"
-                className="absolute right-2 top-1/2 -translate-y-1/2 z-40 w-10 h-16 rounded-full bg-white shadow-md hover:shadow-lg flex items-center justify-center transition-all border border-gray-100">
-                <ChevronRight size={20} className="text-gray-400" />
-              </button>
-            </div>
+                      );
+                    })}
+                  </div>
+                  {/* Navigation Arrows */}
+                  <button onClick={prevT} data-testid="prev-testimonial"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 z-40 w-10 h-10 rounded-full bg-white/90 shadow-lg hover:shadow-xl flex items-center justify-center transition-all border border-gray-100">
+                    <ChevronLeft size={18} className="text-gray-500" />
+                  </button>
+                  <button onClick={nextT} data-testid="next-testimonial"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 z-40 w-10 h-10 rounded-full bg-white/90 shadow-lg hover:shadow-xl flex items-center justify-center transition-all border border-gray-100">
+                    <ChevronRight size={18} className="text-gray-500" />
+                  </button>
+                  {/* Counter instead of dots for many items */}
+                  <div className="flex justify-center items-center gap-3 mt-6">
+                    <span className="text-sm text-gray-500" style={{ fontFamily: "'Lato', sans-serif" }}>
+                      {currentTestimonial + 1} / {total}
+                    </span>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         </section>
       )}

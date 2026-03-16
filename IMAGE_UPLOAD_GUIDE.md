@@ -9,7 +9,7 @@ You can now upload images directly from your computer instead of using URLs!
 ## 📸 How to Upload Images
 
 ### Step 1: Login to Admin Panel
-Go to: https://lavender-flow-site.preview.emergentagent.com/admin
+Go to: https://divine-preview-v3.preview.emergentagent.com/admin
 - Username: `admin`
 - Password: `divineadmin2024`
 

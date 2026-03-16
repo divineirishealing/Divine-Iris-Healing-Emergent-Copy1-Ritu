@@ -15,7 +15,7 @@ import time
 from datetime import datetime
 
 # Get BASE_URL from environment (same as frontend)
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://lavender-flow-site.preview.emergentagent.com').rstrip('/')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://divine-preview-v3.preview.emergentagent.com').rstrip('/')
 
 class TestUIDGenerator:
     """Test UID generation system"""
